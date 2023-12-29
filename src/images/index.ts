@@ -22,6 +22,7 @@ import payment from './Payment.svg';
 import teacherPageBackground from './Teacher_profile_background.png';
 import noData from './No_data.svg';
 import noneToShow from './None_to_show.svg';
+import avatar2 from './Avatar_02.png';
 
 export {
   logo,
@@ -47,5 +48,6 @@ export {
   payment,
   teacherPageBackground,
   noData,
-  noneToShow
+  noneToShow,
+  avatar2,
 };
