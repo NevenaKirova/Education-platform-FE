@@ -2,21 +2,28 @@ import React from 'react';
 import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
 
-import { Heading, Text, Stack, Image, HStack, Tag, IconButton, Img, Box, Button } from '@chakra-ui/react';
+import { Heading, Text, Stack, Image, Tag, Img, Box, Button } from '@chakra-ui/react';
 
 import { CourseType } from '../../../pages';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
-import { group, user } from '../../../icons';
-import { courseStatuses } from './dashboard_card.component';
+import { group } from '../../../icons';
+
+export const courseStatuses = [
+  { status: 'STARTED', name: 'Започнал', bg: 'green.status', colorText: 'green.statusText' },
+  { status: 'NOT_STARTED', name: 'Незапочнал', bg: 'orange.status', colorText: 'orange.statusText' },
+  { status: 'FINISHED', name: 'Приключил', bg: 'blue.status', colorText: 'blue.statusText' },
+];
 
 export default function CourseDateCard({
   course,
   isGrid = false,
   setShowAddResources,
+  setDateSelected,
 }: {
   course: CourseType;
   isGrid?: boolean;
   setShowAddResources?: any;
+  setDateSelected?: any;
 }) {
   return (
     <Box
@@ -28,7 +35,10 @@ export default function CourseDateCard({
       _hover={{ transform: 'scale(1.02)  perspective(1px)', bg: 'transparent' }}
       h={'full'}
       bg={'transparent'}
-      onClick={() => setShowAddResources(true)}>
+      onClick={() => {
+        setShowAddResources(true);
+        setDateSelected(course);
+      }}>
       <Stack
         direction={'row'}
         maxH={'230px'}
@@ -54,14 +64,14 @@ export default function CourseDateCard({
         <Tag
           size={'sm'}
           variant="solid"
-          bg={courseStatuses.find(el => el.status == course?.status)?.bg}
-          color={courseStatuses.find(el => el.status == course?.status)?.colorText}
+          bg={courseStatuses.find(el => el.status == course?.lessonStatus)?.bg}
+          color={courseStatuses.find(el => el.status == course?.lessonStatus)?.colorText}
           p={2}
           position={'absolute'}
           top={4}
           right={4}>
           <Text fontSize={12} fontWeight={600}>
-            {courseStatuses.find(el => el.status == course?.status)?.name}
+            {courseStatuses.find(el => el.status == course?.lessonStatus)?.name}
           </Text>
         </Tag>
 
@@ -69,22 +79,24 @@ export default function CourseDateCard({
           <Stack direction={'column'} h={'full'} justify={'space-between'}>
             <Stack direction={'column'} spacing={4} align={'start'}>
               <Heading color={'gray.700'} fontSize={{ base: 'lg', md: 'xl' }} textAlign={'start'}>
-                14 Авг- 15 Септ 2024
+                {course?.startDate &&
+                  capitalizeMonth(format(new Date(course?.startDate), 'dd LLL yyyy', { locale: bg }))}{' '}
+                - {course?.endDate && capitalizeMonth(format(new Date(course?.endDate), 'dd LLL yyyy', { locale: bg }))}
               </Heading>
 
               <Heading color={'gray.700'} fontSize={{ base: 'lg', md: 'xl' }} textAlign={'start'}>
-                12:30 -13:00
+                {course?.courseHours}
               </Heading>
 
               <Heading color={'gray.500'} fontSize={{ base: 'lg', md: 'xl' }} textAlign={'start'} fontWeight={400}>
-                Сряда, Петък
+                {course?.courseDays}
               </Heading>
             </Stack>
 
             <Stack direction={'row'} align={'center'}>
               <Img w={6} h={6} src={group}></Img>
               <Text color={'purple.500'} fontSize={16}>
-                {course?.studentsUpperBound}{' '}
+                {course?.numberOfStudents}{' '}
                 {course?.studentsUpperBound > 1 ? `/ ${course?.studentsUpperBound} ученици` : 'ученик'}
               </Text>
             </Stack>

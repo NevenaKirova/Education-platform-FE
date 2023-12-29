@@ -15,7 +15,7 @@ export const getUpcomingCourses = createAsyncThunk('teacher/getUpcomingCourses',
   }
 });
 
-export const getCoursesAll = createAsyncThunk(' /teacher/getCoursesTypesAll ', async (_, { rejectWithValue }) => {
+export const getCoursesAll = createAsyncThunk('teacher/getCoursesTypesAll ', async (_, { rejectWithValue }) => {
   try {
     const res = await axiosInstance.get(`/lessons/getTeacherCourses/All`);
 
@@ -27,7 +27,7 @@ export const getCoursesAll = createAsyncThunk(' /teacher/getCoursesTypesAll ', a
   }
 });
 
-export const getCoursesActive = createAsyncThunk(' /teacher/getCoursesTypesActive ', async (_, { rejectWithValue }) => {
+export const getCoursesActive = createAsyncThunk('teacher/getCoursesTypesActive ', async (_, { rejectWithValue }) => {
   try {
     const res = await axiosInstance.get(`/lessons/getTeacherCourses/Active`);
 
@@ -40,7 +40,7 @@ export const getCoursesActive = createAsyncThunk(' /teacher/getCoursesTypesActiv
 });
 
 export const getCoursesInactive = createAsyncThunk(
-  ' /teacher/getCoursesTypesInactive ',
+  'teacher/getCoursesTypesInactive ',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(`/lessons/getTeacherCourses/Inactive`);
@@ -54,7 +54,7 @@ export const getCoursesInactive = createAsyncThunk(
   },
 );
 
-export const getCoursesDraft = createAsyncThunk(' /teacher/getCoursesTypesDraft ', async (_, { rejectWithValue }) => {
+export const getCoursesDraft = createAsyncThunk('teacher/getCoursesTypesDraft ', async (_, { rejectWithValue }) => {
   try {
     const res = await axiosInstance.get(`/lessons/getTeacherCourses/Draft`);
 
@@ -66,7 +66,7 @@ export const getCoursesDraft = createAsyncThunk(' /teacher/getCoursesTypesDraft 
   }
 });
 
-export const createCourse = createAsyncThunk('/teacher/createCourse ', async ({ data }, { rejectWithValue }) => {
+export const createCourse = createAsyncThunk('teacher/createCourse ', async ({ data }, { rejectWithValue }) => {
   try {
     const res = await axiosInstance.post(`/lessons/createCourse`, { data });
     createToastMessage('success', 'Успешно създаване на курс');

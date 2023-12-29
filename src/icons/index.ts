@@ -29,6 +29,8 @@ import trash from './Remove.svg';
 import edit from './Edit.svg';
 import tick from './Tick.svg';
 import trashPurple from './remove_purple.svg';
+import editWhite from './edit_white.svg';
+import clock from './Clock.svg';
 
 export {
   YouTube,
@@ -62,4 +64,6 @@ export {
   edit,
   tick,
   trashPurple,
+  editWhite,
+  clock,
 };

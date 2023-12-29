@@ -155,10 +155,6 @@ const LessonPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log(similarCourses);
-  }, [similarCourses]);
-
-  useEffect(() => {
     axios
       .post('/lessons/getReviews', {
         id: lessonId,
@@ -324,8 +320,8 @@ const LessonPage = () => {
                   {content.length <= contentToShow.length
                     ? ''
                     : reviewsToShow.length < reviews.length
-                    ? 'Виж всички '
-                    : 'Виж по-малко'}
+                      ? 'Виж всички '
+                      : 'Виж по-малко'}
                 </Button>
               )}
             </Stack>
@@ -525,8 +521,8 @@ const LessonPage = () => {
                   {reviews.length <= reviewsToShow.length
                     ? ''
                     : reviewsToShow.length < reviews.length
-                    ? 'Виж повече '
-                    : 'Виж по-малко'}
+                      ? 'Виж повече '
+                      : 'Виж по-малко'}
                 </Button>
               )}
             </Stack>

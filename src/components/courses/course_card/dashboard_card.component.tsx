@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { NavLink as ReactRouterLink } from 'react-router-dom';
+import React from 'react';
 import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
 
@@ -19,17 +18,18 @@ export default function DashboardCourseCard({
   isGrid = false,
   setIsCourseOpened,
   setOpenedCourse,
+  activeTab,
   setActiveTab,
 }: {
   course: CourseType;
   isGrid?: boolean;
   setIsCourseOpened?: any;
   setOpenedCourse: any;
+  activeTab: number;
   setActiveTab?: any;
 }) {
   const handleOpenCourse = () => {
-    console.log(course);
-    // if (setActiveTab !== 'undefined') course?.privateLesson ? setActiveTab(2) : setActiveTab(1);
+    if (activeTab == 0) course?.privateLesson ? setActiveTab(2) : setActiveTab(1);
     setIsCourseOpened(true);
     setOpenedCourse(course);
   };
@@ -37,7 +37,7 @@ export default function DashboardCourseCard({
   return (
     <Box
       as={Button}
-      py={isGrid ? 0 : 6}
+      py={isGrid ? 0 : 4}
       px={0}
       w={'full'}
       transition={'transform .2s'}
@@ -58,6 +58,7 @@ export default function DashboardCourseCard({
         gap={8}>
         <Stack position={'relative'}>
           <Image
+            objectFit={'cover'}
             maxH={'190px'}
             boxSize={isGrid ? '300px' : '440px'}
             src={

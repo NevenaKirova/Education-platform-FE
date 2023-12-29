@@ -162,8 +162,8 @@ export default function DashboardPage() {
           {isLoading ? (
             <PageLoader isLoading={isLoading} />
           ) : (
-            <TabPanels pt={4}>
-              <TabPanel p={{ base: 2, lg: 4 }}>
+            <TabPanels pt={4} px={2}>
+              <TabPanel p={{ base: 2 }}>
                 <Stack spacing={10} mt={4}>
                   {userData?.verified && upcomingCourses && (
                     <Stack>
@@ -199,6 +199,7 @@ export default function DashboardPage() {
                             setIsCourseOpened={setIsCourseOpened}
                             setOpenedCourse={setOpenedCourse}
                             setActiveTab={setActiveTab}
+                            activeTab={activeTab}
                           />
                         ))}
                       </Stack>
@@ -213,7 +214,7 @@ export default function DashboardPage() {
                 </Stack>
               </TabPanel>
 
-              <TabPanel p={{ base: 2, lg: 4 }}>
+              <TabPanel p={{ base: 2 }}>
                 {isCourseOpened ? (
                   <OpenedCourseComponent
                     isPrivateLesson={false}
@@ -269,8 +270,8 @@ export default function DashboardPage() {
                         )}
                       </Stack>
 
-                      <TabPanels>
-                        <TabPanel>
+                      <TabPanels pt={2}>
+                        <TabPanel p={0}>
                           {allCourses && allCourses?.length ? (
                             <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {allCourses.map((el, index) => (
@@ -279,6 +280,8 @@ export default function DashboardPage() {
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}
                                   setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
                                 />
                               ))}
                             </SimpleGrid>
@@ -295,6 +298,8 @@ export default function DashboardPage() {
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}
                                   setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
                                 />
                               ))}
                             </SimpleGrid>
@@ -311,6 +316,8 @@ export default function DashboardPage() {
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}
                                   setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
                                 />
                               ))}
                             </SimpleGrid>
@@ -327,6 +334,8 @@ export default function DashboardPage() {
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}
                                   setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
                                 />
                               ))}
                             </SimpleGrid>

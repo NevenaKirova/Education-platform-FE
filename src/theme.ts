@@ -12,7 +12,7 @@ const theme = extendTheme({
       200: '#68D4F3',
       300: '#0A8DEC',
       status: '#BAEBFF',
-      statusText:'#278DEC',
+      statusText: '#278DEC',
     },
     purple: {
       100: '#F6F7FF',
@@ -36,7 +36,11 @@ const theme = extendTheme({
     },
     green: {
       status: '#BAFFC1',
-      statusText:'#048221',
+      statusText: '#048221',
+    },
+    orange: {
+      status: '#ffd6a8',
+      statusText: '#f8840a',
     },
     gold: '#F9E852',
   },
