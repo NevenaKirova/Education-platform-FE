@@ -37,9 +37,9 @@ const EditCourseModal = ({ isOpen, onClose, theme }: { isOpen: boolean; onClose:
 
   useEffect(() => {
     reset();
-    setValue('title', theme.title);
-    setValue('description', theme.description);
-  }, [theme.themaID]);
+    setValue('title', theme?.title);
+    setValue('description', theme?.description);
+  }, [theme?.themaID]);
 
   return (
     <Modal size={'4xl'} closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} isCentered>

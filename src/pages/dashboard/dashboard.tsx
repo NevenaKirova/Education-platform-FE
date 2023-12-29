@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Navigate, NavLink as ReactRouterLink } from 'react-router-dom';
 import { useAppDispatch } from '../../store';
 
 import {
@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   if (!user) return <Navigate to={'/'} replace />;
 
-  const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading } =
+  const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading, isFetching } =
     useSelector(getTeacherCourses);
 
   const courseTypes = ['Всички', 'Активни', 'Неактивни', 'Чернови'];
@@ -54,6 +54,58 @@ export default function DashboardPage() {
   const [isCourseOpened, setIsCourseOpened] = useState(false);
   const [openedCourse, setOpenedCourse] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+
+  const contentToShow = useMemo(() => {
+    if (userData?.verified === false) {
+      return <UnverifiedComponent />;
+    }
+
+    // if (userData?.beingVerified === false) {
+    //   return <AwaitingVerificationComponent />;
+    // }
+
+
+    if (upcomingCourses && !upcomingCourses?.length) {
+      return <CourseNoData />;
+    }
+
+    return (
+      <Stack>
+        <Stack direction={'row'} align={'center'} justify={'space-between'}>
+          <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
+            Предстоящи курсове и уроци
+          </Heading>
+
+          <Button
+            size={{ base: 'md', lg: 'md' }}
+            color={'purple.500'}
+            bg={'transparent'}
+            fontSize={{ base: 16, '2xl': 20 }}
+            fontWeight={700}
+            _hover={{ bg: 'transparent' }}>
+            <Stack as={ReactRouterLink} to={'/calendar'} direction={'row'} align={'center'}>
+              <Img src={calendar} alt={'calendar icon'} />
+              <Text> Отвори календара </Text>
+            </Stack>
+          </Button>
+        </Stack>
+
+        <Stack mt={8}>
+          {upcomingCourses?.map((el, index) => (
+            <DashboardCourseCard
+              key={index}
+              course={el}
+              setIsCourseOpened={setIsCourseOpened}
+              setOpenedCourse={setOpenedCourse}
+              setActiveTab={setActiveTab}
+              activeTab={activeTab}
+            />
+          ))}
+        </Stack>
+      </Stack>
+    );
+  }, [userData?.verified, userData?.beingVerified, upcomingCourses?.length]);
+
   const showCourseForm = () => {
     setShowCreateCourse(true);
   };
@@ -165,52 +217,7 @@ export default function DashboardPage() {
             <TabPanels pt={4} px={2}>
               <TabPanel p={{ base: 2 }}>
                 <Stack spacing={10} mt={4}>
-                  {userData?.verified && upcomingCourses && (
-                    <Stack>
-                      <Stack direction={'row'} align={'center'} justify={'space-between'}>
-                        <Heading
-                          flex={1}
-                          as="h1"
-                          fontSize={{ base: 24, lg: 32, xl: 30 }}
-                          textAlign="start"
-                          color={'grey.600'}>
-                          Предстоящи курсове и уроци
-                        </Heading>
-
-                        <Button
-                          size={{ base: 'md', lg: 'md' }}
-                          color={'purple.500'}
-                          bg={'transparent'}
-                          fontSize={{ base: 16, '2xl': 20 }}
-                          fontWeight={700}
-                          _hover={{ bg: 'transparent' }}>
-                          <Stack direction={'row'} align={'center'}>
-                            <Img src={calendar} alt={'calendar icon'} />
-                            <Text> Отворете календара </Text>
-                          </Stack>
-                        </Button>
-                      </Stack>
-
-                      <Stack mt={8}>
-                        {upcomingCourses?.map((el, index) => (
-                          <DashboardCourseCard
-                            key={index}
-                            course={el}
-                            setIsCourseOpened={setIsCourseOpened}
-                            setOpenedCourse={setOpenedCourse}
-                            setActiveTab={setActiveTab}
-                            activeTab={activeTab}
-                          />
-                        ))}
-                      </Stack>
-                    </Stack>
-                  )}
-
-                  {userData?.verified === false && <UnverifiedComponent />}
-
-                  {/*{userData?.beingVerified === false && <AwaitingVerificationComponent />}*/}
-
-                  {upcomingCourses && !upcomingCourses?.length && <CourseNoData />}
+                  {contentToShow}
                 </Stack>
               </TabPanel>
 
@@ -219,8 +226,6 @@ export default function DashboardPage() {
                   <OpenedCourseComponent
                     isPrivateLesson={false}
                     setShowCreateCourse={setShowCreateCourse}
-                    showCreateCourse={showCreateCourse}
-                    addDateActive={addDateActive}
                     setAddDateActive={setAddDateActive}
                     setIsCourseOpened={setIsCourseOpened}
                     course={openedCourse}

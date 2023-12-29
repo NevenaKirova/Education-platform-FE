@@ -1,11 +1,12 @@
 import React from 'react';
+import { NavLink as ReactRouterLink } from 'react-router-dom';
 
-import CourseCard from '../course_card/course_card.compoment';
 import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
+import CourseCard from '../course_card/course_card.compoment';
 
 import { Stack, Heading, Text, Grid, Button, GridItem } from '@chakra-ui/react';
 
+import 'react-multi-carousel/lib/styles.css';
 import style from './courses_landing.module.scss';
 
 export const responsive = {
@@ -52,11 +53,11 @@ export default function CourseSection({ popularCourses }: { popularCourses: any 
 
         <GridItem colStart={{ base: 1, lg: 5 }} textAlign={{ base: 'center', lg: 'right' }}>
           <Button
-            as={'a'}
+            as={ReactRouterLink}
+            to={'/courses'}
             fontSize={{ base: '4.7vw', md: ' 2.5vw', xl: '1.4vw' }}
             fontWeight={700}
             variant={'link'}
-            href={'#'}
             color={'purple.500'}
             _hover={{ opacity: '0.9' }}>
             Виж всички

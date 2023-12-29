@@ -547,7 +547,8 @@ const LessonPage = () => {
 
               <GridItem colStart={{ base: 1, lg: 5 }} textAlign={{ base: 'center', lg: 'right' }}>
                 <Button
-                  as={'a'}
+                  as={ReactRouterLink}
+                  to={'/'}
                   fontSize={{ base: 18, lg: 20 }}
                   fontWeight={600}
                   variant={'link'}

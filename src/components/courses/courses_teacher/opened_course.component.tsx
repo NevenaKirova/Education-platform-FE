@@ -31,6 +31,8 @@ import CourseResources from './course_resources.component';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
 import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
+import { NavLink as ReactRouterLink } from 'react-router-dom';
+import CourseAddDate from './course_add_date';
 
 const OpenedCourseComponent = ({
   isPrivateLesson,
@@ -52,7 +54,8 @@ const OpenedCourseComponent = ({
   const [dates, setDates] = useState([]);
   const [courseInfo, setCourseInfo] = useState([]);
   const [courseReviews, setCourseReviews] = useState([]);
-  const [dateSelected, setDateSelected] = useState(null);
+  const [dateSelected, setDateSelected] = useState({});
+  const [showAddDate, setShowAddDate] = useState(false);
 
   const getCourseDates = async course => {
     if (course.lessonID) {
@@ -124,7 +127,15 @@ const OpenedCourseComponent = ({
           </BreadcrumbItem>
 
           <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
-            <BreadcrumbLink textDecoration={'none'}>{course?.title}</BreadcrumbLink>
+            <BreadcrumbLink
+              textDecoration={'none'}
+              onClick={() => {
+                setShowAddResources(false);
+                setDateSelected({});
+                setShowAddDate(false);
+              }}>
+              {course?.title}
+            </BreadcrumbLink>
           </BreadcrumbItem>
 
           {dateSelected?.courseTerminId && (
@@ -140,6 +151,13 @@ const OpenedCourseComponent = ({
 
         {showAddResources ? (
           <CourseResources course={dateSelected} />
+        ) : showAddDate ? (
+          <CourseAddDate
+            studentsUpperBound={course?.studentsUpperBound}
+            courseLength={course?.length}
+            setShowAddResources={setShowAddResources}
+            setShowAddDate={setShowAddDate}
+          />
         ) : (
           <Stack spacing={10} mt={4}>
             <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
@@ -188,7 +206,7 @@ const OpenedCourseComponent = ({
                         fontSize={{ base: 16, '2xl': 20 }}
                         fontWeight={700}
                         _hover={{ bg: 'transparent' }}>
-                        <Stack direction={'row'} align={'center'}>
+                        <Stack as={ReactRouterLink} to={'/calendar'} direction={'row'} align={'center'}>
                           <Img src={calendar} alt={'calendar icon'} />
                           <Text> Отвори календара </Text>
                         </Stack>
@@ -202,7 +220,10 @@ const OpenedCourseComponent = ({
                         fontWeight={700}
                         _hover={{ bg: 'purple.500', opacity: 0.9 }}
                         px={8}
-                        w={'fit-content'}>
+                        w={'fit-content'}
+                        onClick={() => {
+                          setShowAddDate(true);
+                        }}>
                         <Stack direction={'row'} align={'center'} spacing={2}>
                           <Img src={addWhite} alt={'add course'} />
                           <Text>Добави дата</Text>
