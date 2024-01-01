@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { NavLink as ReactRouterLink } from 'react-router-dom';
+import { format } from 'date-fns';
+import { bg } from 'date-fns/locale';
 
 import {
   Stack,
@@ -19,21 +22,17 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
-import 'primereact/resources/primereact.min.css';
-import 'primereact/resources/themes/lara-light-indigo/theme.css';
-
-import { addWhite, calendar, edit, add } from '../../../icons';
 import CourseDateCard from '../course_card/course_dates_card_teacher.component';
 import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
-
 import CourseResources from './course_resources.component';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
-import { format } from 'date-fns';
-import { bg } from 'date-fns/locale';
-import { NavLink as ReactRouterLink } from 'react-router-dom';
 import CourseAddDate from './course_add_date';
 import CreateCourseComponent from './create_course.component';
+import { addWhite, calendar, edit, add } from '../../../icons';
+
+import 'primereact/resources/primereact.min.css';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 
 const OpenedCourseComponent = ({
   isPrivateLesson,
@@ -62,7 +61,6 @@ const OpenedCourseComponent = ({
   const [dateSelected, setDateSelected] = useState({});
   const [showAddDate, setShowAddDate] = useState(false);
   const [editInfo, setEditInfo] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const getCourseDates = async course => {
     if (course.lessonID) {

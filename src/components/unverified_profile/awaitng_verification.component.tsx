@@ -1,21 +1,24 @@
-import React, { useState } from 'react';
-import { NavLink as ReactRouterLink } from 'react-router-dom';
-import { format } from 'date-fns';
+import React from 'react';
 
-import { Box, Flex, Text, Stack, Image, Tag, useColorModeValue, Badge, Heading, Button } from '@chakra-ui/react';
+import { Flex, Stack, Image, Heading } from '@chakra-ui/react';
 import { profileVerification } from '../../images';
 
 export default function AwaitingVerificationComponent() {
   return (
-    <Flex align={'start'} justify={'space-between'} h={'70vh'}>
-      <Stack spacing={6} w={'50%'}>
+    <Flex
+      direction={{ base: 'column', lg: 'row' }}
+      align={'start'}
+      justify={'space-between'}
+      h={{ base: '75vh', lg: '70vh' }}
+      mt={4}>
+      <Stack spacing={6} w={{ base: 'full', lg: '50%' }}>
         <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
           Верификацията на профила Ви е в процес на проверка.
         </Heading>
         <Heading
           flex={1}
           as="h1"
-          fontSize={{ base: 24, lg: 32, xl: 20 }}
+          fontSize={{ base: 18, lg: 32, xl: 20 }}
           fontWeight={400}
           textAlign="start"
           color={'grey.500'}>
