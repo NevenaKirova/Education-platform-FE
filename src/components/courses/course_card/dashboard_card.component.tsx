@@ -140,12 +140,12 @@ export default function DashboardCourseCard({
             </Stack>
 
             <Stack direction={'column'} align={'start'} fontWeight={500}>
-              <Text color={'grey.400'}>
-                Следващ урок:{' '}
-                {course.firstDate &&
-                  capitalizeMonth(format(new Date(course?.firstDate), 'dd LLL yyyy', { locale: bg }))}{' '}
-                {course?.time} ч.
-              </Text>
+              {course.firstDate && (
+                <Text color={'grey.400'}>
+                  Следващ урок: {capitalizeMonth(format(new Date(course?.firstDate), 'dd LLL yyyy', { locale: bg }))}{' '}
+                  {course?.time} ч.
+                </Text>
+              )}
               <Text color={'grey.400'}>
                 ({course?.numberOfTermins} {course?.numberOfTermins === 1 ? 'предстояща датa' : 'предстоящи дати'})
               </Text>

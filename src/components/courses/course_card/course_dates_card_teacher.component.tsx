@@ -96,8 +96,7 @@ export default function CourseDateCard({
             <Stack direction={'row'} align={'center'}>
               <Img w={6} h={6} src={group}></Img>
               <Text color={'purple.500'} fontSize={16}>
-                {course?.numberOfStudents}{' '}
-                {course?.studentsUpperBound > 1 ? `/ ${course?.studentsUpperBound} ученици` : 'ученик'}
+                {course?.numberOfStudents} {`/ ${course?.studentsUpperBound}  ученици`}
               </Text>
             </Stack>
           </Stack>

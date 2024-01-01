@@ -29,15 +29,19 @@ import { getResponseMessage } from '../../../helpers/response.util';
 import EditCourseModal from '../modals/edit_course_theme';
 import { avatar2 } from '../../../images';
 import { message, edit, calendar, clock, link, trash, bottom, top, add } from '../../../icons/index';
+import AddResourcesModal from '../modals/course_add_resources';
 
 const CourseResources = ({ course }: { course: any }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
 
   const [openedCourse, setOpenedCourse] = useState(null);
   const [numberOfStudents, setNumberOfStudents] = useState(8);
   const [students, setStudents] = useState([]);
   const [themeToEdit, setThemeToEdit] = useState(null);
+  const [showSelected, setShowSelected] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState(null);
 
   const studentsToShow = useMemo(() => {
     return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -67,9 +71,16 @@ const CourseResources = ({ course }: { course: any }) => {
     setNumberOfStudents(8);
   };
 
-  const editTheme = theme => {
+  const editTheme = (ev, theme) => {
+    ev.stopPropagation();
     setThemeToEdit(theme);
     onOpen();
+  };
+
+  const openResourcesModal = (ev, themeId) => {
+    ev.stopPropagation();
+    setSelectedTheme(themeId);
+    onModalOpen();
   };
 
   const getOpenedCourse = async () => {
@@ -90,6 +101,7 @@ const CourseResources = ({ course }: { course: any }) => {
   useEffect(() => {
     getOpenedCourse();
   }, []);
+
 
   return (
     <>
@@ -210,7 +222,7 @@ const CourseResources = ({ course }: { course: any }) => {
                         bg={'none'}
                         _hover={{ bg: 'none' }}
                         disabled
-                        icon={<Img src={add} w={5} />}
+                        icon={<Img src={add} w={5} onClick={ev => openResourcesModal(ev, el.themaID)} />}
                       />
 
                       <IconButton
@@ -218,7 +230,7 @@ const CourseResources = ({ course }: { course: any }) => {
                         size="xs"
                         bg={'none'}
                         _hover={{ bg: 'none' }}
-                        icon={<Img src={edit} w={5} onClick={() => editTheme(el)} />}
+                        icon={<Img src={edit} w={5} onClick={ev => editTheme(ev, el)} />}
                       />
                     </Stack>
                     {isExpanded ? (
@@ -297,6 +309,13 @@ const CourseResources = ({ course }: { course: any }) => {
         </Accordion>
       </Stack>
       <EditCourseModal isOpen={isOpen} onClose={onClose} theme={themeToEdit} />
+      <AddResourcesModal
+        isOpen={isModalOpen}
+        onClose={onModalClose}
+        showSelected={showSelected}
+        setShowSelected={setShowSelected}
+        theme={selectedTheme}
+      />
     </>
   );
 };

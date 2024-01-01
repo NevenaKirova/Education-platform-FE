@@ -38,6 +38,7 @@ import {
   getUpcomingCourses,
 } from '../../store/features/teacher/teacherCourses/teacherCourses.async';
 import OpenedCourseComponent from '../../components/courses/courses_teacher/opened_course.component';
+
 export default function DashboardPage() {
   const { user, userData } = useContext(AuthContext);
   const dispatch = useAppDispatch();
@@ -63,7 +64,6 @@ export default function DashboardPage() {
     // if (userData?.beingVerified === false) {
     //   return <AwaitingVerificationComponent />;
     // }
-
 
     if (upcomingCourses && !upcomingCourses?.length) {
       return <CourseNoData />;
@@ -225,7 +225,9 @@ export default function DashboardPage() {
                 {isCourseOpened ? (
                   <OpenedCourseComponent
                     isPrivateLesson={false}
+                    showCreateCourse={showCreateCourse}
                     setShowCreateCourse={setShowCreateCourse}
+                    addDateActive={addDateActive}
                     setAddDateActive={setAddDateActive}
                     setIsCourseOpened={setIsCourseOpened}
                     course={openedCourse}

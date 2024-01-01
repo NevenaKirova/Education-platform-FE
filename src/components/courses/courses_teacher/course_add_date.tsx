@@ -10,6 +10,7 @@ import {
   NumberInputStepper,
   Stack,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 
 import { Calendar } from 'primereact/calendar';
@@ -19,6 +20,8 @@ import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { daysArr } from './create_course.component';
 import { addLocale } from 'primereact/api';
+import { axiosInstance } from '../../../axios';
+import { getResponseMessage } from '../../../helpers/response.util';
 
 export type DatesForm = {
   startDate: Date | string;
@@ -37,6 +40,7 @@ const CourseAddDate = ({
   dates,
   setShowAddResources,
   setShowAddDate,
+  courseId,
   isCreateCourse = false,
 }: {
   setAddDateActive?: any;
@@ -49,10 +53,13 @@ const CourseAddDate = ({
   setShowAddResources?: any;
   setShowAddDate?: any;
   isCreateCourse?: boolean;
+  courseId?: number;
 }) => {
   const defaultTime = new Date();
   defaultTime.setHours(8);
   defaultTime.setMinutes(0);
+
+  const toast = useToast();
 
   const [dateStartValue, setDateStartValue] = useState(new Date());
   const [dateEndValue, setDateEndValue] = useState();
@@ -125,6 +132,20 @@ const CourseAddDate = ({
       datesArr.push(data);
       setValue('courseTerminRequests', datesArr, { shouldValidate: true });
       setDates([...datesArr]);
+    } else {
+      try {
+        const res: any[] = await axiosInstance.post(`/lessons/addDate/${courseId}`, { data });
+
+        setDates(res.data);
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
     }
 
     refreshDateForm();

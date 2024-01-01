@@ -15,17 +15,17 @@ import {
   TabPanels,
   TabPanel,
   TabIndicator,
+  Center,
   useToast,
 } from '@chakra-ui/react';
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 
-import { addWhite, calendar, edit, editWhite } from '../../../icons';
+import { addWhite, calendar, edit, add } from '../../../icons';
 import CourseDateCard from '../course_card/course_dates_card_teacher.component';
 import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
-import { useAppDispatch } from '../../../store';
 
 import CourseResources from './course_resources.component';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
@@ -33,16 +33,21 @@ import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import CourseAddDate from './course_add_date';
+import CreateCourseComponent from './create_course.component';
 
 const OpenedCourseComponent = ({
   isPrivateLesson,
+  showCreateCourse,
   setShowCreateCourse,
+  addDateActive,
   setAddDateActive,
   setIsCourseOpened,
   course,
 }: {
   isPrivateLesson: boolean;
+  showCreateCourse: boolean;
   setShowCreateCourse: any;
+  addDateActive: boolean;
   setAddDateActive: any;
   setIsCourseOpened: any;
   course: any;
@@ -56,6 +61,8 @@ const OpenedCourseComponent = ({
   const [courseReviews, setCourseReviews] = useState([]);
   const [dateSelected, setDateSelected] = useState({});
   const [showAddDate, setShowAddDate] = useState(false);
+  const [editInfo, setEditInfo] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const getCourseDates = async course => {
     if (course.lessonID) {
@@ -77,7 +84,7 @@ const OpenedCourseComponent = ({
 
   const getCourseInformation = async () => {
     try {
-      const res = await axiosInstance.get(`lessons/getCoursePage/${course?.lessonID}`);
+      const res = await axiosInstance.get(`lessons/getCourseInformation/${course?.lessonID}`);
       setCourseInfo(res.data);
     } catch (err) {
       toast({
@@ -157,14 +164,20 @@ const OpenedCourseComponent = ({
             courseLength={course?.length}
             setShowAddResources={setShowAddResources}
             setShowAddDate={setShowAddDate}
+            courseId={course?.lessonID}
           />
         ) : (
           <Stack spacing={10} mt={4}>
             <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
-              Моите курсове
+              {course?.title}{' '}
+              {course?.status === 'Draft' && (
+                <Text as={'span'} color={'red'}>
+                  (Чернова)
+                </Text>
+              )}
             </Heading>
 
-            <Tabs variant="unstyled" onChange={index => setActiveTab(index)}>
+            <Tabs variant="unstyled" index={activeTab} onChange={index => setActiveTab(index)}>
               <Stack direction={'row'} justify={'space-between'} align={'center'}>
                 <TabList gap={8} w={'full'}>
                   <Tab
@@ -197,21 +210,138 @@ const OpenedCourseComponent = ({
                 </TabList>
                 <TabIndicator mt="12" height="2.5px" bg="purple.500" />
                 <Stack direction={'row'} spacing={4} w={'full'} justify={'end'}>
-                  {activeTab == 0 && (
-                    <>
-                      <Button
-                        size={{ base: 'md', lg: 'md' }}
-                        color={'purple.500'}
-                        bg={'transparent'}
-                        fontSize={{ base: 16, '2xl': 20 }}
-                        fontWeight={700}
-                        _hover={{ bg: 'transparent' }}>
-                        <Stack as={ReactRouterLink} to={'/calendar'} direction={'row'} align={'center'}>
-                          <Img src={calendar} alt={'calendar icon'} />
-                          <Text> Отвори календара </Text>
-                        </Stack>
-                      </Button>
+                  {activeTab == 0 ? (
+                    course?.status === 'Draft' ? (
+                      <>
+                        <Button
+                          size={{ base: 'md', lg: 'md' }}
+                          color={'purple.500'}
+                          bg={'transparent'}
+                          fontSize={{ base: 16, '2xl': 20 }}
+                          fontWeight={700}
+                          _hover={{ bg: 'transparent' }}
+                          px={8}
+                          w={'fit-content'}
+                          onClick={() => {
+                            setShowCreateCourse(true);
+                            setActiveTab(1);
+                            setEditInfo(true);
+                          }}>
+                          <Stack direction={'row'} align={'center'} spacing={2}>
+                            <Img src={edit} alt={'add course'} h={5} w={5} />
+                            <Text>Редактирай</Text>
+                          </Stack>
+                        </Button>
 
+                        <Button
+                          size={{ base: 'md', lg: 'md' }}
+                          color={'purple.500'}
+                          bg={'transparent'}
+                          fontSize={{ base: 16, '2xl': 20 }}
+                          fontWeight={700}
+                          _hover={{ bg: 'transparent' }}
+                          px={8}
+                          w={'fit-content'}
+                          onClick={() => {
+                            setShowAddDate(true);
+                          }}>
+                          <Stack direction={'row'} align={'center'} spacing={2}>
+                            <Img src={add} alt={'add course'} />
+                            <Text>Добави дата</Text>
+                          </Stack>
+                        </Button>
+
+                        <Button
+                          isDisabled={dates.length ? false : true}
+                          size={{ base: 'md', lg: 'md' }}
+                          color={'white'}
+                          bg={'purple.500'}
+                          fontSize={{ base: 16, '2xl': 20 }}
+                          fontWeight={700}
+                          _hover={{ bg: 'purple.500', opacity: dates.length ? 0.9 : 0.4 }}
+                          px={8}
+                          w={'fit-content'}
+                          onClick={() => {
+                            setShowAddDate(true);
+                          }}>
+                          <Text>Публикувай</Text>
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          size={{ base: 'md', lg: 'md' }}
+                          color={'purple.500'}
+                          bg={'transparent'}
+                          fontSize={{ base: 16, '2xl': 20 }}
+                          fontWeight={700}
+                          _hover={{ bg: 'transparent' }}>
+                          <Stack as={ReactRouterLink} to={'/calendar'} direction={'row'} align={'center'}>
+                            <Img src={calendar} alt={'calendar icon'} />
+                            <Text> Отвори календара </Text>
+                          </Stack>
+                        </Button>
+
+                        <Button
+                          size={{ base: 'md', lg: 'md' }}
+                          color={'white'}
+                          bg={'purple.500'}
+                          fontSize={{ base: 16, '2xl': 20 }}
+                          fontWeight={700}
+                          _hover={{ bg: 'purple.500', opacity: 0.9 }}
+                          px={8}
+                          w={'fit-content'}
+                          onClick={() => {
+                            setShowAddDate(true);
+                          }}>
+                          <Stack direction={'row'} align={'center'} spacing={2}>
+                            <Img src={addWhite} alt={'add course'} />
+                            <Text>Добави дата</Text>
+                          </Stack>
+                        </Button>
+                      </>
+                    )
+                  ) : null}
+
+                  {activeTab == 1 ? (
+                    course?.status === 'Draft' ? (
+                      <>
+                        <Button
+                          size={{ base: 'md', lg: 'md' }}
+                          color={'purple.500'}
+                          bg={'transparent'}
+                          fontSize={{ base: 16, '2xl': 20 }}
+                          fontWeight={700}
+                          _hover={{ bg: 'transparent' }}
+                          px={8}
+                          w={'fit-content'}
+                          onClick={() => {
+                            setShowCreateCourse(true);
+                            setActiveTab(1);
+                            setEditInfo(true);
+                          }}>
+                          <Stack direction={'row'} align={'center'} spacing={2}>
+                            <Img src={edit} alt={'add course'} h={5} w={5} />
+                            <Text>Редактирай</Text>
+                          </Stack>
+                        </Button>
+
+                        <Button
+                          size={{ base: 'md', lg: 'md' }}
+                          color={'white'}
+                          bg={'purple.500'}
+                          fontSize={{ base: 16, '2xl': 20 }}
+                          fontWeight={700}
+                          _hover={{ bg: 'purple.500', opacity: 0.9 }}
+                          px={8}
+                          w={'fit-content'}
+                          onClick={() => {
+                            setShowAddDate(true);
+                          }}>
+                          <Text>Публикувай</Text>
+                        </Button>
+                      </>
+                    ) : (
                       <Button
                         size={{ base: 'md', lg: 'md' }}
                         color={'white'}
@@ -222,138 +352,139 @@ const OpenedCourseComponent = ({
                         px={8}
                         w={'fit-content'}
                         onClick={() => {
-                          setShowAddDate(true);
+                          setShowCreateCourse(true);
+                          setEditInfo(true);
                         }}>
                         <Stack direction={'row'} align={'center'} spacing={2}>
-                          <Img src={addWhite} alt={'add course'} />
-                          <Text>Добави дата</Text>
+                          <Img src={edit} alt={'add course'} h={5} w={5} />
+                          <Text>Редактирай</Text>
                         </Stack>
                       </Button>
-                    </>
-                  )}
-
-                  {activeTab == 1 && (
-                    <Button
-                      size={{ base: 'md', lg: 'md' }}
-                      color={'white'}
-                      bg={'purple.500'}
-                      fontSize={{ base: 16, '2xl': 20 }}
-                      fontWeight={700}
-                      _hover={{ bg: 'purple.500', opacity: 0.9 }}
-                      px={8}
-                      w={'fit-content'}>
-                      <Stack direction={'row'} align={'center'} spacing={2}>
-                        <Img src={editWhite} alt={'add course'} />
-                        <Text>Редактирай</Text>
-                      </Stack>
-                    </Button>
-                  )}
+                    )
+                  ) : null}
                 </Stack>
               </Stack>
 
               <TabPanels>
                 <TabPanel px={0}>
-                  {dates?.map((el, index) => (
-                    <CourseDateCard
-                      key={index}
-                      course={el}
-                      setShowAddResources={setShowAddResources}
-                      setDateSelected={setDateSelected}
-                    />
-                  ))}
+                  {dates.length ? (
+                    dates?.map((el, index) => (
+                      <CourseDateCard
+                        key={index}
+                        course={el}
+                        setShowAddResources={setShowAddResources}
+                        setDateSelected={setDateSelected}
+                      />
+                    ))
+                  ) : (
+                    <Center h={'50vh'}>
+                      <Text color={'grey.400'}> Нямате добавени дати</Text>
+                    </Center>
+                  )}
                 </TabPanel>
                 <TabPanel px={0}>
-                  <Stack rounded={'md'} p={6} mt={8} direction={'column'} spacing={8} bg={'purple.100'}>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Заглавие
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
+                  {editInfo ? (
+                    <CreateCourseComponent
+                      isPrivateLesson={false}
+                      setShowCreateCourse={setShowCreateCourse}
+                      showCreateCourse={showCreateCourse}
+                      addDateActive={addDateActive}
+                      setAddDateActive={setAddDateActive}
+                      isEdit={true}
+                    />
+                  ) : (
+                    <Stack rounded={'md'} p={6} mt={8} direction={'column'} spacing={8} bg={'purple.100'}>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Заглавие
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
 
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Предмет
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Предмет
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Клас
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Описание на курса
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Теми в курса
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Дължина на урока
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Брой ученици
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Продължителност
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Уроци седмично
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Цена на курса
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
+                      <Stack direction={'column'} spacing={4}>
+                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                          Дати на провеждане
+                        </Text>
+                        <Text color={'grey.500'} fontSize={18}>
+                          Математика за 7 клас
+                        </Text>
+                      </Stack>
                     </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Клас
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Описание на курса
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Теми в курса
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Дължина на урока
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Брой ученици
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Продължителност
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Уроци седмично
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Цена на курса
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                    <Stack direction={'column'} spacing={4}>
-                      <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                        Дати на провеждане
-                      </Text>
-                      <Text color={'grey.500'} fontSize={18}>
-                        Математика за 7 клас
-                      </Text>
-                    </Stack>
-                  </Stack>
+                  )}
                 </TabPanel>
                 <TabPanel></TabPanel>
                 <TabPanel></TabPanel>

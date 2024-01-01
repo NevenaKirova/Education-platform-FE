@@ -33,6 +33,11 @@ import editWhite from './edit_white.svg';
 import clock from './Clock.svg';
 import link from './Attach_link.svg';
 import top from './Top.svg';
+import fileUpload from './File_upload.svg';
+import upload from './Upload.svg';
+import video from './Video.svg';
+import fileDownload from './File_download.svg';
+import fileUploadGrey from './FileUploadGrey.svg'
 
 export {
   YouTube,
@@ -70,4 +75,9 @@ export {
   clock,
   link,
   top,
+  fileUpload,
+  upload,
+  video,
+  fileDownload,
+  fileUploadGrey
 };

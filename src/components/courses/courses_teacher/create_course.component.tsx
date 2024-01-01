@@ -76,12 +76,14 @@ const CreateCourseComponent = ({
   showCreateCourse,
   addDateActive,
   setAddDateActive,
+  isEdit = false,
 }: {
   isPrivateLesson: boolean;
   setShowCreateCourse: any;
   showCreateCourse: boolean;
   addDateActive: boolean;
   setAddDateActive: any;
+  isEdit?: boolean;
 }) => {
   const toast = useToast();
   const dispatch = useAppDispatch();
@@ -106,6 +108,7 @@ const CreateCourseComponent = ({
     getValues,
     setValue,
     watch,
+    trigger,
     control,
     formState: { errors },
   } = useForm<Inputs>({
@@ -184,6 +187,11 @@ const CreateCourseComponent = ({
       'themas',
       getValues('themas').filter(el => el.title.length),
     );
+
+    const hasTitle = await trigger('title');
+
+    if (!hasTitle) return handleScroll(topRef);
+
     try {
       await axiosInstance.post('/lessons/saveCourseDraft', getValues());
 
@@ -269,7 +277,7 @@ const CreateCourseComponent = ({
   return (
     <Stack w={{ base: 'full', xl: '40vw' }} spacing={10}>
       <Stack spacing={8} w={'full'} ref={topRef}>
-        {showCreateCourse && (
+        {showCreateCourse && !isEdit && (
           <Breadcrumb fontSize={{ base: 14, lg: 18 }} cursor={'default'}>
             <BreadcrumbItem _hover={{ textDecoration: 'none', cursor: 'default' }} cursor={'default'}>
               <BreadcrumbLink
@@ -301,9 +309,12 @@ const CreateCourseComponent = ({
       {showCreateCourse && (
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={10}>
-            <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'grey.600'}>
-              {isPrivateLesson ? 'Създаване на частен урок' : 'Създаване на курс'}
-            </Heading>
+            {!isEdit && (
+              <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'grey.600'}>
+                {isPrivateLesson ? 'Създаване на частен урок' : 'Създаване на курс'}
+              </Heading>
+            )}
+
             <Stack spacing={4}>
               <Text fontSize={18} fontWeight={600}>
                 Заглавие{' '}
@@ -696,7 +707,7 @@ const CreateCourseComponent = ({
               </FormControl>
             </Stack>
 
-            <Stack direction={{ base: 'column', md: 'row' }} justify={{ base: 'center', md: 'space-between' }} mt={12}>
+            {isEdit ? (
               <Button
                 type={'submit'}
                 size={{ base: 'md' }}
@@ -710,27 +721,48 @@ const CreateCourseComponent = ({
                 _hover={{ opacity: '0.9' }}
                 _focus={{ outline: 'none' }}
                 _active={{ bg: 'purple.500' }}>
-                Публикувай курса
+                Запаси промените
               </Button>
+            ) : (
+              <Stack
+                direction={{ base: 'column', md: 'row' }}
+                justify={{ base: 'center', md: 'space-between' }}
+                mt={12}>
+                <Button
+                  type={'submit'}
+                  size={{ base: 'md' }}
+                  w={'fit-content'}
+                  px={16}
+                  py={0}
+                  bg={'purple.500'}
+                  color={'white'}
+                  fontSize={16}
+                  fontWeight={700}
+                  _hover={{ opacity: '0.9' }}
+                  _focus={{ outline: 'none' }}
+                  _active={{ bg: 'purple.500' }}>
+                  Публикувай курса
+                </Button>
 
-              <Button
-                size={{ base: 'md' }}
-                w={'fit-content'}
-                py={0}
-                bg={'transparent'}
-                color={'purple.500'}
-                fontSize={16}
-                fontWeight={700}
-                _hover={{ opacity: '0.9' }}
-                _focus={{ outline: 'none' }}
-                _active={{ bg: 'purple.500' }}
-                textAlign={'right'}
-                onClick={() => {
-                  submitAsDraft();
-                }}>
-                Запази като чернова
-              </Button>
-            </Stack>
+                <Button
+                  size={{ base: 'md' }}
+                  w={'fit-content'}
+                  py={0}
+                  bg={'transparent'}
+                  color={'purple.500'}
+                  fontSize={16}
+                  fontWeight={700}
+                  _hover={{ opacity: '0.9' }}
+                  _focus={{ outline: 'none' }}
+                  _active={{ bg: 'purple.500' }}
+                  textAlign={'right'}
+                  onClick={() => {
+                    submitAsDraft();
+                  }}>
+                  Запази като чернова
+                </Button>
+              </Stack>
+            )}
           </Stack>
         </form>
       )}
