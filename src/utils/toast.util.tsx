@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react';
 
 type messageTypes = 'success' | 'info' | 'warning' | 'error';
 
-export const createToastMessage = (type: messageTypes, message: string) => {
+export const CreateToastMessage = (type: messageTypes, message: string) => {
   const toast = useToast();
 
   return toast({
@@ -14,4 +14,4 @@ export const createToastMessage = (type: messageTypes, message: string) => {
   });
 };
 
-export default createToastMessage;
+export default CreateToastMessage;

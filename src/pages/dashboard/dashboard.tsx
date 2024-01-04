@@ -43,11 +43,6 @@ export default function DashboardPage() {
   const { user, userData } = useContext(AuthContext);
   const dispatch = useAppDispatch();
 
-  if (!user) return <Navigate to={'/'} replace />;
-
-  const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading, isFetching } =
-    useSelector(getTeacherCourses);
-
   const courseTypes = ['Всички', 'Активни', 'Неактивни', 'Чернови'];
 
   const [showCreateCourse, setShowCreateCourse] = useState(false);
@@ -55,6 +50,10 @@ export default function DashboardPage() {
   const [isCourseOpened, setIsCourseOpened] = useState(false);
   const [openedCourse, setOpenedCourse] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+  const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading } =
+    useSelector(getTeacherCourses);
+
+  if (!user) return <Navigate to={'/'} replace />;
 
   const showCourseForm = () => {
     setShowCreateCourse(true);
@@ -174,7 +173,7 @@ export default function DashboardPage() {
                 <Stack spacing={10}>
                   {userData?.verified === false ? (
                     <UnverifiedComponent />
-                  ) : userData?.beingVerified === false ? (
+                  ) : userData?.verified === false ? (
                     <AwaitingVerificationComponent />
                   ) : upcomingCourses && !upcomingCourses?.length ? (
                     <CourseNoData />
@@ -224,7 +223,7 @@ export default function DashboardPage() {
               <TabPanel p={{ base: 2 }}>
                 {userData?.verified === false ? (
                   <UnverifiedComponent />
-                ) : userData?.beingVerified === false ? (
+                ) : userData?.verified === false ? (
                   <AwaitingVerificationComponent />
                 ) : isCourseOpened ? (
                   <OpenedCourseComponent

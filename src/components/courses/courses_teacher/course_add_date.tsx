@@ -230,7 +230,6 @@ const CourseAddDate = ({
               dateFormat="dd M yy"
               locale={'bg'}
               showIcon
-              showButtonBar
             />
             <Text> - </Text>
 

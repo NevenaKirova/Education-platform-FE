@@ -19,6 +19,7 @@ import {
   TabPanel,
   TabIndicator,
   Center,
+  Avatar,
   useToast,
 } from '@chakra-ui/react';
 
@@ -33,6 +34,19 @@ import { addWhite, calendar, edit, add } from '../../../icons';
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import { Rating } from '../../testimonials/testimonial_card.component';
+import ReviewsSection from '../../reviews';
+import {
+  Pagination,
+  PaginationContainer,
+  PaginationNext,
+  PaginationPage,
+  PaginationPageGroup,
+  PaginationPrevious,
+  PaginationSeparator,
+  usePagination,
+} from '@ajna/pagination';
+import { Dropdown } from 'primereact/dropdown';
 
 const OpenedCourseComponent = ({
   isPrivateLesson,
@@ -57,11 +71,17 @@ const OpenedCourseComponent = ({
   const [activeTab, setActiveTab] = useState(0);
   const [dates, setDates] = useState([]);
   const [courseInfo, setCourseInfo] = useState([]);
+  const [reviewsTotal, setReviewsTotal] = useState(0);
   const [courseReviews, setCourseReviews] = useState([]);
   const [dateSelected, setDateSelected] = useState({});
   const [showAddDate, setShowAddDate] = useState(false);
   const [editInfo, setEditInfo] = useState(false);
+  const [sort, setSort] = useState('');
 
+  const sortValues = [
+    { name: 'Най-нови', value: 1 },
+    { name: 'Най-стари', value: 2 },
+  ];
   const getCourseDates = async course => {
     if (course.lessonID) {
       try {
@@ -95,10 +115,15 @@ const OpenedCourseComponent = ({
     }
   };
 
-  const getCourseReviews = async () => {
+  const getCourseReviews = async (currentPage, sort) => {
     try {
-      const res = await axiosInstance.post(`lessons/getReviews`, { id: course.lessonID, sort: '', page: 1 });
+      const res = await axiosInstance.post(`lessons/getReviews`, {
+        id: course.lessonID,
+        sort: sort,
+        page: currentPage,
+      });
       setCourseReviews(res.data);
+      setReviewsTotal(res.data.length);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -110,9 +135,40 @@ const OpenedCourseComponent = ({
     }
   };
 
+  const outerLimit = 2;
+  const innerLimit = 2;
+
+  const { pages, pagesCount, currentPage, setCurrentPage } = usePagination({
+    total: reviewsTotal,
+    limits: {
+      outer: outerLimit,
+      inner: innerLimit,
+    },
+    initialState: {
+      pageSize: 5,
+      currentPage: 1,
+    },
+  });
+
+  // handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // const filters = { pageNumber: page, sort: '' };
+    // getCourseReviews({  ...filters });
+    // getCourseReviews(page);
+  };
+
   useEffect(() => {
     getCourseDates(course);
   }, [course.lessonID]);
+
+  useEffect(() => {
+    getCourseReviews(currentPage, sort);
+  }, [currentPage]);
+
+  useEffect(() => {
+    getCourseReviews(currentPage, sort);
+  }, [sort]);
 
   return (
     <Stack w={{ base: 'full' }} spacing={10}>
@@ -202,7 +258,7 @@ const OpenedCourseComponent = ({
                     color={'grey.500'}
                     maxW={'fit-content'}
                     _selected={{ color: 'purple.500', fontWeight: 700 }}
-                    onClick={getCourseReviews}>
+                    onClick={() => setCurrentPage(1)}>
                     <Text>Отзиви</Text>
                   </Tab>
                 </TabList>
@@ -484,7 +540,119 @@ const OpenedCourseComponent = ({
                     </Stack>
                   )}
                 </TabPanel>
-                <TabPanel></TabPanel>
+                <TabPanel>
+                  <Stack spacing={12} mt={8}>
+                    <Stack w={'full'} justify={'space-between'} direction={'row'} align={'center'}>
+                      <Stack direction={'row'} align={'center'} spacing={4}>
+                        <Text fontWeight={400} fontSize={30} color={'grey.500'}>
+                          4.9
+                        </Text>
+                        <Rating rating={4.5} />
+                        <Text fontWeight={400} fontSize={20} color={'grey.400'}>
+                          ({courseReviews?.length} отзива)
+                        </Text>
+                      </Stack>
+
+                      <Dropdown
+                        value={sort}
+                        onChange={e => setSort(e.value)}
+                        options={sortValues}
+                        optionLabel="name"
+                        placeholder="Сортирай по"
+                      />
+                    </Stack>
+
+                    {courseReviews?.map((el, index) => (
+                      <Stack
+                        key={index}
+                        p={6}
+                        w={'full'}
+                        justify={'space-between'}
+                        align={'start'}
+                        direction={'row'}
+                        bg={'purple.100'}
+                        rounded={'md'}>
+                        <Stack spacing={6} align={{ base: 'center', md: 'start' }} w={'full'}>
+                          <Stack
+                            spacing={4}
+                            direction={{ base: 'column', lg: 'row' }}
+                            align={{ base: 'start', lg: 'center' }}
+                            justify={'space-between'}
+                            w={'full'}
+                            fontSize={18}>
+                            <Stack flex={1} direction={'row'} spacing={4} align={'center'}>
+                              <Avatar
+                                size="sm"
+                                name={`${el.studentsName} ${el.studentsSurname}`}
+                                src="https://bit.ly/dan-abramov"
+                              />
+                              <Text color={'grey.600'}>
+                                {el.studentName} {el.studentSurname}
+                              </Text>
+                              <Rating rating={el?.rating} />
+                            </Stack>
+
+                            <Text color={'grey.400'} fontSize={14} w={'fit-content'}>
+                              {capitalizeMonth(format(new Date(el?.date), 'dd LLL yyyy', { locale: bg }))}
+                            </Text>
+                          </Stack>
+
+                          <Stack maxW={'80%'} spacing={6}>
+                            <Text textAlign={'start'} fontSize={18} color={'grey.500'}>
+                              {el?.message}
+                            </Text>
+                          </Stack>
+                        </Stack>
+                      </Stack>
+                    ))}
+
+                    <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
+                      <PaginationContainer align="center" justify="end" p={4} w="full">
+                        <PaginationPrevious
+                          _hover={{
+                            bg: 'transparent',
+                          }}
+                          bg="transparent">
+                          <Text>Предишна</Text>
+                        </PaginationPrevious>
+                        <PaginationPageGroup
+                          align="center"
+                          separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
+                          {pages.map((page: number) => (
+                            <PaginationPage
+                              w={7}
+                              bg="transparent"
+                              key={`pagination_page_${page}`}
+                              page={page}
+                              fontSize="sm"
+                              color={'grey.400'}
+                              _hover={{
+                                color: 'purple.400',
+                              }}
+                              _current={{
+                                color: 'purple.500',
+                                bg: 'transparent',
+                                fontSize: 'sm',
+                                w: 7,
+                              }}
+                            />
+                          ))}
+                        </PaginationPageGroup>
+                        <PaginationNext
+                          _hover={{
+                            bg: 'transparent',
+                          }}
+                          color={'purple.500'}
+                          bg="transparent"
+                          onClick={() =>
+                            console.log('Im executing my own function along with Next component functionality')
+                          }>
+                          <Text>Следваща</Text>
+                        </PaginationNext>
+                      </PaginationContainer>
+                    </Pagination>
+                  </Stack>
+                </TabPanel>
                 <TabPanel></TabPanel>
               </TabPanels>
             </Tabs>

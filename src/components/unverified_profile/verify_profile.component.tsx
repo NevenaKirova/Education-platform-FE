@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 
 import {
   Stack,
@@ -21,6 +21,9 @@ import {
   FormLabel,
   Checkbox,
   Link,
+  IconButton,
+  Img,
+  Box,
   useToast,
 } from '@chakra-ui/react';
 
@@ -29,6 +32,11 @@ import { Dropdown } from 'primereact/dropdown';
 import { axiosInstance } from '../../axios';
 
 import { getResponseMessage } from '../../helpers/response.util';
+import PreviewDropzone from '../../utils/preview_dropzone';
+import { add, trash } from '../../icons';
+import { Calendar } from 'primereact/calendar';
+import { format } from 'date-fns';
+import { addLocale } from 'primereact/api';
 
 type Inputs = {
   name: string | null;
@@ -43,6 +51,7 @@ type Inputs = {
   university: string | null;
   agreeToConditions: boolean;
   experience: string | null;
+  experienceArr: [];
 };
 export default function VerifyProfileComponent({ setShowForm }: { setShowForm: any }) {
   const toast = useToast();
@@ -51,6 +60,32 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
   const [experience, setExperience] = useState('no');
   const [city, setCity] = useState(null);
   const [cities, setCities] = useState([]);
+  const [showExperienceFields, setShowExperienceFields] = useState(true);
+  const [dateStartValue, setDateStartValue] = useState([]);
+  const [dateEndValue, setDateEndValue] = useState([]);
+
+  addLocale('bg', {
+    firstDayOfWeek: 1,
+    dayNames: ['Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък', 'Събота', 'Неделя'],
+    dayNamesMin: ['П', 'В', 'С', 'Ч', 'П', 'С', 'Н'],
+    monthNames: [
+      'Януари',
+      'Февруари',
+      'Март',
+      'Април',
+      'Май',
+      'Юни',
+      'Юли',
+      'Август',
+      'Септември',
+      'Октомвври',
+      'Ноември',
+      'Декември',
+    ],
+    monthNamesShort: ['Ян', 'Фев', 'Мар', 'Апр', 'Май', 'Юни', 'Юли', 'Авг', 'Сеп', 'Окт', 'Ное', 'Дек'],
+    today: 'Днес',
+    clear: 'Изчисти',
+  });
 
   const {
     register,
@@ -58,6 +93,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
     reset,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
@@ -73,7 +109,13 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
       university: null,
       experience: 'no',
       agreeToConditions: false,
+      experienceArr: [{ school: '', dates: '', description: '' }],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'experienceArr',
   });
 
   const getData = async () => {
@@ -92,13 +134,28 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
     }
   };
 
+  const onFileAccepted = file => {
+    setValue('picture', file);
+  };
+
   const onSubmit: SubmitHandler<any> = async data => {
+
     console.log(data);
   };
 
   useEffect(() => {
+    register('city', { required: 'Полето е задължително' });
+    register('picture', { required: 'Полето е задължително' });
+  }, [register]);
+
+
+  useEffect(() => {
     getData();
   }, []);
+
+  useEffect(() => {
+    console.log(errors)
+  }, [errors]);
 
   return (
     <Stack w={{ base: 'full', xl: '60vw' }} spacing={10}>
@@ -131,7 +188,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
             </Text>
           </Stack>
 
-          <Stack spacing={8} w={{ base: 'full', xl: '40vw' }}>
+          <Stack spacing={10} w={{ base: 'full', xl: '40vw' }}>
             <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'purple.500'}>
               Лична информация
             </Heading>
@@ -191,13 +248,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                   </Text>
                 </FormLabel>
 
-                <Input
-                  pr="4.5rem"
-                  type="text"
-                  placeholder="Български език за 8ми клас"
-                  maxLength={100}
-                  {...register('picture', { required: 'Полето е задължително' })}
-                />
+                <PreviewDropzone onFileAccepted={onFileAccepted} />
 
                 <FormErrorMessage>{errors?.picture?.message}</FormErrorMessage>
               </FormControl>
@@ -244,7 +295,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
             </FormControl>
 
             <Stack>
-              <FormControl isInvalid={!!errors.surname}>
+              <FormControl isInvalid={!!errors.city}>
                 <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
                   Населено място{' '}
                   <Text as={'span'} color={'red'}>
@@ -314,7 +365,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                     maxLength={200}
                     resize={'none'}
                     placeholder={'Въведете тук'}
-                    {...register('specialties', { required: 'Въведете тук' })}
+                    {...register('specialties', { required: 'Полето е задължително' })}
                   />
                   <InputRightElement width="4.5rem" color={'grey.500'}>
                     {watch('specialties')?.length || 0}/200
@@ -329,7 +380,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
             </Stack>
           </Stack>
 
-          <Stack spacing={8} w={{ base: 'full', xl: '40vw' }}>
+          <Stack spacing={10} w={{ base: 'full', xl: '40vw' }}>
             <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'purple.500'}>
               Квалификация{' '}
             </Heading>
@@ -395,7 +446,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                     maxLength={100}
                     resize={'none'}
                     placeholder={'Въведете тук'}
-                    {...register('school', { required: 'Въведете тук' })}
+                    {...register('school', { required: 'Полето е задължително' })}
                   />
                   <InputRightElement width="4.5rem" color={'grey.500'}>
                     {watch('school')?.length || 0}/100
@@ -423,7 +474,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                     maxLength={100}
                     resize={'none'}
                     placeholder={'Въведете тук'}
-                    {...register('university', { required: 'Въведете тук' })}
+                    {...register('university', { required: 'Полето е задължително' })}
                   />
                   <InputRightElement width="4.5rem" color={'grey.500'}>
                     {watch('university')?.length || 0}/100
@@ -438,7 +489,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
             </Stack>
           </Stack>
 
-          <Stack spacing={8} w={{ base: 'full', xl: '40vw' }}>
+          <Stack spacing={10} w={{ base: 'full', xl: '40vw' }}>
             <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'purple.500'}>
               Опит{' '}
             </Heading>
@@ -473,6 +524,141 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
               </RadioGroup>
               <FormErrorMessage>{errors?.experience?.message}</FormErrorMessage>
             </FormControl>
+
+            {showExperienceFields && (
+              <>
+                {fields.map((el, index: number) => (
+                  <Stack key={index} direction={'column'} spacing={8}>
+                    <Stack direction={'row'} w={'full'} align={'center'} justify={'space-between'} mb={-4}>
+                      <Text flex={1} fontWeight={700} color={'purple.500'} pb={2} textAlign={'start'}>
+                        Работно място{' '}
+                      </Text>
+
+                      <Box
+                        as={IconButton}
+                        aria-label={'delete theme'}
+                        size="xs"
+                        bg={'none'}
+                        _hover={{ bg: 'none' }}
+                        isDisabled={fields.length == 1 ? true : false}
+                        icon={<Img src={trash} w={5} onClick={() => remove(index)} />}
+                      />
+                    </Stack>
+
+                    <Stack spacing={4}>
+                      <FormControl isInvalid={!!errors?.experienceArr?.[index].school}>
+                        <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
+                          Учебно заведение{' '}
+                          <Text as={'span'} color={'red'}>
+                            *
+                          </Text>
+                        </FormLabel>
+                        <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'grey.100'} rounded={'md'}>
+                          <Input
+                            pr="4.5rem"
+                            maxLength={100}
+                            resize={'none'}
+                            placeholder={'Въведете тук'}
+                            autoFocus
+                            {...register(`experienceArr[${index}].school`, { required: 'Полето е задължително' })}
+                          />
+                          <InputRightElement width="4.5rem" color={'grey.500'}>
+                            {watch(`experienceArr[${index}].school`)?.length || 0}/100
+                          </InputRightElement>
+                        </InputGroup>
+                        <FormErrorMessage>{errors?.experienceArr?.[index]?.school?.message}</FormErrorMessage>
+                      </FormControl>
+
+                      <Text fontSize={{ base: 14, lg: 16 }} fontWeight={400} color={'grey.400'}>
+                        Моля уточнете в кое учебно заведение сте преподавали.
+                      </Text>
+                    </Stack>
+
+                    <Stack direction={'row'} spacing={10} align={'center'}>
+                      <Calendar
+                        value={dateStartValue[index]}
+                        placeholder={'Изберете дата'}
+                        onChange={e => {
+                          setValue(`experienceArr[${index}].startDate`, format(e.value, 'yyyy-MM-dd'));
+                          const newArr = [...dateStartValue];
+                          newArr[index] = e.value;
+                          setDateStartValue(newArr);
+                        }}
+                        className={errors?.experienceArr?.[index]?.startDate ? 'invalid-dropdown w-full' : 'p-invalid w-full'}
+                        maxDate={new Date()}
+                        dateFormat="dd M yy"
+                        locale={'bg'}
+                        showIcon
+                      />
+                      <Text> - </Text>
+
+                      <Calendar
+                        value={dateEndValue[index]}
+                        placeholder={'Изберете дата'}
+                        onChange={e => {
+                          setValue(`experienceArr[${index}].endDate`, format(e.value, 'yyyy-MM-dd'));
+                          const newArr = [...dateEndValue];
+                          newArr[index] = e.value;
+                          setDateEndValue(newArr);
+                        }}
+                        className={errors?.experienceArr?.[index]?.endDate ? 'invalid-dropdown w-full' : 'p-invalid w-full'}
+                        minDate={new Date(dateStartValue[index])}
+                        maxDate={new Date()}
+                        dateFormat="dd M yy"
+                        locale={'bg'}
+                        showIcon
+                      />
+                    </Stack>
+
+                    <Stack spacing={4}>
+                      <FormControl isInvalid={!!errors?.experienceArr?.[index]?.description}>
+                        <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
+                          Описание на длъжността{' '}
+                          <Text as={'span'} color={'red'}>
+                            *
+                          </Text>
+                        </FormLabel>
+                        <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'grey.100'} rounded={'md'}>
+                          <Textarea
+                            pr="4.5rem"
+                            maxLength={600}
+                            resize={'none'}
+                            rows={4}
+                            {...register(`experienceArr.${index}.description`, { required: 'Полето е задължително' })}
+                          />
+                          <InputRightElement width="4.5rem" color={'grey.500'}>
+                            {watch(`experienceArr.${index}.description`)?.length || 0}/600
+                          </InputRightElement>
+                        </InputGroup>
+                        <FormErrorMessage>{errors?.experienceArr?.[index]?.description?.message}</FormErrorMessage>
+                      </FormControl>
+
+                      <Text fontSize={{ base: 14, lg: 16 }} fontWeight={400} color={'grey.400'}>
+                        Моля добавете кратко описание на работната си длъжност.
+                      </Text>
+                    </Stack>
+                  </Stack>
+                ))}
+
+                <Button
+                  size={{ base: 'md', lg: 'md' }}
+                  color={'purple.500'}
+                  fontSize={{ base: 16, '2xl': 20 }}
+                  fontWeight={700}
+                  bg={'transparent'}
+                  _hover={{ bg: 'transparent' }}
+                  w={'full'}
+                  border={'1px dashed'}
+                  mt={4}
+                  borderColor={'purple.500'}
+                  onClick={() => append({ school: '', dates: '', description: '' })}>
+                  <Stack direction={'row'} align={'center'} spacing={2}>
+                    <Img src={add} alt={'add course'} />
+                    <Text> Добавяне на работно място</Text>
+                  </Stack>
+                </Button>
+              </>
+            )}
 
             <FormControl isInvalid={!!errors.agreeToConditions}>
               <Checkbox

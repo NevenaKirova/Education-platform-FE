@@ -11,7 +11,7 @@ export default function Dropzone({ onFileAccepted }: { onFileAccepted: any }) {
     [onFileAccepted],
   );
 
-  const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     onDrop,
     maxFiles: 1,
     multiple: false,
