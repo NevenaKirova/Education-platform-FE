@@ -62,8 +62,6 @@ export default function DashboardPage() {
   const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading } =
     useSelector(getTeacherCourses);
 
-  if (!user) return <Navigate to={'/'} replace />;
-
   const showCourseForm = () => {
     setShowCreateCourse(true);
   };
@@ -114,6 +112,8 @@ export default function DashboardPage() {
   useEffect(() => {
     upcomingCourses && getCourseTypes();
   }, [upcomingCourses]);
+
+  if (!user) return <Navigate to={'/'} replace />;
 
   return (
     <Stack

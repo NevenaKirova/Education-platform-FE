@@ -20,6 +20,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { addLocale } from 'primereact/api';
 import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
+import Dropzone from '../../../utils/dropzone';
 
 export type DatesForm = {
   startDate: Date | string;
@@ -72,6 +73,10 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
       time: '',
     },
   });
+
+  const onFileAccepted = files => {
+    setValueFile('files', files);
+  };
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
@@ -204,56 +209,14 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
         </Stack>
 
         <Stack spacing={8} maxW={'50%'}>
-          <Heading flex={1} textAlign={'left'} fontSize={{ base: 16, lg: 18 }} color={'grey.600'}>
-            Качване на файл
-          </Heading>
-
           <Stack direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, lg: 0 }}>
-            <FormControl isInvalid={!!errors.date}>
+            <FormControl isInvalid={!!errors.files}>
               <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
-                Дата{' '}
-                <Text as={'span'} color={'red'}>
-                  *
-                </Text>
+                Качване на файл{' '}
               </FormLabel>
 
-              <Calendar
-                value={date}
-                onChange={e => {
-                  setValue('date', format(e.value, 'yyyy-MM-dd'));
-                  setDate(e.value);
-                }}
-                placeholder={'Изберете дата'}
-                minDate={new Date()}
-                dateFormat="dd M yy"
-                locale={'bg'}
-                showIcon
-              />
-
-              <FormErrorMessage>{errors?.date?.message}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl isInvalid={!!errors.time}>
-              <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
-                Час{' '}
-                <Text as={'span'} color={'red'}>
-                  *
-                </Text>
-              </FormLabel>
-
-              <Calendar
-                value={time}
-                onChange={e => {
-                  if (e.value) {
-                    setTime(e.value);
-                    setValue('time', format(e.value, 'HH:mm'));
-                  }
-                }}
-                placeholder={'Изберете час'}
-                timeOnly
-              />
-
-              <FormErrorMessage>{errors?.date?.message}</FormErrorMessage>
+              <Dropzone onFileAccepted={onFileAccepted} isMultiple={true} />
+              <FormErrorMessage>{errors?.date?.files}</FormErrorMessage>
             </FormControl>
           </Stack>
         </Stack>
