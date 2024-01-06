@@ -42,8 +42,8 @@ import {
 
 import CourseCard from '../../components/courses/course_card/course_card.compoment';
 import PageLoader from '../../utils/loader.component';
-import axios from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
+import axios from '../../axios';
 
 import { CloseIcon } from '@chakra-ui/icons';
 
@@ -64,13 +64,22 @@ type Filters = {
   price: number | string | null;
 };
 
+const sortValues = [
+  { name: 'Най-ниска цена', value: 'Lowest price' },
+  { name: 'Най-висок рейтинг', value: 'Highest rating' },
+  { name: 'Най-скорошен', value: 'Starting soonest' },
+];
+
+const outerLimit = 2;
+const innerLimit = 2;
+
 const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => {
   const toast = useToast();
 
-  const [selectedCity, setSelectedCity] = useState(null);
+  const [sort, setSort] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
-  const [showClasses, setShowClasses] = useState(true);
+  const [showClasses, setShowClasses] = useState(false);
   const [classes, setClasses] = useState<any>([]);
   const [classesTotal, setClassesTotal] = useState<number | undefined>(0);
 
@@ -148,17 +157,6 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
     },
   ];
 
-  const cities = [
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' },
-  ];
-
-  const outerLimit = 2;
-  const innerLimit = 2;
-
   const { pages, pagesCount, currentPage, setCurrentPage } = usePagination({
     total: classesTotal,
     limits: {
@@ -166,18 +164,13 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
       inner: innerLimit,
     },
     initialState: {
-      pageSize: 1,
+      pageSize: 10,
       currentPage: 1,
     },
   });
 
-  // handlers
   const handlePageChange = (page: number) => {
-    // -> request new data using the page number
-    const values = getValues();
     setCurrentPage(page);
-    const filters = { pageNumber: page, sort: '', isPrivateLesson: isPrivateLesson };
-    getClasses({ ...values, ...filters });
   };
 
   const convertNumToTime = num => {
@@ -214,6 +207,9 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
     try {
       const res = await axios.post('/lessons/getFilteredClasses', {
         ...filters,
+        isPrivateLesson: isPrivateLesson,
+        sort: sort,
+        pageNumber: currentPage,
       });
 
       await setTimeout(() => setIsLoading(false), 200);
@@ -236,15 +232,16 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
 
   const searchText = () => {
     const text = getValues('searchTerm');
-    getClasses({ text, ...defaultFilters });
+    getClasses({ text });
   };
   const onSubmit: SubmitHandler<any> = async data => {
-    getClasses({ ...data, ...defaultFilters });
+    getClasses(data);
   };
 
   useEffect(() => {
-    getClasses(defaultFilters);
-  }, []);
+    const values = getValues();
+    getClasses(values);
+  }, [currentPage, sort]);
 
   useEffect(() => {
     const getFiltersUrl = isPrivateLesson ? '/lessons/getLessonFilters' : '/lessons/getCourseFilters';
@@ -261,7 +258,13 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
         setAvailablePrices(pricesObj);
       })
       .catch(function (error) {
-        console.log(error);
+        toast({
+          title: getResponseMessage(error),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
       });
   }, []);
 
@@ -331,13 +334,15 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
                         color={days.length ? 'grey.500' : '#8492a4'}
                         overflow={'hidden'}
                         textOverflow={'ellipsis'}
-                        maxW={{ base: 'full', lg: '100px', '2xl': '200px' }}>
+                        maxW={{ base: 'full', '2xl': '200px' }}>
                         {days.length ? (
                           <Text as={'span'} isTruncated minW={0} maxW={'20px'}>
                             {days.map(day => daysArr[day - 1].name).toString()}{' '}
                           </Text>
                         ) : (
-                          'Ден от седмицата'
+                          <Text as={'span'} isTruncated minW={0} maxW={'20px'}>
+                            Ден от седмицата
+                          </Text>
                         )}{' '}
                       </Text>
                       <div
@@ -518,22 +523,74 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
         justify={'space-between'}
         spacing={{ base: 6, lg: 'none' }}>
         <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 34 }} color={'grey.600'}>
-          Частни уроци
+          {isPrivateLesson ? 'Частни уроци' : 'Курсове'}
         </Heading>
 
         <Dropdown
-          value={selectedCity}
-          onChange={e => setSelectedCity(e.value)}
-          options={cities}
+          value={sort}
+          onChange={e => setSort(e.value)}
+          options={sortValues}
           optionLabel="name"
           placeholder="Сортирай по"
         />
       </Stack>
 
-      {showClasses ? (
-        <Grid w={'full'} templateColumns="repeat(auto-fill, minmax(280px, 1fr))" gap={12}>
-          {classes?.map((el, index) => <CourseCard key={index} course={el} />)}
-        </Grid>
+      {isLoading ? (
+        <PageLoader isLoading={isLoading} />
+      ) : showClasses ? (
+        <>
+          <Grid w={'full'} templateColumns="repeat(auto-fill, minmax(280px, 1fr))" gap={12}>
+            {classes?.map((el, index) => <CourseCard key={index} course={el} />)}
+          </Grid>
+
+          <Flex p={2} justify={'end'} w={'full'}>
+            <Spacer />
+
+            <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
+              <PaginationContainer align="center" justify="end" p={4} w="full">
+                <PaginationPrevious
+                  _hover={{
+                    bg: 'transparent',
+                  }}
+                  bg="transparent">
+                  <Text>Предишна</Text>
+                </PaginationPrevious>
+                <PaginationPageGroup
+                  align="center"
+                  separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
+                  {pages.map((page: number) => (
+                    <PaginationPage
+                      w={7}
+                      bg="transparent"
+                      key={`pagination_page_${page}`}
+                      page={page}
+                      fontSize="sm"
+                      color={'grey.400'}
+                      _hover={{
+                        color: 'purple.400',
+                      }}
+                      _current={{
+                        color: 'purple.500',
+                        bg: 'transparent',
+                        fontSize: 'sm',
+                        w: 7,
+                      }}
+                    />
+                  ))}
+                </PaginationPageGroup>
+                <PaginationNext
+                  _hover={{
+                    bg: 'transparent',
+                  }}
+                  color={'purple.500'}
+                  bg="transparent"
+                  onClick={() => console.log('Im executing my own function along with Next component functionality')}>
+                  <Text>Следваща</Text>
+                </PaginationNext>
+              </PaginationContainer>
+            </Pagination>
+          </Flex>
+        </>
       ) : (
         <Stack direction={'column'} spacing={0} w={'full'} align={'center'} mt={-50}>
           <Image src={noData} alt="No data" h={'50vh'} />
@@ -550,55 +607,6 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
           </Button>
         </Stack>
       )}
-
-      <Flex p={2} justify={'end'} w={'full'}>
-        <Spacer />
-
-        <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
-          <PaginationContainer align="center" justify="end" p={4} w="full">
-            <PaginationPrevious
-              _hover={{
-                bg: 'transparent',
-              }}
-              bg="transparent">
-              <Text>Предишна</Text>
-            </PaginationPrevious>
-            <PaginationPageGroup
-              align="center"
-              separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
-              {pages.map((page: number) => (
-                <PaginationPage
-                  w={7}
-                  bg="transparent"
-                  key={`pagination_page_${page}`}
-                  page={page}
-                  fontSize="sm"
-                  color={'grey.400'}
-                  _hover={{
-                    color: 'purple.400',
-                  }}
-                  _current={{
-                    color: 'purple.500',
-                    bg: 'transparent',
-                    fontSize: 'sm',
-                    w: 7,
-                  }}
-                />
-              ))}
-            </PaginationPageGroup>
-            <PaginationNext
-              _hover={{
-                bg: 'transparent',
-              }}
-              color={'purple.500'}
-              bg="transparent"
-              onClick={() => console.log('Im executing my own function along with Next component functionality')}>
-              <Text>Следваща</Text>
-            </PaginationNext>
-          </PaginationContainer>
-        </Pagination>
-      </Flex>
-      <PageLoader isLoading={isLoading} />
     </Stack>
   );
 };

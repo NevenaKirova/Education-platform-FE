@@ -21,14 +21,17 @@ import Dropzone from '../../../utils/dropzone';
 const AddResourcesModal = ({
   isOpen,
   onClose,
+  theme,
   setShowSelected,
   showSelected,
+  setOpenedTheme,
 }: {
   isOpen: boolean;
   onClose: any;
   theme?: any;
   setShowSelected: any;
   showSelected: boolean;
+  setOpenedTheme: any;
 }) => {
   const [activeResource, setActiveResource] = useState(null);
   const [showError, setShowError] = useState(false);
@@ -67,6 +70,17 @@ const AddResourcesModal = ({
     setValueFile('file', file);
   };
 
+  const continueWithSelectedResource = () => {
+    if (!activeResource) setShowError(true);
+
+    if (activeResource == 'assignment') {
+      setOpenedTheme(theme.title);
+      onClose();
+    } else {
+      setShowSelected(true);
+    }
+  };
+
   const showSelectedResource = useMemo(() => {
     if (activeResource == 'video') {
       return (
@@ -88,28 +102,6 @@ const AddResourcesModal = ({
         <Stack spacing={6}>
           <Heading flex={1} fontSize={{ base: 16, lg: 18 }} fontWeight={700} textAlign="start" color={'purple.500'}>
             Файл
-          </Heading>
-
-          <Stack spacing={1}>
-            <Heading flex={1} fontSize={{ base: 16, lg: 18 }} fontWeight={500} textAlign="start" color={'grey.500'}>
-              Добавете файлов ресурс по Ваш избор. В случай, че желаете да качите няколко файла наведнъж, групирайте ги
-              в архив. Допустими файлови формати:
-            </Heading>
-            <Heading flex={1} fontSize={{ base: 16, lg: 18 }} fontWeight={500} textAlign="start" color={'purple.500'}>
-              .jpg .jpeg .ppt .pptx .doc .docx .pdf .zip .7-zip .rar
-            </Heading>
-          </Stack>
-
-          <Dropzone onFileAccepted={onFileAccepted} />
-        </Stack>
-      );
-    }
-
-    if (activeResource == 'assignment') {
-      return (
-        <Stack spacing={6}>
-          <Heading flex={1} fontSize={{ base: 16, lg: 18 }} fontWeight={700} textAlign="start" color={'purple.500'}>
-            Задание
           </Heading>
 
           <Stack spacing={1}>
@@ -189,7 +181,7 @@ const AddResourcesModal = ({
         bg={'purple.500'}
         color={'white'}
         _hover={{ opacity: '0.9' }}
-        onClick={() => (activeResource ? setShowSelected(true) : setShowError(true))}>
+        onClick={continueWithSelectedResource}>
         Напред
       </Button>
     );

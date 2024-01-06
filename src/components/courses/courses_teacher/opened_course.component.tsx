@@ -30,12 +30,12 @@ import CourseResources from './course_resources.component';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
 import CourseAddDate from './course_add_date';
 import CreateCourseComponent from './create_course.component';
-import { addWhite, calendar, edit, add } from '../../../icons';
+import { addWhite, calendar, edit, add, editWhite, trash } from '../../../icons';
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import { Rating } from '../../testimonials/testimonial_card.component';
-import ReviewsSection from '../../reviews';
+
 import {
   Pagination,
   PaginationContainer,
@@ -47,6 +47,14 @@ import {
   usePagination,
 } from '@ajna/pagination';
 import { Dropdown } from 'primereact/dropdown';
+import PageLoader from '../../../utils/loader.component';
+
+const sortValues = [
+  { name: 'Най-нови', value: 'Newest' },
+  { name: 'Най-стари', value: 'Oldest' },
+  { name: 'Най-висок рейтинг', value: 'Highest rating' },
+  { name: 'Най-нисък рейтинг', value: 'Lowest rating' },
+];
 
 const OpenedCourseComponent = ({
   isPrivateLesson,
@@ -77,18 +85,19 @@ const OpenedCourseComponent = ({
   const [showAddDate, setShowAddDate] = useState(false);
   const [editInfo, setEditInfo] = useState(false);
   const [sort, setSort] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [openedTheme, setOpenedTheme] = useState(null);
 
-  const sortValues = [
-    { name: 'Най-нови', value: 1 },
-    { name: 'Най-стари', value: 2 },
-  ];
   const getCourseDates = async course => {
     if (course.lessonID) {
+      setIsLoading(true);
       try {
         const res: any[] = await axiosInstance.get(`/lessons/getCourseDates/${course.lessonID}`);
 
         setDates(res.data);
+        setIsLoading(false);
       } catch (err) {
+        setIsLoading(false);
         toast({
           title: getResponseMessage(err),
           status: 'error',
@@ -150,12 +159,25 @@ const OpenedCourseComponent = ({
     },
   });
 
-  // handlers
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // const filters = { pageNumber: page, sort: '' };
-    // getCourseReviews({  ...filters });
-    // getCourseReviews(page);
+  };
+
+  const publishDraft = async () => {
+    try {
+      await axiosInstance.post(`lessons/publishDraft/1552/${course.lessonID}`);
+      setShowCreateCourse(false);
+      setAddDateActive(false);
+      setIsCourseOpened(false);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
   };
 
   useEffect(() => {
@@ -164,11 +186,14 @@ const OpenedCourseComponent = ({
 
   useEffect(() => {
     getCourseReviews(currentPage, sort);
-  }, [currentPage]);
+  }, [currentPage, sort]);
 
   useEffect(() => {
-    getCourseReviews(currentPage, sort);
-  }, [sort]);
+    if (activeTab !== 1) {
+      setShowCreateCourse(false);
+      setEditInfo(false);
+    }
+  }, [activeTab]);
 
   return (
     <Stack w={{ base: 'full' }} spacing={10}>
@@ -182,6 +207,7 @@ const OpenedCourseComponent = ({
                 setShowCreateCourse(false);
                 setAddDateActive(false);
                 setIsCourseOpened(false);
+                setOpenedTheme(null);
               }}>
               {isPrivateLesson ? 'Моите частни уроци' : 'Моите курсове'}
             </BreadcrumbLink>
@@ -194,6 +220,7 @@ const OpenedCourseComponent = ({
                 setShowAddResources(false);
                 setDateSelected({});
                 setShowAddDate(false);
+                setOpenedTheme(null);
               }}>
               {course?.title}
             </BreadcrumbLink>
@@ -208,10 +235,38 @@ const OpenedCourseComponent = ({
               </BreadcrumbLink>
             </BreadcrumbItem>
           )}
+
+          {openedTheme && (
+            <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
+              <BreadcrumbLink
+                textDecoration={'none'}
+                onClick={() => {
+                  setShowAddResources(true);
+                }}>
+                {openedTheme}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
+
+          {openedTheme && (
+            <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
+              <BreadcrumbLink textDecoration={'none'}>Добавяне на задание</BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
         </Breadcrumb>
 
         {showAddResources ? (
-          <CourseResources course={dateSelected} />
+          <CourseResources
+            date={dateSelected}
+            course={course}
+            setShowCreateCourse={setShowCreateCourse}
+            setActiveTab={setActiveTab}
+            setEditInfo={setEditInfo}
+            setShowAddResources={setShowAddResources}
+            setDateSelected={setDateSelected}
+            setOpenedTheme={setOpenedTheme}
+            openedTheme={openedTheme}
+          />
         ) : showAddDate ? (
           <CourseAddDate
             studentsUpperBound={course?.studentsUpperBound}
@@ -316,7 +371,7 @@ const OpenedCourseComponent = ({
                           px={8}
                           w={'fit-content'}
                           onClick={() => {
-                            setShowAddDate(true);
+                            publishDraft();
                           }}>
                           <Text>Публикувай</Text>
                         </Button>
@@ -359,13 +414,13 @@ const OpenedCourseComponent = ({
 
                   {activeTab == 1 ? (
                     course?.status === 'Draft' ? (
-                      <>
+                      showCreateCourse ? (
                         <Button
                           size={{ base: 'md', lg: 'md' }}
-                          color={'purple.500'}
+                          color={'red'}
                           bg={'transparent'}
                           fontSize={{ base: 16, '2xl': 20 }}
-                          fontWeight={700}
+                          fontWeight={500}
                           _hover={{ bg: 'transparent' }}
                           px={8}
                           w={'fit-content'}
@@ -375,27 +430,49 @@ const OpenedCourseComponent = ({
                             setEditInfo(true);
                           }}>
                           <Stack direction={'row'} align={'center'} spacing={2}>
-                            <Img src={edit} alt={'add course'} h={5} w={5} />
-                            <Text>Редактирай</Text>
+                            <Img src={trash} alt={'delete course'} h={5} w={5} />
+                            <Text>Изтрий курса</Text>
                           </Stack>
                         </Button>
+                      ) : (
+                        <>
+                          <Button
+                            size={{ base: 'md', lg: 'md' }}
+                            color={'purple.500'}
+                            bg={'transparent'}
+                            fontSize={{ base: 16, '2xl': 20 }}
+                            fontWeight={700}
+                            _hover={{ bg: 'transparent' }}
+                            px={8}
+                            w={'fit-content'}
+                            onClick={() => {
+                              setShowCreateCourse(true);
+                              setActiveTab(1);
+                              setEditInfo(true);
+                            }}>
+                            <Stack direction={'row'} align={'center'} spacing={2}>
+                              <Img src={edit} alt={'edit course'} h={5} w={5} />
+                              <Text>Редактирай</Text>
+                            </Stack>
+                          </Button>
 
-                        <Button
-                          size={{ base: 'md', lg: 'md' }}
-                          color={'white'}
-                          bg={'purple.500'}
-                          fontSize={{ base: 16, '2xl': 20 }}
-                          fontWeight={700}
-                          _hover={{ bg: 'purple.500', opacity: 0.9 }}
-                          px={8}
-                          w={'fit-content'}
-                          onClick={() => {
-                            setShowAddDate(true);
-                          }}>
-                          <Text>Публикувай</Text>
-                        </Button>
-                      </>
-                    ) : (
+                          <Button
+                            size={{ base: 'md', lg: 'md' }}
+                            color={'white'}
+                            bg={'purple.500'}
+                            fontSize={{ base: 16, '2xl': 20 }}
+                            fontWeight={700}
+                            _hover={{ bg: 'purple.500', opacity: 0.9 }}
+                            px={8}
+                            w={'fit-content'}
+                            onClick={() => {
+                              publishDraft();
+                            }}>
+                            <Text>Публикувай</Text>
+                          </Button>
+                        </>
+                      )
+                    ) : showCreateCourse ? null : (
                       <Button
                         size={{ base: 'md', lg: 'md' }}
                         color={'white'}
@@ -410,7 +487,7 @@ const OpenedCourseComponent = ({
                           setEditInfo(true);
                         }}>
                         <Stack direction={'row'} align={'center'} spacing={2}>
-                          <Img src={edit} alt={'add course'} h={5} w={5} />
+                          <Img src={editWhite} alt={'edit course'} h={5} w={5} />
                           <Text>Редактирай</Text>
                         </Stack>
                       </Button>
@@ -421,7 +498,9 @@ const OpenedCourseComponent = ({
 
               <TabPanels>
                 <TabPanel px={0}>
-                  {dates.length ? (
+                  {isLoading ? (
+                    <PageLoader isLoading={isLoading} />
+                  ) : dates.length ? (
                     dates?.map((el, index) => (
                       <CourseDateCard
                         key={index}
@@ -439,7 +518,7 @@ const OpenedCourseComponent = ({
                 <TabPanel px={0}>
                   {editInfo ? (
                     <CreateCourseComponent
-                      isPrivateLesson={false}
+                      isPrivateLesson={isPrivateLesson}
                       setShowCreateCourse={setShowCreateCourse}
                       showCreateCourse={showCreateCourse}
                       addDateActive={addDateActive}
@@ -541,117 +620,123 @@ const OpenedCourseComponent = ({
                   )}
                 </TabPanel>
                 <TabPanel>
-                  <Stack spacing={12} mt={8}>
-                    <Stack w={'full'} justify={'space-between'} direction={'row'} align={'center'}>
-                      <Stack direction={'row'} align={'center'} spacing={4}>
-                        <Text fontWeight={400} fontSize={30} color={'grey.500'}>
-                          4.9
-                        </Text>
-                        <Rating rating={4.5} />
-                        <Text fontWeight={400} fontSize={20} color={'grey.400'}>
-                          ({courseReviews?.length} отзива)
-                        </Text>
+                  {courseReviews.length ? (
+                    <Stack spacing={12} mt={8}>
+                      <Stack w={'full'} justify={'space-between'} direction={'row'} align={'center'}>
+                        <Stack direction={'row'} align={'center'} spacing={4}>
+                          <Text fontWeight={400} fontSize={30} color={'grey.500'}>
+                            4.9
+                          </Text>
+                          <Rating rating={4.5} />
+                          <Text fontWeight={400} fontSize={20} color={'grey.400'}>
+                            ({courseReviews?.length} отзива)
+                          </Text>
+                        </Stack>
+
+                        <Dropdown
+                          value={sort}
+                          onChange={e => setSort(e.value)}
+                          options={sortValues}
+                          optionLabel="name"
+                          placeholder="Сортирай по"
+                        />
                       </Stack>
 
-                      <Dropdown
-                        value={sort}
-                        onChange={e => setSort(e.value)}
-                        options={sortValues}
-                        optionLabel="name"
-                        placeholder="Сортирай по"
-                      />
-                    </Stack>
+                      {courseReviews?.map((el, index) => (
+                        <Stack
+                          key={index}
+                          p={6}
+                          w={'full'}
+                          justify={'space-between'}
+                          align={'start'}
+                          direction={'row'}
+                          bg={'purple.100'}
+                          rounded={'md'}>
+                          <Stack spacing={6} align={{ base: 'center', md: 'start' }} w={'full'}>
+                            <Stack
+                              spacing={4}
+                              direction={{ base: 'column', lg: 'row' }}
+                              align={{ base: 'start', lg: 'center' }}
+                              justify={'space-between'}
+                              w={'full'}
+                              fontSize={18}>
+                              <Stack flex={1} direction={'row'} spacing={4} align={'center'}>
+                                <Avatar
+                                  size="sm"
+                                  name={`${el.studentsName} ${el.studentsSurname}`}
+                                  src="https://bit.ly/dan-abramov"
+                                />
+                                <Text color={'grey.600'}>
+                                  {el.studentName} {el.studentSurname}
+                                </Text>
+                                <Rating rating={el?.rating} />
+                              </Stack>
 
-                    {courseReviews?.map((el, index) => (
-                      <Stack
-                        key={index}
-                        p={6}
-                        w={'full'}
-                        justify={'space-between'}
-                        align={'start'}
-                        direction={'row'}
-                        bg={'purple.100'}
-                        rounded={'md'}>
-                        <Stack spacing={6} align={{ base: 'center', md: 'start' }} w={'full'}>
-                          <Stack
-                            spacing={4}
-                            direction={{ base: 'column', lg: 'row' }}
-                            align={{ base: 'start', lg: 'center' }}
-                            justify={'space-between'}
-                            w={'full'}
-                            fontSize={18}>
-                            <Stack flex={1} direction={'row'} spacing={4} align={'center'}>
-                              <Avatar
-                                size="sm"
-                                name={`${el.studentsName} ${el.studentsSurname}`}
-                                src="https://bit.ly/dan-abramov"
-                              />
-                              <Text color={'grey.600'}>
-                                {el.studentName} {el.studentSurname}
+                              <Text color={'grey.400'} fontSize={14} w={'fit-content'}>
+                                {capitalizeMonth(format(new Date(el?.date), 'dd LLL yyyy', { locale: bg }))}
                               </Text>
-                              <Rating rating={el?.rating} />
                             </Stack>
 
-                            <Text color={'grey.400'} fontSize={14} w={'fit-content'}>
-                              {capitalizeMonth(format(new Date(el?.date), 'dd LLL yyyy', { locale: bg }))}
-                            </Text>
-                          </Stack>
-
-                          <Stack maxW={'80%'} spacing={6}>
-                            <Text textAlign={'start'} fontSize={18} color={'grey.500'}>
-                              {el?.message}
-                            </Text>
+                            <Stack maxW={'80%'} spacing={6}>
+                              <Text textAlign={'start'} fontSize={18} color={'grey.500'}>
+                                {el?.message}
+                              </Text>
+                            </Stack>
                           </Stack>
                         </Stack>
-                      </Stack>
-                    ))}
+                      ))}
 
-                    <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
-                      <PaginationContainer align="center" justify="end" p={4} w="full">
-                        <PaginationPrevious
-                          _hover={{
-                            bg: 'transparent',
-                          }}
-                          bg="transparent">
-                          <Text>Предишна</Text>
-                        </PaginationPrevious>
-                        <PaginationPageGroup
-                          align="center"
-                          separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
-                          {pages.map((page: number) => (
-                            <PaginationPage
-                              w={7}
-                              bg="transparent"
-                              key={`pagination_page_${page}`}
-                              page={page}
-                              fontSize="sm"
-                              color={'grey.400'}
-                              _hover={{
-                                color: 'purple.400',
-                              }}
-                              _current={{
-                                color: 'purple.500',
-                                bg: 'transparent',
-                                fontSize: 'sm',
-                                w: 7,
-                              }}
-                            />
-                          ))}
-                        </PaginationPageGroup>
-                        <PaginationNext
-                          _hover={{
-                            bg: 'transparent',
-                          }}
-                          color={'purple.500'}
-                          bg="transparent"
-                          onClick={() =>
-                            console.log('Im executing my own function along with Next component functionality')
-                          }>
-                          <Text>Следваща</Text>
-                        </PaginationNext>
-                      </PaginationContainer>
-                    </Pagination>
-                  </Stack>
+                      <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
+                        <PaginationContainer align="center" justify="end" p={4} w="full">
+                          <PaginationPrevious
+                            _hover={{
+                              bg: 'transparent',
+                            }}
+                            bg="transparent">
+                            <Text>Предишна</Text>
+                          </PaginationPrevious>
+                          <PaginationPageGroup
+                            align="center"
+                            separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
+                            {pages.map((page: number) => (
+                              <PaginationPage
+                                w={7}
+                                bg="transparent"
+                                key={`pagination_page_${page}`}
+                                page={page}
+                                fontSize="sm"
+                                color={'grey.400'}
+                                _hover={{
+                                  color: 'purple.400',
+                                }}
+                                _current={{
+                                  color: 'purple.500',
+                                  bg: 'transparent',
+                                  fontSize: 'sm',
+                                  w: 7,
+                                }}
+                              />
+                            ))}
+                          </PaginationPageGroup>
+                          <PaginationNext
+                            _hover={{
+                              bg: 'transparent',
+                            }}
+                            color={'purple.500'}
+                            bg="transparent"
+                            onClick={() =>
+                              console.log('Im executing my own function along with Next component functionality')
+                            }>
+                            <Text>Следваща</Text>
+                          </PaginationNext>
+                        </PaginationContainer>
+                      </Pagination>
+                    </Stack>
+                  ) : (
+                    <Center h={'50vh'}>
+                      <Text color={'grey.400'}> Все още няма отзиви за тази дата</Text>
+                    </Center>
+                  )}
                 </TabPanel>
                 <TabPanel></TabPanel>
               </TabPanels>

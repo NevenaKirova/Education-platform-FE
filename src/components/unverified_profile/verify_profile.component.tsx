@@ -60,7 +60,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
   const [experience, setExperience] = useState('no');
   const [city, setCity] = useState(null);
   const [cities, setCities] = useState([]);
-  const [showExperienceFields, setShowExperienceFields] = useState(true);
+  const [showExperienceFields, setShowExperienceFields] = useState(false);
   const [dateStartValue, setDateStartValue] = useState([]);
   const [dateEndValue, setDateEndValue] = useState([]);
 
@@ -139,7 +139,6 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
   };
 
   const onSubmit: SubmitHandler<any> = async data => {
-
     console.log(data);
   };
 
@@ -148,14 +147,14 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
     register('picture', { required: 'Полето е задължително' });
   }, [register]);
 
-
   useEffect(() => {
     getData();
   }, []);
 
   useEffect(() => {
-    console.log(errors)
-  }, [errors]);
+    experience == 'yes' ? setShowExperienceFields(true) : setShowExperienceFields(false);
+    reset();
+  }, [experience]);
 
   return (
     <Stack w={{ base: 'full', xl: '60vw' }} spacing={10}>
@@ -584,7 +583,9 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                           newArr[index] = e.value;
                           setDateStartValue(newArr);
                         }}
-                        className={errors?.experienceArr?.[index]?.startDate ? 'invalid-dropdown w-full' : 'p-invalid w-full'}
+                        className={
+                          errors?.experienceArr?.[index]?.startDate ? 'invalid-dropdown w-full' : 'p-invalid w-full'
+                        }
                         maxDate={new Date()}
                         dateFormat="dd M yy"
                         locale={'bg'}
@@ -601,7 +602,9 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                           newArr[index] = e.value;
                           setDateEndValue(newArr);
                         }}
-                        className={errors?.experienceArr?.[index]?.endDate ? 'invalid-dropdown w-full' : 'p-invalid w-full'}
+                        className={
+                          errors?.experienceArr?.[index]?.endDate ? 'invalid-dropdown w-full' : 'p-invalid w-full'
+                        }
                         minDate={new Date(dateStartValue[index])}
                         maxDate={new Date()}
                         dateFormat="dd M yy"

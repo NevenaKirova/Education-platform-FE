@@ -38,18 +38,27 @@ import {
   getUpcomingCourses,
 } from '../../store/features/teacher/teacherCourses/teacherCourses.async';
 import OpenedCourseComponent from '../../components/courses/courses_teacher/opened_course.component';
+import CreateToastMessage from '../../utils/toast.util';
+import { getResponseMessage } from '../../helpers/response.util';
 
 export default function DashboardPage() {
   const { user, userData } = useContext(AuthContext);
   const dispatch = useAppDispatch();
 
-  const courseTypes = ['Всички', 'Активни', 'Неактивни', 'Чернови'];
+  const courseTypes = [
+    { label: 'Всички', type: 'all' },
+    { label: 'Активни', type: 'active' },
+    { label: 'Неактивни', type: 'inactive' },
+    { label: 'Чернови', type: 'draft' },
+  ];
 
   const [showCreateCourse, setShowCreateCourse] = useState(false);
   const [addDateActive, setAddDateActive] = useState(false);
   const [isCourseOpened, setIsCourseOpened] = useState(false);
   const [openedCourse, setOpenedCourse] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [isPrivateLessonToCreate, setIsPrivateLessonToCreate] = useState(false);
+
   const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading } =
     useSelector(getTeacherCourses);
 
@@ -59,11 +68,18 @@ export default function DashboardPage() {
     setShowCreateCourse(true);
   };
 
-  const getCourseTypes = () => {
-    dispatch(getCoursesAll());
-    dispatch(getCoursesActive());
-    dispatch(getCoursesInactive());
-    dispatch(getCoursesDraft());
+  const getCourseTypes = async () => {
+    try {
+      dispatch(getCoursesAll());
+
+      dispatch(getCoursesDraft());
+
+      dispatch(getCoursesActive());
+
+      dispatch(getCoursesInactive());
+    } catch (err) {
+      CreateToastMessage('error', getResponseMessage(err));
+    }
   };
 
   const NoData = () => {
@@ -93,8 +109,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     dispatch(getUpcomingCourses());
-    getCourseTypes();
   }, []);
+
+  useEffect(() => {
+    upcomingCourses && getCourseTypes();
+  }, [upcomingCourses]);
 
   return (
     <Stack
@@ -165,7 +184,7 @@ export default function DashboardPage() {
             </Tab>
           </TabList>
 
-          {isLoading ? (
+          {isLoading && activeTab == 0 ? (
             <PageLoader isLoading={isLoading} />
           ) : (
             <TabPanels pt={4} px={2}>
@@ -176,7 +195,12 @@ export default function DashboardPage() {
                   ) : userData?.verified === false ? (
                     <AwaitingVerificationComponent />
                   ) : upcomingCourses && !upcomingCourses?.length ? (
-                    <CourseNoData />
+                    <CourseNoData
+                      setShowCreateCourse={setShowCreateCourse}
+                      setActiveTab={setActiveTab}
+                      setIsPrivateLessonToCreate={setIsPrivateLessonToCreate}
+                      isPrivateLesson={false}
+                    />
                   ) : (
                     <Stack>
                       <Stack direction={'row'} align={'center'} justify={'space-between'}>
@@ -227,7 +251,7 @@ export default function DashboardPage() {
                   <AwaitingVerificationComponent />
                 ) : isCourseOpened ? (
                   <OpenedCourseComponent
-                    isPrivateLesson={false}
+                    isPrivateLesson={isPrivateLessonToCreate}
                     showCreateCourse={showCreateCourse}
                     setShowCreateCourse={setShowCreateCourse}
                     addDateActive={addDateActive}
@@ -257,7 +281,7 @@ export default function DashboardPage() {
                               color={'purple.500'}
                               border={'dashed 2px'}
                               borderColor={'purple.500'}>
-                              {type}
+                              {type?.label}
                             </Tab>
                           ))}
                         </TabList>
@@ -299,9 +323,9 @@ export default function DashboardPage() {
                             <NoData />
                           )}
                         </TabPanel>
-                        <TabPanel>
-                          {activeCourses && allCourses?.length ? (
-                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={20} mt={8}>
+                        <TabPanel p={0}>
+                          {activeCourses && activeCourses?.length ? (
+                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {activeCourses.map((el, index) => (
                                 <DashboardCourseCard
                                   key={index}
@@ -317,9 +341,9 @@ export default function DashboardPage() {
                             <NoData />
                           )}
                         </TabPanel>
-                        <TabPanel>
-                          {inactiveCourses && allCourses?.length ? (
-                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={20} mt={8}>
+                        <TabPanel p={0}>
+                          {inactiveCourses && inactiveCourses?.length ? (
+                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {inactiveCourses.map((el, index) => (
                                 <DashboardCourseCard
                                   key={index}
@@ -335,9 +359,9 @@ export default function DashboardPage() {
                             <NoData />
                           )}
                         </TabPanel>
-                        <TabPanel>
-                          {draftCourses && allCourses?.length ? (
-                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={20} mt={8}>
+                        <TabPanel p={0}>
+                          {draftCourses && draftCourses?.length ? (
+                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {draftCourses.map((el, index) => (
                                 <DashboardCourseCard
                                   key={index}
@@ -358,7 +382,7 @@ export default function DashboardPage() {
                   </Stack>
                 ) : (
                   <CreateCourseComponent
-                    isPrivateLesson={false}
+                    isPrivateLesson={isPrivateLessonToCreate}
                     setShowCreateCourse={setShowCreateCourse}
                     showCreateCourse={showCreateCourse}
                     addDateActive={addDateActive}

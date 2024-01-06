@@ -3,7 +3,17 @@ import { Button, Heading, Image, Img, Stack, Text } from '@chakra-ui/react';
 import { noData } from '../../../images';
 import { add, addWhite } from '../../../icons';
 
-export default function CourseNoData() {
+export default function CourseNoData({
+  setShowCreateCourse,
+  setActiveTab,
+  setIsPrivateLessonToCreate,
+  isPrivateLesson = false,
+}: {
+  setShowCreateCourse: any;
+  setActiveTab: any;
+  setIsPrivateLessonToCreate;
+  isPrivateLesson: boolean;
+}) {
   return (
     <Stack direction={'column'}>
       <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
@@ -20,7 +30,12 @@ export default function CourseNoData() {
           fontSize={{ base: 16, '2xl': 20 }}
           fontWeight={700}
           _hover={{ bg: 'purple.500', opacity: 0.9 }}
-          w={'20%'}>
+          w={'20%'}
+          onClick={() => {
+            setShowCreateCourse(true);
+            setActiveTab(1);
+            setIsPrivateLessonToCreate(isPrivateLesson);
+          }}>
           <Stack direction={'row'} align={'center'} spacing={2}>
             <Img src={addWhite} alt={'add course'} />
             <Text> Създай курс </Text>

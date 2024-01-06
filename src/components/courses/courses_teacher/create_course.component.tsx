@@ -40,6 +40,7 @@ import {
   getCoursesAll,
   getCoursesDraft,
   getCoursesInactive,
+  getUpcomingCourses,
 } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
 import CourseAddDate, { DatesForm } from './course_add_date';
 
@@ -199,6 +200,7 @@ const CreateCourseComponent = ({
       setShowCreateCourse(false);
       refreshCourseForm();
       dispatch(getCoursesDraft());
+      dispatch(getCoursesAll());
 
       toast({
         title: 'Успешно запазване на чернова',
@@ -222,7 +224,7 @@ const CreateCourseComponent = ({
   const onSubmit: SubmitHandler<any> = async data => {
     const oneHasTitle = data.themas.some(el => el.title);
 
-    if (!data.themas.length || !oneHasTitle) {
+    if (!data?.themas?.length || !oneHasTitle) {
       setShowThemasError(true);
       handleScroll(themesRef);
     } else {
@@ -236,6 +238,7 @@ const CreateCourseComponent = ({
         dispatch(getCoursesAll());
         dispatch(getCoursesActive());
         dispatch(getCoursesInactive());
+        dispatch(getUpcomingCourses());
 
         toast({
           title: 'Успешно създаване на курс',

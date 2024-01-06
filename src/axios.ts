@@ -6,13 +6,14 @@ export const BASE_URL = 'https://myclassroomapi-v6.onrender.com/api/v1';
 
 export default axios.create({
   baseURL: BASE_URL,
+  'Access-Control-Allow-Credentials': true,
 });
 
 let authTokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens') || '') : '';
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
+  'Access-Control-Allow-Credentials': true,
 });
 
 axiosInstance.interceptors.request.use(async req => {
