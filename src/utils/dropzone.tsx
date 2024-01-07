@@ -3,18 +3,18 @@ import { useDropzone } from 'react-dropzone';
 import { Center, Stack, Img, Text } from '@chakra-ui/react';
 import { fileDownload, fileUploadGrey } from '../icons';
 
-export default function Dropzone({ onFileAccepted, isMultiple = false }: { onFileAccepted: any; isMultiple: boolean }) {
+export default function Dropzone({ onFileAccepted }: { onFileAccepted: any }) {
   const onDrop = useCallback(
     acceptedFiles => {
-      isMultiple ? onFileAccepted(acceptedFiles) : onFileAccepted(acceptedFiles[0]);
+      onFileAccepted(acceptedFiles[0]);
     },
     [onFileAccepted],
   );
 
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     onDrop,
-    maxFiles: isMultiple ? 4 : 1,
-    multiple: isMultiple,
+    maxFiles: 1,
+    multiple: false,
   });
 
   const acceptedFileItems = acceptedFiles.map(file => {
@@ -43,7 +43,7 @@ export default function Dropzone({ onFileAccepted, isMultiple = false }: { onFil
       {acceptedFileItems.length ? (
         <Stack direction={'row'} align={'center'} spacing={2}>
           <Img src={fileDownload} alt={'uploaded file'} w={5} h={5} />
-          <Text>{acceptedFileItems}</Text>
+          <Text as={'span'}>{acceptedFileItems}</Text>
         </Stack>
       ) : (
         ''

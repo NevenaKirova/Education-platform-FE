@@ -100,6 +100,7 @@ const LoginModal = ({
   const onSubmit: SubmitHandler<InputsLogin> = async data => {
     await loginUser(data);
     reset();
+    window.location.href = '/';
   };
   const onSubmitReg: SubmitHandler<InputsRegister> = async data => {
     setIsFormLoading(true);

@@ -221,15 +221,15 @@ const CourseAddDate = ({
           </Text>
           <Stack direction={'row'} spacing={10} align={'center'}>
             <Calendar
-              value={dateStartValue}
-              onChange={e => {
-                setValueDate('startDate', format(e.value, 'yyyy-MM-dd'));
-                setDateStartValue(e.value);
-              }}
-              minDate={new Date()}
-              dateFormat="dd M yy"
-              locale={'bg'}
-              showIcon
+                value={dateStartValue}
+                onChange={e => {
+                  setValueDate('startDate', format(e.value, 'yyyy-MM-dd'));
+                  setDateStartValue(e.value);
+                }}
+                minDate={new Date()}
+                dateFormat="dd M yy"
+                locale={'bg'}
+                showIcon
             />
             <Text> - </Text>
 

@@ -26,100 +26,119 @@ export default function CourseCard({ course }: { course: CourseType }) {
   const [heartIcon, setHeartIcon] = useState(heart);
 
   return (
-    <Center py={6} w={'full'} transition={'transform .2s'} _hover={{ transform: 'scale(1.04)  perspective(1px)' }}>
+    <Center
+      h={'full'}
+      py={6}
+      w={'full'}
+      transition={'transform .2s'}
+      _hover={{ transform: 'scale(1.04)  perspective(1px)' }}>
       <Box
         as={ReactRouterLink}
         to={`/lessons/${course?.lessonID}`}
         maxW={{ base: '70vw', sm: '39vw', md: '35vw', lg: '25vw', xl: '24vw', '2xl': '20vw' }}
+        h={'full'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.900')}
         rounded={'md'}
         p={6}
         boxShadow="custom"
         overflow={'hidden'}>
-        <Box bg={'white'} mt={-6} mx={-6} pos={'relative'} rounded="lg">
-          <Image
-            src={
-              'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-            }
-            alt="Course image"
-            borderRadius={20}
-            p={4}
-          />
-        </Box>
-        <Stack
-          direction={{ base: 'column', lg: 'row' }}
-          align={{ base: 'start', lg: 'center' }}
-          justify={'space-between'}
-          flexWrap={'wrap'}>
-          <HStack align={'center'} flexWrap={'wrap'}>
-            <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-              <Text color={'purple.500'} fontSize={10} fontWeight={600}>
-                1 {course?.studentsUpperBound > 1 ? `- ${course?.studentsUpperBound} ученици` : 'ученик'}
-              </Text>
-            </Tag>
+        <Stack h={'full'} justify={'space-between'}>
+          <Stack>
+            <Box bg={'white'} mt={-6} mx={-6} pos={'relative'} rounded="lg">
+              <Image
+                src={
+                  'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+                }
+                alt="Course image"
+                borderRadius={20}
+                p={4}
+              />
+            </Box>
+            <Stack
+              direction={{ base: 'column' }}
+              align={{ base: 'start', lg: 'start' }}
+              justify={'space-between'}
+              flexWrap={'wrap'}>
+              <HStack align={'center'} flexWrap={'wrap'}>
+                <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
+                  <Text color={'purple.500'} fontSize={10} fontWeight={600}>
+                    1 {course?.studentsUpperBound > 1 ? `- ${course?.studentsUpperBound} ученици` : 'ученик'}
+                  </Text>
+                </Tag>
 
-            <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-              <Text color={'purple.500'} fontSize={10} fontWeight={600}>
-                {course?.weekLength} седмици
-              </Text>
-            </Tag>
+                <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
+                  <Text color={'purple.500'} fontSize={10} fontWeight={600}>
+                    {course?.weekLength} седмици
+                  </Text>
+                </Tag>
 
-            {course.grade && (
-              <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-                <Text color={'purple.500'} fontSize={10} fontWeight={600}>
-                  {course?.grade}
+                {course.grade && (
+                  <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
+                    <Text color={'purple.500'} fontSize={10} fontWeight={600}>
+                      {course?.grade}
+                    </Text>
+                  </Tag>
+                )}
+
+                {course?.privateLesson === false && course?.numberOfStudents && (
+                  <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
+                    <Text as="span" color={'purple.500'} fontSize={10} fontWeight={600}>
+                      {course?.numberOfStudents + '/' + course.studentsUpperBound}
+                    </Text>
+                    <IconButton
+                      aria-label={'students'}
+                      size="xs"
+                      bg={'none'}
+                      p={0}
+                      _hover={{ bg: 'none' }}
+                      h={'fit'}
+                      icon={<Img src={user} w={4} h={3} />}
+                    />
+                  </Tag>
+                )}
+              </HStack>
+
+              <HStack align={'center'} spacing={1}>
+                <BsStarFill style={{ marginLeft: '1' }} color={'gold'} />
+                <Text color={'grey.600'} fontSize={12}>
+                  {course?.rating}
                 </Text>
-              </Tag>
-            )}
 
-            {course?.privateLesson === false && course?.numberOfStudents && (
-              <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-                <Text as="span" color={'purple.500'} fontSize={10} fontWeight={600}>
-                  {course?.numberOfStudents + '/' + course.studentsUpperBound}
+                <Text color={'grey.500'} fontSize={12}>
+                  ({course?.numberOfReviews} отзива)
                 </Text>
-                <IconButton
-                  aria-label={'students'}
-                  size="xs"
-                  bg={'none'}
-                  p={0}
-                  _hover={{ bg: 'none' }}
-                  h={'fit'}
-                  icon={<Img src={user} w={4} h={3} />}
-                />
-              </Tag>
-            )}
-          </HStack>
+              </HStack>
 
-          <HStack align={'center'} spacing={1}>
-            <BsStarFill style={{ marginLeft: '1' }} color={'gold'} />
-            <Text color={'grey.600'} fontSize={12}>
-              {course?.rating}
-            </Text>
+              <Stack mt={6} direction={'column'} spacing={4} align={'start'}>
+                <Heading color={'gray.700'} fontSize={{ base: 'lg', md: 'xl' }} textAlign={'start'}>
+                  {course?.title}
+                </Heading>
+                <Stack
+                  direction={'row'}
+                  spacing={2}
+                  align={'center'}
+                  justify={'space-between'}
+                  flexWrap={'wrap'}
+                  w={'full'}>
+                  <Stack direction={'row'} align={'center'}>
+                    <Avatar
+                      size={{ base: 'xs', md: 'sm' }}
+                      src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
+                    />
+                    <Text color={'grey.500'}>
+                      {course.teacherName} {course.teacherSurname}
+                    </Text>
+                  </Stack>
 
-            <Text color={'grey.500'} fontSize={12}>
-              ({course?.numberOfReviews} отзива)
-            </Text>
-          </HStack>
-        </Stack>
-
-        <Stack mt={6} direction={'column'} spacing={4} align={'start'}>
-          <Heading color={'gray.700'} fontSize={{ base: 'lg', md: 'xl' }} textAlign={'start'}>
-            {course?.title}
-          </Heading>
-          <Stack direction={'row'} spacing={2} align={'center'} justify={'space-between'} flexWrap={'wrap'} w={'full'}>
-            <Stack direction={'row'} align={'center'}>
-              <Avatar size={{ base: 'xs', md: 'sm' }} src={'https://avatars0.githubusercontent.com/u/1164541?v=4'} />
-              <Text color={'grey.500'}>
-                {course.teacherName} {course.teacherSurname}
-              </Text>
+                  <Text color={'grey.500'}>
+                    {course?.firstDate &&
+                      course?.time &&
+                      `${format(new Date(course?.firstDate), ' dd/MM/yyyy')} ${course?.time}ч`}
+                  </Text>
+                </Stack>
+              </Stack>
             </Stack>
-
-            <Text color={'grey.500'}>
-              {course?.firstDate &&
-                course?.time &&
-                `${format(new Date(course?.firstDate), ' dd/MM/yyyy')} ${course?.time}ч`}
-            </Text>
           </Stack>
 
           <Stack

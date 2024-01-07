@@ -75,9 +75,9 @@ const CourseResources = ({
               <Text fontSize={14} fontWeight={600}>
                 Стоян Иванов
               </Text>
-              <Button bg={'transparent'} _hover={{ bg: 'transparent' }} p={0}>
+              <Box as={Button} bg={'transparent'} _hover={{ bg: 'transparent' }} p={0}>
                 <Img src={message} w={5} h={5} />
-              </Button>
+              </Box>
             </Stack>
           </Stack>
         </GridItem>
@@ -140,7 +140,8 @@ const CourseResources = ({
                 {course?.title}
               </Heading>
 
-              <Button
+              <Box
+                as={Button}
                 size={{ base: 'md', lg: 'md' }}
                 color={'purple.500'}
                 bg={'transparent'}
@@ -160,7 +161,7 @@ const CourseResources = ({
                   <Img src={edit} alt={'edit date'} h={5} w={5} />
                   <Text>Редактирай курса</Text>
                 </Stack>
-              </Button>
+              </Box>
             </Stack>
 
             <Stack spacing={4}>
@@ -244,7 +245,7 @@ const CourseResources = ({
               <AccordionItem key={index} py={4} borderTop={0} borderBottom={'1px solid'} borderColor={'grey.100'}>
                 {({ isExpanded }) => (
                   <>
-                    <AccordionButton>
+                    <AccordionButton as={Stack} direction={'row'}>
                       <Heading flex={1} fontSize={{ base: 18, lg: 24 }} textAlign="start" color={'grey.600'}>
                         {el?.title}
                       </Heading>
@@ -260,7 +261,8 @@ const CourseResources = ({
                           icon={<Img src={add} w={5} onClick={ev => openResourcesModal(ev, el?.themaID, el?.title)} />}
                         />
 
-                        <IconButton
+                        <Box
+                          as={IconButton}
                           aria-label={'edit theme'}
                           size="xs"
                           bg={'none'}
@@ -314,7 +316,8 @@ const CourseResources = ({
                               </Stack>
 
                               <Stack direction={'row'}>
-                                <IconButton
+                                <Box
+                                  as={IconButton}
                                   aria-label={'edit theme'}
                                   size="xs"
                                   bg={'none'}

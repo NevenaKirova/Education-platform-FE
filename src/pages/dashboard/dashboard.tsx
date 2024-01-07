@@ -29,7 +29,7 @@ import CourseNoData from '../../components/courses/course_card/course_no_data.co
 import CreateCourseComponent from '../../components/courses/courses_teacher/create_course.component';
 import { noneToShow } from '../../images';
 import PageLoader from '../../utils/loader.component';
-import { getTeacherCourses } from '../../store/selectors';
+import { getTeacherCourses, getTeacherLessons } from '../../store/selectors';
 import {
   getCoursesActive,
   getCoursesAll,
@@ -40,6 +40,7 @@ import {
 import OpenedCourseComponent from '../../components/courses/courses_teacher/opened_course.component';
 import CreateToastMessage from '../../utils/toast.util';
 import { getResponseMessage } from '../../helpers/response.util';
+import CreateLessonComponent from '../../components/courses/courses_teacher/create_lesson.component';
 
 export default function DashboardPage() {
   const { user, userData } = useContext(AuthContext);
@@ -53,6 +54,7 @@ export default function DashboardPage() {
   ];
 
   const [showCreateCourse, setShowCreateCourse] = useState(false);
+  const [showCreateLesson, setShowCreateLesson] = useState(false);
   const [addDateActive, setAddDateActive] = useState(false);
   const [isCourseOpened, setIsCourseOpened] = useState(false);
   const [openedCourse, setOpenedCourse] = useState(null);
@@ -62,8 +64,20 @@ export default function DashboardPage() {
   const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading } =
     useSelector(getTeacherCourses);
 
+  const {
+    allLessons,
+    activeLessons,
+    inactiveLessons,
+    draftLessons,
+    isLoading: isLessonLoading,
+  } = useSelector(getTeacherLessons);
+
   const showCourseForm = () => {
     setShowCreateCourse(true);
+  };
+
+  const showLessonForm = () => {
+    setShowCreateLesson(true);
   };
 
   const getCourseTypes = async () => {
@@ -80,12 +94,12 @@ export default function DashboardPage() {
     }
   };
 
-  const NoData = () => {
+  const NoData = ({ isPrivateLesson = false }: { isPrivateLesson?: boolean }) => {
     return (
       <Center h={'50vh'}>
         <Stack justify={'center'} align={'center'} spacing={6}>
           <Image src={noneToShow} alt="Profile Verification" h={'40vh'} />
-          <Text color={'grey.400'}>Нямате създадени курсове</Text>
+          <Text color={'grey.400'}>Нямате създадени {isPrivateLesson ? 'уроци' : 'курсове'} </Text>
           <Button
             size={{ base: 'md', lg: 'md' }}
             color={'white'}
@@ -94,10 +108,10 @@ export default function DashboardPage() {
             fontSize={{ base: 16, '2xl': 20 }}
             fontWeight={700}
             _hover={{ bg: 'purple.500', opacity: 0.9 }}
-            onClick={showCourseForm}>
+            onClick={() => (isPrivateLesson ? showLessonForm() : showCourseForm())}>
             <Stack direction={'row'} align={'center'} spacing={2}>
               <Img src={addWhite} alt={'add course'} />
-              <Text> Създай курс </Text>
+              <Text>{isPrivateLesson ? 'Създай урок' : 'Създай курс'} </Text>
             </Stack>
           </Button>
         </Stack>
@@ -147,7 +161,12 @@ export default function DashboardPage() {
               whiteSpace={'no-wrap'}
               maxW={'fit-content'}
               minW={'fit-content'}
-              _selected={{ color: 'purple.500', fontWeight: 700 }}>
+              _selected={{ color: 'purple.500', fontWeight: 700 }}
+              onClick={() => {
+                setShowCreateCourse(false);
+                setShowCreateLesson(false);
+                setAddDateActive(false);
+              }}>
               <Text>Начало</Text>
             </Tab>
             <Tab
@@ -159,6 +178,7 @@ export default function DashboardPage() {
               _selected={{ color: 'purple.500', fontWeight: 700 }}
               onClick={() => {
                 setShowCreateCourse(false);
+                setShowCreateLesson(false);
                 setAddDateActive(false);
               }}>
               <Text>Моите курсове</Text>
@@ -169,7 +189,12 @@ export default function DashboardPage() {
               color={'grey.500'}
               maxW={'fit-content'}
               minW={'fit-content'}
-              _selected={{ color: 'purple.500', fontWeight: 700 }}>
+              _selected={{ color: 'purple.500', fontWeight: 700 }}
+              onClick={() => {
+                setShowCreateCourse(false);
+                setShowCreateLesson(false);
+                setAddDateActive(false);
+              }}>
               <Text>Моите частни уроци</Text>
             </Tab>
 
@@ -179,7 +204,12 @@ export default function DashboardPage() {
               color={'grey.500'}
               maxW={'fit-content'}
               minW={'fit-content'}
-              _selected={{ color: 'purple.500', fontWeight: 700 }}>
+              _selected={{ color: 'purple.500', fontWeight: 700 }}
+              onClick={() => {
+                setShowCreateCourse(false);
+                setShowCreateLesson(false);
+                setAddDateActive(false);
+              }}>
               <Text>Приходи</Text>
             </Tab>
           </TabList>
@@ -197,9 +227,9 @@ export default function DashboardPage() {
                   ) : upcomingCourses && !upcomingCourses?.length ? (
                     <CourseNoData
                       setShowCreateCourse={setShowCreateCourse}
+                      setShowCreateLesson={setShowCreateLesson}
                       setActiveTab={setActiveTab}
                       setIsPrivateLessonToCreate={setIsPrivateLessonToCreate}
-                      isPrivateLesson={false}
                     />
                   ) : (
                     <Stack>
@@ -385,6 +415,152 @@ export default function DashboardPage() {
                     isPrivateLesson={isPrivateLessonToCreate}
                     setShowCreateCourse={setShowCreateCourse}
                     showCreateCourse={showCreateCourse}
+                    addDateActive={addDateActive}
+                    setAddDateActive={setAddDateActive}
+                  />
+                )}
+              </TabPanel>
+
+              <TabPanel p={{ base: 2 }}>
+                {userData?.verified === false ? (
+                  <UnverifiedComponent />
+                ) : userData?.verified === false ? (
+                  <AwaitingVerificationComponent />
+                ) : isCourseOpened ? (
+                  <OpenedCourseComponent
+                    isPrivateLesson={isPrivateLessonToCreate}
+                    showCreateCourse={showCreateLesson}
+                    setShowCreateCourse={setShowCreateCourse}
+                    addDateActive={addDateActive}
+                    setAddDateActive={setAddDateActive}
+                    setIsCourseOpened={setIsCourseOpened}
+                    course={openedCourse}
+                  />
+                ) : !showCreateLesson ? (
+                  <Stack spacing={10} mt={4}>
+                    <Heading
+                      flex={1}
+                      as="h1"
+                      fontSize={{ base: 24, lg: 32, xl: 30 }}
+                      textAlign="start"
+                      color={'grey.600'}>
+                      Моите частни уроци
+                    </Heading>
+
+                    <Tabs variant="unstyled" w={'full'}>
+                      <Stack direction={'row'} justify={'space-between'} align={'center'}>
+                        <TabList gap={8}>
+                          {courseTypes.map((type, index) => (
+                            <Tab
+                              key={index}
+                              _selected={{ color: 'white', bg: 'purple.500' }}
+                              rounded={'md'}
+                              color={'purple.500'}
+                              border={'dashed 2px'}
+                              borderColor={'purple.500'}>
+                              {type?.label}
+                            </Tab>
+                          ))}
+                        </TabList>
+
+                        {allLessons && allLessons.length && (
+                          <Button
+                            size={{ base: 'md', lg: 'md' }}
+                            color={'white'}
+                            bg={'purple.500'}
+                            fontSize={{ base: 16, '2xl': 20 }}
+                            fontWeight={700}
+                            _hover={{ bg: 'purple.500', opacity: 0.9 }}
+                            w={'20%'}
+                            onClick={showLessonForm}>
+                            <Stack direction={'row'} align={'center'} spacing={2}>
+                              <Img src={addWhite} alt={'add course'} />
+                              <Text> Създай урок </Text>
+                            </Stack>
+                          </Button>
+                        )}
+                      </Stack>
+
+                      <TabPanels pt={2}>
+                        <TabPanel p={0}>
+                          {allLessons && allLessons?.length ? (
+                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
+                              {allLessons.map((el, index) => (
+                                <DashboardCourseCard
+                                  key={index}
+                                  course={el}
+                                  setIsCourseOpened={setIsCourseOpened}
+                                  setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
+                                />
+                              ))}
+                            </SimpleGrid>
+                          ) : (
+                            <NoData isPrivateLesson={true} />
+                          )}
+                        </TabPanel>
+                        <TabPanel p={0}>
+                          {activeLessons && activeLessons?.length ? (
+                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
+                              {activeLessons.map((el, index) => (
+                                <DashboardCourseCard
+                                  key={index}
+                                  course={el}
+                                  setIsCourseOpened={setIsCourseOpened}
+                                  setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
+                                />
+                              ))}
+                            </SimpleGrid>
+                          ) : (
+                            <NoData isPrivateLesson={true} />
+                          )}
+                        </TabPanel>
+                        <TabPanel p={0}>
+                          {inactiveLessons && inactiveLessons?.length ? (
+                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
+                              {inactiveLessons.map((el, index) => (
+                                <DashboardCourseCard
+                                  key={index}
+                                  course={el}
+                                  setIsCourseOpened={setIsCourseOpened}
+                                  setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
+                                />
+                              ))}
+                            </SimpleGrid>
+                          ) : (
+                            <NoData isPrivateLesson={true} />
+                          )}
+                        </TabPanel>
+                        <TabPanel p={0}>
+                          {draftLessons && draftLessons?.length ? (
+                            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
+                              {draftLessons.map((el, index) => (
+                                <DashboardCourseCard
+                                  key={index}
+                                  course={el}
+                                  setIsCourseOpened={setIsCourseOpened}
+                                  setOpenedCourse={setOpenedCourse}
+                                  activeTab={activeTab}
+                                  isGrid={true}
+                                />
+                              ))}
+                            </SimpleGrid>
+                          ) : (
+                            <NoData isPrivateLesson={true} />
+                          )}
+                        </TabPanel>
+                      </TabPanels>
+                    </Tabs>
+                  </Stack>
+                ) : (
+                  <CreateLessonComponent
+                    setShowCreateCourse={setShowCreateLesson}
+                    showCreateCourse={showCreateLesson}
                     addDateActive={addDateActive}
                     setAddDateActive={setAddDateActive}
                   />

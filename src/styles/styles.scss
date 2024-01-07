@@ -157,7 +157,7 @@ form {
   width: 100%;
 }
 
-.p-calendar {
+.p-calendar:not(.max-w-full) {
   max-width: 240px;
 }
 
@@ -180,4 +180,8 @@ form {
 
 .invalid-dropdown{
   border: 2px solid #E53E3E
+}
+
+.chakra-radio__control{
+  background: #ebedf1;
 }

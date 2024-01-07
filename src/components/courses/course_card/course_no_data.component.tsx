@@ -5,14 +5,14 @@ import { add, addWhite } from '../../../icons';
 
 export default function CourseNoData({
   setShowCreateCourse,
+  setShowCreateLesson,
   setActiveTab,
   setIsPrivateLessonToCreate,
-  isPrivateLesson = false,
 }: {
   setShowCreateCourse: any;
+  setShowCreateLesson: any;
   setActiveTab: any;
   setIsPrivateLessonToCreate;
-  isPrivateLesson: boolean;
 }) {
   return (
     <Stack direction={'column'}>
@@ -33,8 +33,9 @@ export default function CourseNoData({
           w={'20%'}
           onClick={() => {
             setShowCreateCourse(true);
+            setShowCreateLesson(false);
             setActiveTab(1);
-            setIsPrivateLessonToCreate(isPrivateLesson);
+            setIsPrivateLessonToCreate(false);
           }}>
           <Stack direction={'row'} align={'center'} spacing={2}>
             <Img src={addWhite} alt={'add course'} />
@@ -48,7 +49,13 @@ export default function CourseNoData({
           bg={'transparent'}
           fontSize={{ base: 16, '2xl': 20 }}
           fontWeight={700}
-          _hover={{ bg: 'transparent' }}>
+          _hover={{ bg: 'transparent' }}
+          onClick={() => {
+            setShowCreateCourse(false);
+            setShowCreateLesson(true);
+            setActiveTab(2);
+            setIsPrivateLessonToCreate(true);
+          }}>
           <Stack direction={'row'} align={'center'} spacing={2}>
             <Img src={add} alt={'аdd lesson'} />
             <Text> Създай частен урок </Text>
