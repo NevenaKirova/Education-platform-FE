@@ -48,6 +48,8 @@ import {
 } from '@ajna/pagination';
 import { Dropdown } from 'primereact/dropdown';
 import PageLoader from '../../../utils/loader.component';
+import { useAppDispatch } from '../../../store';
+import { getCoursesAll } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
 
 const sortValues = [
   { name: 'Най-нови', value: 'Newest' },
@@ -74,6 +76,7 @@ const OpenedCourseComponent = ({
   course: any;
 }) => {
   const toast = useToast();
+  const dispatch = useAppDispatch();
 
   const [showAddResources, setShowAddResources] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
@@ -88,11 +91,11 @@ const OpenedCourseComponent = ({
   const [isLoading, setIsLoading] = useState(false);
   const [openedTheme, setOpenedTheme] = useState(null);
 
-  const getCourseDates = async course => {
-    if (course.lessonID) {
+  const getCourseDates = async courseId => {
+    if (courseId) {
       setIsLoading(true);
       try {
-        const res: any[] = await axiosInstance.get(`/lessons/getCourseDates/${course.lessonID}`);
+        const res: any[] = await axiosInstance.get(`/lessons/getCourseDates/${courseId}`);
 
         setDates(res.data);
         setIsLoading(false);
@@ -110,10 +113,13 @@ const OpenedCourseComponent = ({
   };
 
   const getCourseInformation = async () => {
+    setIsLoading(true);
     try {
       const res = await axiosInstance.get(`lessons/getCourseInformation/${course?.lessonID}`);
       setCourseInfo(res.data);
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       toast({
         title: getResponseMessage(err),
         status: 'error',
@@ -180,8 +186,27 @@ const OpenedCourseComponent = ({
     }
   };
 
+  const handleDeleteCourse = async () => {
+    try {
+      await axiosInstance.get(`lessons/deleteCourse/${course.lessonID}`);
+      setShowCreateCourse(false);
+      setAddDateActive(false);
+      setIsCourseOpened(false);
+      setOpenedTheme(null);
+      dispatch(getCoursesAll());
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
   useEffect(() => {
-    getCourseDates(course);
+    getCourseDates(course.lessonID);
   }, [course.lessonID]);
 
   useEffect(() => {
@@ -424,11 +449,7 @@ const OpenedCourseComponent = ({
                           _hover={{ bg: 'transparent' }}
                           px={8}
                           w={'fit-content'}
-                          onClick={() => {
-                            setShowCreateCourse(true);
-                            setActiveTab(1);
-                            setEditInfo(true);
-                          }}>
+                          onClick={handleDeleteCourse}>
                           <Stack direction={'row'} align={'center'} spacing={2}>
                             <Img src={trash} alt={'delete course'} h={5} w={5} />
                             <Text>Изтрий курса</Text>
@@ -472,7 +493,7 @@ const OpenedCourseComponent = ({
                           </Button>
                         </>
                       )
-                    ) : showCreateCourse ? null : (
+                    ) : showCreateCourse || addDateActive ? null : (
                       <Button
                         size={{ base: 'md', lg: 'md' }}
                         color={'white'}
@@ -518,104 +539,119 @@ const OpenedCourseComponent = ({
                 <TabPanel px={0}>
                   {editInfo ? (
                     <CreateCourseComponent
-                      isPrivateLesson={isPrivateLesson}
                       setShowCreateCourse={setShowCreateCourse}
                       showCreateCourse={showCreateCourse}
                       addDateActive={addDateActive}
                       setAddDateActive={setAddDateActive}
-                      isEdit={true}
+                      editInfo={editInfo}
+                      setEditInfo={setEditInfo}
+                      courseInfo={courseInfo}
+                      courseId={course?.lessonID}
+                      getCourseDates={getCourseDates}
                     />
                   ) : (
                     <Stack rounded={'md'} p={6} mt={8} direction={'column'} spacing={8} bg={'purple.100'}>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Заглавие
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
+                      isLoading ? <PageLoader isLoading={isLoading} /> : (
+                      <>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Заглавие
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.title}
+                          </Text>
+                        </Stack>
 
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Предмет
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Клас
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Описание на курса
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Теми в курса
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Дължина на урока
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Брой ученици
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Продължителност
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Уроци седмично
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Цена на курса
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
-                      <Stack direction={'column'} spacing={4}>
-                        <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                          Дати на провеждане
-                        </Text>
-                        <Text color={'grey.500'} fontSize={18}>
-                          Математика за 7 клас
-                        </Text>
-                      </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Предмет
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.subject}
+                          </Text>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Клас
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.grade}
+                          </Text>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Описание на курса
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.description}
+                          </Text>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Теми в курса
+                          </Text>
+                          <Stack spacing={4}>
+                            {courseInfo?.themas?.map((el, index) => (
+                              <Text key={index} color={'grey.500'} fontSize={18}>
+                                {el?.title}
+                              </Text>
+                            ))}
+                          </Stack>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Дължина на урока
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.length} мин.
+                          </Text>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Брой ученици
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.studentsUpperBound}
+                          </Text>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Продължителност
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.weekLength} {courseInfo?.weekLength === 1 ? 'седмица' : 'седмици'}
+                          </Text>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Цена на курса
+                          </Text>
+                          <Text color={'grey.500'} fontSize={18}>
+                            {courseInfo?.price} лв.
+                          </Text>
+                        </Stack>
+                        <Stack direction={'column'} spacing={4}>
+                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                            Дати на провеждане
+                          </Text>
+                          <Stack spacing={4}>
+                            {courseInfo?.courseTerminResponses?.map((el, index) => (
+                              <Stack key={index} spacing={4} direction={'row'}>
+                                <Text color={'grey.500'} fontSize={18}>
+                                  {capitalizeMonth(format(new Date(el?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
+                                  {el?.endDate &&
+                                    capitalizeMonth(format(new Date(el?.endDate), 'dd LLL yyyy', { locale: bg }))}
+                                </Text>
+
+                                <Text fontSize={18}>{el?.courseDays}</Text>
+
+                                <Text fontSize={18}>{el?.courseHours}</Text>
+                              </Stack>
+                            ))}
+                          </Stack>
+                        </Stack>
+                      </>
+                      )
                     </Stack>
                   )}
                 </TabPanel>
@@ -738,7 +774,6 @@ const OpenedCourseComponent = ({
                     </Center>
                   )}
                 </TabPanel>
-                <TabPanel></TabPanel>
               </TabPanels>
             </Tabs>
           </Stack>

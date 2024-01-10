@@ -412,7 +412,6 @@ export default function DashboardPage() {
                   </Stack>
                 ) : (
                   <CreateCourseComponent
-                    isPrivateLesson={isPrivateLessonToCreate}
                     setShowCreateCourse={setShowCreateCourse}
                     showCreateCourse={showCreateCourse}
                     addDateActive={addDateActive}

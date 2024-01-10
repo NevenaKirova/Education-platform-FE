@@ -56,7 +56,7 @@ type Inputs = {
   studentsUpperBound: number | null;
   price: number | string | null;
   description: string | null;
-  themas: [];
+  themas: any[];
   length: string;
   courseTerminRequests: DatesForm[];
 };
@@ -71,6 +71,18 @@ export const daysArr = [
   { name: 'Неделя', short: 'Нд', value: 7 },
 ];
 
+const defaultCourseValues = {
+  title: null,
+  grade: null,
+  subject: null,
+  price: 200,
+  studentsUpperBound: 1,
+  description: null,
+  length: '60',
+  courseTerminRequests: [],
+  themas: [{ title: '', description: '' }, {}, {}],
+};
+
 export const addMinutesToString = (time, length) => {
   function D(J) {
     return (J < 10 ? '0' : '') + J;
@@ -82,19 +94,25 @@ export const addMinutesToString = (time, length) => {
   return D(((mins % (24 * 60)) / 60) | 0) + ':' + D(mins % 60);
 };
 const CreateCourseComponent = ({
-  isPrivateLesson,
   setShowCreateCourse,
   showCreateCourse,
   addDateActive,
   setAddDateActive,
-  isEdit = false,
+  setEditInfo,
+  editInfo,
+  courseInfo,
+  courseId,
+  getCourseDates,
 }: {
-  isPrivateLesson: boolean;
   setShowCreateCourse: any;
   showCreateCourse: boolean;
   addDateActive: boolean;
   setAddDateActive: any;
-  isEdit?: boolean;
+  setEditInfo?: any;
+  editInfo?: any;
+  courseInfo?: any;
+  courseId?: number;
+  getCourseDates?: any;
 }) => {
   const toast = useToast();
   const dispatch = useAppDispatch();
@@ -111,6 +129,7 @@ const CreateCourseComponent = ({
   const [editableIndexes, setEditableIndexes] = useState([]);
   const [courseLength, setCourseLength] = useState<string>('60');
   const [showThemasError, setShowThemasError] = useState(false);
+  const [course, setCourse] = useState(defaultCourseValues);
 
   const {
     register,
@@ -123,18 +142,8 @@ const CreateCourseComponent = ({
     control,
     formState: { errors },
   } = useForm<Inputs>({
-    defaultValues: {
-      title: null,
-      grade: null,
-      subject: null,
-      isPrivateLesson: false,
-      price: 200,
-      studentsUpperBound: 1,
-      description: null,
-      length: '60',
-      courseTerminRequests: [],
-      themas: [{ title: '', description: '' }, {}, {}],
-    },
+    defaultValues: course,
+    values: course,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -231,17 +240,28 @@ const CreateCourseComponent = ({
       data.themas = data.themas.filter(el => el.title.length);
       setIsLoading(true);
       try {
-        await axiosInstance.post('/lessons/createCourse', data);
+        if (editInfo) {
+          if (!!courseInfo && courseInfo.isDraft) {
+            await axiosInstance.post(`/lessons/editCourseDraft/${courseId}`, data);
+          } else {
+            await axiosInstance.post(`/lessons/editCourse/${courseId}`, data);
+          }
+          getCourseDates(...data);
+        } else {
+          await axiosInstance.post('/lessons/createCourse', data);
+          dispatch(getCoursesAll());
+          dispatch(getCoursesActive());
+          dispatch(getCoursesInactive());
+          dispatch(getUpcomingCourses());
+        }
 
         setShowCreateCourse(false);
+        setEditInfo(false);
         refreshCourseForm();
-        dispatch(getCoursesAll());
-        dispatch(getCoursesActive());
-        dispatch(getCoursesInactive());
-        dispatch(getUpcomingCourses());
+
         setIsLoading(false);
         toast({
-          title: 'Успешно създаване на курс',
+          title: editInfo ? 'Успешна редакция на курс' : 'Успешно създаване на курс',
           status: 'success',
           duration: 3000,
           isClosable: true,
@@ -278,11 +298,21 @@ const CreateCourseComponent = ({
     getSubjects();
   }, []);
 
+  useEffect(() => {
+    if (!!courseInfo) {
+      setCourse(courseInfo);
+      setSelectedGrade(courseInfo?.grade);
+      setSelectedSubject({ name: courseInfo?.subject, code: courseInfo?.subject });
+      setCourseLength(course?.length?.toString());
+      setDates(course?.courseTerminResponses);
+    }
+  }, [courseInfo, availableGrades, availableSubjects]);
+
   return (
     <>
       <Stack w={{ base: 'full', xl: '40vw' }} spacing={10}>
         <Stack spacing={8} w={'full'} ref={topRef}>
-          {showCreateCourse && !isEdit && (
+          {showCreateCourse && !editInfo && (
             <Breadcrumb fontSize={{ base: 14, lg: 18 }} cursor={'default'}>
               <BreadcrumbItem _hover={{ textDecoration: 'none', cursor: 'default' }} cursor={'default'}>
                 <BreadcrumbLink
@@ -312,9 +342,9 @@ const CreateCourseComponent = ({
         {showCreateCourse && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={10}>
-              {!isEdit && (
+              {!editInfo && (
                 <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'grey.600'}>
-                  {isPrivateLesson ? 'Създаване на частен урок' : 'Създаване на курс'}
+                  Създаване на курс
                 </Heading>
               )}
 
@@ -332,6 +362,7 @@ const CreateCourseComponent = ({
                       type="text"
                       placeholder="Български език за 8ми клас"
                       maxLength={100}
+                      isDisabled={editInfo}
                       {...register('title', { required: 'Полето е задължително' })}
                     />
                     <InputRightElement width="4.5rem" color={'grey.500'}>
@@ -347,7 +378,7 @@ const CreateCourseComponent = ({
                 </Text>
               </Stack>
 
-              <Stack spacing={4}>
+              <Stack spacing={4} className={editInfo ? 'stack-disabled' : ''}>
                 <Text fontSize={18} fontWeight={600}>
                   Предмет{' '}
                   <Text as={'span'} color={'red'}>
@@ -365,6 +396,7 @@ const CreateCourseComponent = ({
                     options={availableSubjects}
                     optionLabel="name"
                     placeholder="Изберете предмет"
+                    disabled={editInfo}
                     className={errors.subject ? 'invalid-dropdown w-full' : 'p-invalid w-full'}
                     showClear
                   />
@@ -376,15 +408,19 @@ const CreateCourseComponent = ({
                 </Text>
               </Stack>
 
-              <Stack spacing={4}>
+              <Stack spacing={4} className={editInfo ? 'stack-disabled' : ''}>
                 <Text fontSize={18} fontWeight={600}>
                   Клас
                 </Text>
 
                 <Dropdown
                   value={grade}
-                  onChange={e => setSelectedGrade(e.value)}
+                  onChange={e => {
+                    setValue('grade', e.value, { shouldValidate: true });
+                    setSelectedGrade(e.value);
+                  }}
                   options={availableGrades}
+                  disabled={editInfo}
                   optionLabel="grade"
                   placeholder="Изберете клас"
                   className={errors.grade ? 'p-invalid' : ''}
@@ -523,32 +559,32 @@ const CreateCourseComponent = ({
                     setCourseLength(e);
                   }}>
                   <Stack spacing={10} direction="row" align={'start'}>
-                    <Radio size="lg" colorScheme="purple" value={'15'} isDisabled={!!dates.length}>
+                    <Radio size="lg" colorScheme="purple" value={'15'} isDisabled={!!dates?.length}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         15 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'30'} isDisabled={!!dates.length}>
+                    <Radio size="lg" colorScheme="purple" value={'30'} isDisabled={!!dates?.length}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         30 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'45'} isDisabled={!!dates.length}>
+                    <Radio size="lg" colorScheme="purple" value={'45'} isDisabled={!!dates?.length}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         45 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'60'} defaultChecked isDisabled={!!dates.length}>
+                    <Radio size="lg" colorScheme="purple" value={'60'} defaultChecked isDisabled={!!dates?.length}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         60 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'90'} isDisabled={!!dates.length}>
+                    <Radio size="lg" colorScheme="purple" value={'90'} isDisabled={!!dates?.length}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         90 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'120'} isDisabled={!!dates.length}>
+                    <Radio size="lg" colorScheme="purple" value={'120'} isDisabled={!!dates?.length}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         120 мин
                       </Text>
@@ -571,7 +607,7 @@ const CreateCourseComponent = ({
                   keepWithinRange={true}
                   clampValueOnBlur={false}
                   w={{ base: 'full', md: '30%' }}
-                  disabled={!!dates.length}>
+                  isDisabled={!!dates?.length}>
                   <NumberInputField {...register('studentsUpperBound', { required: true })} />
                   <NumberInputStepper>
                     <NumberIncrementStepper />
@@ -602,7 +638,8 @@ const CreateCourseComponent = ({
                     defaultValue={200}
                     clampValueOnBlur={false}
                     w={{ base: 'full', md: '30%' }}
-                    bg={'grey.100'}>
+                    bg={'grey.100'}
+                    isDisabled={editInfo}>
                     <NumberInputField {...register('price', { required: true })} />
                     <NumberInputStepper>
                       <NumberIncrementStepper />
@@ -628,7 +665,7 @@ const CreateCourseComponent = ({
                   </Text>
                 </Text>
 
-                {dates.length && (
+                {dates?.length && (
                   <Stack spacing={6} w={'full'}>
                     {dates.map((el, index) => (
                       <Stack
@@ -665,9 +702,9 @@ const CreateCourseComponent = ({
 
                           <Text wordBreak={'break-word'}>
                             {el?.courseDaysNumbers
-                              .sort()
-                              .map(el => daysArr[el - 1].short)
-                              .toString()}
+                              ?.sort()
+                              ?.map(el => daysArr[el - 1].short)
+                              ?.toString()}
                           </Text>
 
                           <Stack direction={'row'} gap={2}>
@@ -682,6 +719,7 @@ const CreateCourseComponent = ({
                           size="xs"
                           bg={'none'}
                           _hover={{ bg: 'none' }}
+                          isDisabled={el?.numberOfStudents > 0}
                           onClick={() => removeDate(index)}
                           icon={<Img src={trash} w={5} />}
                         />
@@ -716,22 +754,47 @@ const CreateCourseComponent = ({
                 </FormControl>
               </Stack>
 
-              {isEdit ? (
-                <Button
-                  type={'submit'}
-                  size={{ base: 'md' }}
-                  w={'fit-content'}
-                  px={16}
-                  py={0}
-                  bg={'purple.500'}
-                  color={'white'}
-                  fontSize={16}
-                  fontWeight={700}
-                  _hover={{ opacity: '0.9' }}
-                  _focus={{ outline: 'none' }}
-                  _active={{ bg: 'purple.500' }}>
-                  Запаси промените
-                </Button>
+              {editInfo ? (
+                <Stack
+                  direction={{ base: 'column', md: 'row' }}
+                  justify={{ base: 'center', md: 'space-between' }}
+                  mt={12}>
+                  <Button
+                    type={'submit'}
+                    size={{ base: 'md' }}
+                    w={'fit-content'}
+                    px={16}
+                    py={0}
+                    bg={'purple.500'}
+                    color={'white'}
+                    fontSize={16}
+                    fontWeight={700}
+                    _hover={{ opacity: '0.9' }}
+                    _focus={{ outline: 'none' }}
+                    _active={{ bg: 'purple.500' }}>
+                    Запаси промените
+                  </Button>
+
+                  <Button
+                    size={{ base: 'md' }}
+                    w={'fit-content'}
+                    py={0}
+                    bg={'transparent'}
+                    color={'purple.500'}
+                    fontSize={16}
+                    fontWeight={700}
+                    _hover={{ opacity: '0.9' }}
+                    _focus={{ outline: 'none' }}
+                    _active={{ bg: 'purple.500' }}
+                    textAlign={'right'}
+                    onClick={() => {
+                      refreshCourseForm();
+                      setEditInfo(false);
+                      setShowCreateCourse(false);
+                    }}>
+                    Отказ
+                  </Button>
+                </Stack>
               ) : (
                 <Stack
                   direction={{ base: 'column', md: 'row' }}

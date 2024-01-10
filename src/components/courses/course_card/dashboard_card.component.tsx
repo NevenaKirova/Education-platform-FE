@@ -2,7 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
 
-import { Heading, Text, Stack, Image, HStack, Tag, IconButton, Img, Box, Button } from '@chakra-ui/react';
+import { Heading, Text, Stack, Image, HStack, Tag, Img, Box, Button } from '@chakra-ui/react';
 
 import { CourseType } from '../../../pages';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
@@ -125,15 +125,7 @@ export default function DashboardCourseCard({
                     <Text as="span" color={'purple.500'} fontSize={10} fontWeight={600}>
                       {course?.numberOfStudents + '/' + course.studentsUpperBound}
                     </Text>
-                    <IconButton
-                      aria-label={'students'}
-                      size="xs"
-                      bg={'none'}
-                      p={0}
-                      _hover={{ bg: 'none' }}
-                      h={'fit'}
-                      icon={<Img src={user} w={4} h={3} />}
-                    />
+                    <Img aria-label={'students'} w={4} h={3} bg={'none'} p={0} _hover={{ bg: 'none' }} src={user} />
                   </Tag>
                 )}
               </HStack>

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
   Button,
   Heading,
   Img,
@@ -13,10 +14,15 @@ import {
   ModalOverlay,
   Stack,
   Text,
+  AlertIcon,
+  useToast,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { video, upload, fileUpload } from '../../../icons';
 import Dropzone from '../../../utils/dropzone';
+import { getResponseMessage } from '../../../helpers/response.util';
+import { axiosInstance } from '../../../axios';
 
 const AddResourcesModal = ({
   isOpen,
@@ -25,6 +31,7 @@ const AddResourcesModal = ({
   setShowSelected,
   showSelected,
   setOpenedTheme,
+  getOpenedCourse,
 }: {
   isOpen: boolean;
   onClose: any;
@@ -32,7 +39,10 @@ const AddResourcesModal = ({
   setShowSelected: any;
   showSelected: boolean;
   setOpenedTheme: any;
+  getOpenedCourse: any;
 }) => {
+  const toast = useToast();
+
   const [activeResource, setActiveResource] = useState(null);
   const [showError, setShowError] = useState(false);
 
@@ -43,7 +53,7 @@ const AddResourcesModal = ({
     setValue: setValueVideo,
   } = useForm({
     defaultValues: {
-      video: '',
+      linkToRecording: '',
     },
   });
 
@@ -62,8 +72,41 @@ const AddResourcesModal = ({
     setActiveResource(selected);
   };
 
-  const onSubmitVideo = () => {
-    resetVideo();
+  const onSubmitVideo: SubmitHandler<any> = async data => {
+    try {
+      await axiosInstance.post(`lessons/addLinkToRecording/${theme.id}`, data);
+      getOpenedCourse();
+      onClose();
+      resetVideo();
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
+  const onSubmitFile: SubmitHandler<any> = async data => {
+    const formData = new FormData();
+    formData.append('file', data.file);
+
+    try {
+      await axiosInstance.post(`lessons/addResource/${theme.id}`, formData);
+      getOpenedCourse();
+      onClose();
+      resetFile();
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
   };
 
   const onFileAccepted = file => {
@@ -74,7 +117,7 @@ const AddResourcesModal = ({
     if (!activeResource) setShowError(true);
 
     if (activeResource == 'assignment') {
-      setOpenedTheme(theme.title);
+      setOpenedTheme(theme?.title);
       onClose();
     } else {
       setShowSelected(true);
@@ -129,10 +172,10 @@ const AddResourcesModal = ({
               <Input
                 flex={1}
                 pr="4.5rem"
-                type="text"
+                type="url"
                 placeholder="https://sample.edu/link?meeting"
                 bg={'grey.100'}
-                {...registerVideo('video')}
+                {...registerVideo('linkToRecording')}
               />
 
               <Button
@@ -153,17 +196,19 @@ const AddResourcesModal = ({
 
       if (activeResource == 'file') {
         return (
-          <Button
-            type={'submit'}
-            size={{ base: 'sm', md: 'md', '2xl': 'md' }}
-            w={{ base: 'full', lg: '12vw' }}
-            fontSize={'xl'}
-            fontWeight={700}
-            bg={'purple.500'}
-            color={'white'}
-            _hover={{ opacity: '0.9' }}>
-            Качване
-          </Button>
+          <form onSubmit={handleSubmitFile(onSubmitFile)}>
+            <Button
+              type={'submit'}
+              size={{ base: 'sm', md: 'md', '2xl': 'md' }}
+              w={{ base: 'full', lg: '12vw' }}
+              fontSize={'xl'}
+              fontWeight={700}
+              bg={'purple.500'}
+              color={'white'}
+              _hover={{ opacity: '0.9' }}>
+              Качване
+            </Button>
+          </form>
         );
       }
 
@@ -208,10 +253,18 @@ const AddResourcesModal = ({
             showSelectedResource
           ) : (
             <Stack align={'center'} h={'full'} spacing={20}>
-              <Heading fontSize={{ base: 16, lg: 18 }} fontWeight={500} textAlign="start" color={'grey.500'}>
-                Можете да добавите линк към видеозапис на изминал урок, файлови ресурси или ново задание за своите
-                ученици.
-              </Heading>
+              <Stack spacing={6}>
+                <Heading fontSize={{ base: 16, lg: 18 }} fontWeight={500} textAlign="start" color={'grey.500'}>
+                  Можете да добавите линк към видеозапис на изминал урок, файлови ресурси или ново задание за своите
+                  ученици.
+                </Heading>
+
+                <Alert status="info" rounded={'md'} bg={'purple.200'}>
+                  <AlertIcon color={'purple.500'} />
+                  Ако вече съществува ресурс от съответния тип, новият ще замести стария.
+                </Alert>
+              </Stack>
+
               <Stack flex={1} direction={'row'} align={'center'} justify={'center'} w={'full'} h={'full'} spacing={24}>
                 <Stack
                   as={Button}

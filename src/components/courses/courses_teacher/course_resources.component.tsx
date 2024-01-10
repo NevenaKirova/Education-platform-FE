@@ -28,9 +28,10 @@ import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
 import EditCourseModal from '../modals/edit_course_theme';
 import { avatar2 } from '../../../images';
-import { message, edit, calendar, clock, link, trash, bottom, top, add } from '../../../icons/index';
+import { message, edit, calendar, clock, link, trash, bottom, top, add, video } from '../../../icons/index';
 import AddResourcesModal from '../modals/course_add_resources';
 import CourseAddHomework from './course_add_homework';
+import { NavLink as ReactRouterLink } from 'react-router-dom';
 
 const CourseResources = ({
   date,
@@ -65,23 +66,28 @@ const CourseResources = ({
   const [selectedTheme, setSelectedTheme] = useState(null);
 
   const studentsToShow = useMemo(() => {
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-      ?.slice(0, numberOfStudents)
-      .map((el: any, index: number) => (
-        <GridItem key={index}>
-          <Stack direction={'column'} align={'center'} spacing={2}>
-            <Avatar size={{ base: 'sm', md: 'lg' }} src={avatar2} />
-            <Stack direction={'row'} align={'center'} spacing={0}>
-              <Text fontSize={14} fontWeight={600}>
-                Стоян Иванов
-              </Text>
-              <Box as={Button} bg={'transparent'} _hover={{ bg: 'transparent' }} p={0}>
-                <Img src={message} w={5} h={5} />
-              </Box>
-            </Stack>
+    if (!students.length) {
+      return (
+        <Text color={'grey.400'} textAlign="center" fontSize={{ base: 14, lg: 16 }}>
+          Няма записани ученици
+        </Text>
+      );
+    }
+    return students?.slice(0, numberOfStudents).map((el: any, index: number) => (
+      <GridItem key={index}>
+        <Stack direction={'column'} align={'center'} spacing={2}>
+          <Avatar size={{ base: 'sm', md: 'lg' }} src={avatar2} />
+          <Stack direction={'row'} align={'center'} spacing={0}>
+            <Text fontSize={14} fontWeight={600}>
+              Стоян Иванов
+            </Text>
+            <Box as={Button} bg={'transparent'} _hover={{ bg: 'transparent' }} p={0}>
+              <Img src={message} w={5} h={5} />
+            </Box>
           </Stack>
-        </GridItem>
-      ));
+        </Stack>
+      </GridItem>
+    ));
   }, [students, numberOfStudents]);
 
   const showAll = () => {
@@ -119,6 +125,35 @@ const CourseResources = ({
       });
     }
   };
+
+  const handleDeleteResource = async (type, themeId) => {
+    let resourceUrl;
+    let resourceData;
+
+    if (type === 'video') {
+      resourceUrl = 'addLinkToRecording';
+      resourceData = { linkToRecording: '' };
+    }
+
+    if (type === 'file') {
+      resourceUrl = 'addResource';
+      resourceData = { file: [] };
+    }
+
+    try {
+      await axiosInstance.post(`lessons/${resourceUrl}/${themeId}`, resourceData);
+      getOpenedCourse();
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
   useEffect(() => {
     getOpenedCourse();
   }, []);
@@ -298,8 +333,11 @@ const CourseResources = ({
                         <Text color={'grey.600'}> {el?.description}</Text>
 
                         <Stack spacing={4}>
-                          {[1, 2, 3].map((el, index) => (
+                          {el?.linkToRecording && (
                             <Stack
+                              as={ReactRouterLink}
+                              to={el?.linkToRecording}
+                              target={'_blank'}
                               key={index}
                               rounded={'md'}
                               bg={'purple.100'}
@@ -309,34 +347,55 @@ const CourseResources = ({
                               justify={'space-between'}
                               direction={'row'}>
                               <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
-                                <Img src={link} w={6} h={6} />
+                                <Img src={video} w={6} h={6} />
                                 <Text color={'grey.600'} fontWeight={'700'}>
-                                  Линк към виртуална класна стая
+                                  Видеозапис
                                 </Text>
                               </Stack>
 
-                              <Stack direction={'row'}>
-                                <Box
-                                  as={IconButton}
-                                  aria-label={'edit theme'}
-                                  size="xs"
-                                  bg={'none'}
-                                  _hover={{ bg: 'none' }}
-                                  icon={<Img src={edit} w={5} />}
-                                />
-
-                                <Box
-                                  as={IconButton}
-                                  aria-label={'delete theme'}
-                                  size="xs"
-                                  bg={'none'}
-                                  _hover={{ bg: 'none' }}
-                                  disabled
-                                  icon={<Img src={trash} w={5} />}
-                                />
-                              </Stack>
+                              <Box
+                                as={IconButton}
+                                aria-label={'delete theme'}
+                                size="xs"
+                                bg={'none'}
+                                _hover={{ bg: 'none' }}
+                                disabled
+                                icon={<Img src={trash} w={5} />}
+                                onClick={() => handleDeleteResource('video', el?.themaID)}
+                              />
                             </Stack>
-                          ))}
+                          )}
+
+                          {el?.presentation && (
+                            <Stack
+                              target={'_blank'}
+                              key={index}
+                              rounded={'md'}
+                              bg={'purple.100'}
+                              w={'full'}
+                              p={4}
+                              align={'center'}
+                              justify={'space-between'}
+                              direction={'row'}>
+                              <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
+                                <Img src={video} w={6} h={6} />
+                                <Text color={'grey.600'} fontWeight={'700'}>
+                                  {el?.presentation}
+                                </Text>
+                              </Stack>
+
+                              <Box
+                                as={IconButton}
+                                aria-label={'delete theme'}
+                                size="xs"
+                                bg={'none'}
+                                _hover={{ bg: 'none' }}
+                                disabled
+                                icon={<Img src={trash} w={5} />}
+                                onClick={() => handleDeleteResource('file', el?.themaID)}
+                              />
+                            </Stack>
+                          )}
                         </Stack>
                       </Stack>
                     </AccordionPanel>
@@ -348,7 +407,7 @@ const CourseResources = ({
         </Stack>
       )}
 
-      <EditCourseModal isOpen={isOpen} onClose={onClose} theme={themeToEdit} />
+      <EditCourseModal isOpen={isOpen} onClose={onClose} theme={themeToEdit} getOpenedCourse={getOpenedCourse} />
       <AddResourcesModal
         isOpen={isModalOpen}
         onClose={onModalClose}
@@ -356,6 +415,7 @@ const CourseResources = ({
         setShowSelected={setShowSelected}
         theme={selectedTheme}
         setOpenedTheme={setOpenedTheme}
+        getOpenedCourse={getOpenedCourse}
       />
     </>
   );

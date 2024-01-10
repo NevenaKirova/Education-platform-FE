@@ -1,8 +1,7 @@
 import React from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
-import { format } from 'date-fns';
 
-import { Heading, Text, Stack, Image, HStack, Tag, IconButton, Img } from '@chakra-ui/react';
+import { Heading, Text, Stack, Image, HStack, Tag, IconButton, Img, Box } from '@chakra-ui/react';
 
 import { user } from '../../../icons';
 
@@ -102,7 +101,8 @@ export default function CreatedCourseCard({ course }: { course: CourseType }) {
                     <Text as="span" color={'purple.500'} fontSize={10} fontWeight={600}>
                       {course?.numberOfStudents + '/' + course.studentsUpperBound}
                     </Text>
-                    <IconButton
+                    <Box
+                      as={IconButton}
                       aria-label={'students'}
                       size="xs"
                       bg={'none'}

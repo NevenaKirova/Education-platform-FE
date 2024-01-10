@@ -2,7 +2,9 @@ import axios from 'axios';
 
 import { jwtDecode } from 'jwt-decode';
 import dayjs from 'dayjs';
-export const BASE_URL = 'https://myclassroomapi-v6.onrender.com/api/v1';
+
+// export const BASE_URL = 'https://myclassroomapi-v6.onrender.com/api/v1';
+export const BASE_URL = 'http://localhost:8080/api/v1';
 
 export default axios.create({
   baseURL: BASE_URL,

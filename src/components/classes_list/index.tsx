@@ -114,7 +114,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
     },
   });
 
-  const defaultFilters = { pageNumber: 1, sort: '', isPrivateLesson: isPrivateLesson };
+  const defaultFilters = { pageNumber: 1, sort: '', privateLesson: isPrivateLesson };
 
   const daysArr = [
     { name: 'Понеделник', value: 1 },
@@ -207,7 +207,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
     try {
       const res = await axios.post('/lessons/getFilteredClasses', {
         ...filters,
-        isPrivateLesson: isPrivateLesson,
+        privateLesson: isPrivateLesson,
         sort: sort,
         pageNumber: currentPage,
       });
