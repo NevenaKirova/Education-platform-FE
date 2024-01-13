@@ -21,6 +21,7 @@ import {
   GridItem,
   useToast,
   useDisclosure,
+  AvatarGroup,
 } from '@chakra-ui/react';
 
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
@@ -28,10 +29,11 @@ import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
 import EditCourseModal from '../modals/edit_course_theme';
 import { avatar2 } from '../../../images';
-import { message, edit, calendar, clock, link, trash, bottom, top, add, video } from '../../../icons/index';
+import { message, edit, calendar, clock, link, trash, bottom, top, add, video, fileUpload } from '../../../icons/index';
 import AddResourcesModal from '../modals/course_add_resources';
 import CourseAddHomework from './course_add_homework';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
+import SubmissionsComponent from './course_submissions.component';
 
 const CourseResources = ({
   date,
@@ -43,6 +45,10 @@ const CourseResources = ({
   setDateSelected,
   setOpenedTheme,
   openedTheme,
+  isEditHomework,
+  setIsEditHomework,
+  showSubmissions,
+  setShowSubmissions,
 }: {
   date: any;
   course: any;
@@ -53,6 +59,10 @@ const CourseResources = ({
   setDateSelected: any;
   setOpenedTheme: any;
   openedTheme: any;
+  isEditHomework?: any;
+  setIsEditHomework?: any;
+  showSubmissions?: any;
+  setShowSubmissions?: any;
 }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -126,7 +136,8 @@ const CourseResources = ({
     }
   };
 
-  const handleDeleteResource = async (type, themeId) => {
+  const handleDeleteResource = async (ev, type, themeId) => {
+    ev.preventDefault();
     let resourceUrl;
     let resourceData;
 
@@ -136,8 +147,18 @@ const CourseResources = ({
     }
 
     if (type === 'file') {
-      resourceUrl = 'addResource';
-      resourceData = { file: [] };
+      try {
+        await axiosInstance.get(`lessons/deleteResource/${themeId}`);
+        return getOpenedCourse();
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
     }
 
     try {
@@ -160,12 +181,19 @@ const CourseResources = ({
 
   return (
     <>
-      {openedTheme ? (
+      {showSubmissions ? (
+        <SubmissionsComponent course={course} />
+      ) : openedTheme?.id ? (
         <Stack py={{ base: 0, lg: 2 }} spacing={12}>
           <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
             {course?.title}
           </Heading>
-          <CourseAddHomework setOpenedTheme={setOpenedTheme} />
+          <CourseAddHomework
+            setOpenedTheme={setOpenedTheme}
+            openedTheme={openedTheme}
+            isEditHomework={isEditHomework}
+            setIsEditHomework={setIsEditHomework}
+          />
         </Stack>
       ) : (
         <Stack py={{ base: 0, lg: 2 }} spacing={12}>
@@ -288,7 +316,7 @@ const CourseResources = ({
                       <Stack direction={'row'} mr={3} spacing={3}>
                         <Box
                           as={IconButton}
-                          aria-label={'delete theme'}
+                          aria-label={'add theme'}
                           size="xs"
                           bg={'none'}
                           _hover={{ bg: 'none' }}
@@ -308,7 +336,7 @@ const CourseResources = ({
                       {isExpanded ? (
                         <Box
                           as={IconButton}
-                          aria-label={'delete theme'}
+                          aria-label={'collapse theme'}
                           size="xs"
                           bg={'none'}
                           _hover={{ bg: 'none' }}
@@ -318,7 +346,7 @@ const CourseResources = ({
                       ) : (
                         <Box
                           as={IconButton}
-                          aria-label={'delete theme'}
+                          aria-label={'expand theme'}
                           size="xs"
                           bg={'none'}
                           _hover={{ bg: 'none' }}
@@ -338,7 +366,6 @@ const CourseResources = ({
                               as={ReactRouterLink}
                               to={el?.linkToRecording}
                               target={'_blank'}
-                              key={index}
                               rounded={'md'}
                               bg={'purple.100'}
                               w={'full'}
@@ -361,15 +388,13 @@ const CourseResources = ({
                                 _hover={{ bg: 'none' }}
                                 disabled
                                 icon={<Img src={trash} w={5} />}
-                                onClick={() => handleDeleteResource('video', el?.themaID)}
+                                onClick={ev => handleDeleteResource(ev, 'video', el?.themaID)}
                               />
                             </Stack>
                           )}
 
                           {el?.presentation && (
                             <Stack
-                              target={'_blank'}
-                              key={index}
                               rounded={'md'}
                               bg={'purple.100'}
                               w={'full'}
@@ -392,10 +417,86 @@ const CourseResources = ({
                                 _hover={{ bg: 'none' }}
                                 disabled
                                 icon={<Img src={trash} w={5} />}
-                                onClick={() => handleDeleteResource('file', el?.themaID)}
+                                onClick={ev => handleDeleteResource(ev, 'file', el?.themaID)}
                               />
                             </Stack>
                           )}
+
+                          {el?.assignment && (
+                            <Stack
+                              rounded={'md'}
+                              bg={'purple.100'}
+                              w={'full'}
+                              p={4}
+                              align={'center'}
+                              justify={'space-between'}
+                              direction={'row'}>
+                              <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
+                                <Img src={fileUpload} w={6} h={6} />
+                                <Text color={'grey.600'} fontWeight={'700'}>
+                                  Задача за домашна работа
+                                </Text>
+                              </Stack>
+
+                              <Stack direction={'row'} spacing={4}>
+                                <Box
+                                  as={IconButton}
+                                  aria-label={'edit homework'}
+                                  size="xs"
+                                  bg={'none'}
+                                  _hover={{ bg: 'none' }}
+                                  icon={
+                                    <Img
+                                      src={edit}
+                                      w={5}
+                                      onClick={() => {
+                                        setOpenedTheme({ id: el?.themaID, title: el?.title }), setIsEditHomework(true);
+                                      }}
+                                    />
+                                  }
+                                />
+                              </Stack>
+
+                              <Box
+                                as={IconButton}
+                                aria-label={'delete theme'}
+                                size="xs"
+                                bg={'none'}
+                                _hover={{ bg: 'none' }}
+                                disabled
+                                icon={<Img src={trash} w={5} />}
+                                onClick={ev => handleDeleteResource(ev, 'file', el?.themaID)}
+                              />
+                            </Stack>
+                          )}
+
+                          <Stack direction={'row'} align={'center'} justify={'space-between'} w={'full'}>
+                            <Stack direction={'row'} align={'center'} spacing={4}>
+                              <AvatarGroup size="xs" max={4}>
+                                <Avatar name="Ryan Florence" src="https://bit.ly/ryan-florence" />
+                                <Avatar name="Segun Adebayo" src="https://bit.ly/sage-adebayo" />
+                                <Avatar name="Kent Dodds" src="https://bit.ly/kent-c-dodds" />
+                                <Avatar name="Prosper Otemuyiwa" src="https://bit.ly/prosper-baba" />
+                                <Avatar name="Christian Nwamba" src="https://bit.ly/code-beast" />
+                              </AvatarGroup>
+
+                              <Text color={'grey.500'}> 0/ {openedCourse?.enrolledStudents} предадени</Text>
+                            </Stack>
+
+                            <Button
+                              size={{ base: 'md', lg: 'md' }}
+                              color={'purple.500'}
+                              bg={'transparent'}
+                              fontSize={{ base: 16, '2xl': 20 }}
+                              fontWeight={700}
+                              _hover={{ bg: 'transparent', opacity: 0.9 }}
+                              w={'20%'}
+                              onClick={() => {
+                                setShowSubmissions(true);
+                              }}>
+                              Виж предаванията
+                            </Button>
+                          </Stack>
                         </Stack>
                       </Stack>
                     </AccordionPanel>

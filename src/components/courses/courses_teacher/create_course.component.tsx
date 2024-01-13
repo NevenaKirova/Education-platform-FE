@@ -102,6 +102,7 @@ const CreateCourseComponent = ({
   editInfo,
   courseInfo,
   courseId,
+  getCourseInformation,
   getCourseDates,
 }: {
   setShowCreateCourse: any;
@@ -112,6 +113,7 @@ const CreateCourseComponent = ({
   editInfo?: any;
   courseInfo?: any;
   courseId?: number;
+  getCourseInformation?: any;
   getCourseDates?: any;
 }) => {
   const toast = useToast();
@@ -246,7 +248,9 @@ const CreateCourseComponent = ({
           } else {
             await axiosInstance.post(`/lessons/editCourse/${courseId}`, data);
           }
-          getCourseDates(...data);
+          setEditInfo(false);
+          getCourseInformation(data.lessonID);
+          getCourseDates(data.lessonID);
         } else {
           await axiosInstance.post('/lessons/createCourse', data);
           dispatch(getCoursesAll());
@@ -256,7 +260,6 @@ const CreateCourseComponent = ({
         }
 
         setShowCreateCourse(false);
-        setEditInfo(false);
         refreshCourseForm();
 
         setIsLoading(false);

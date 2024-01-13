@@ -222,7 +222,7 @@ export default function DashboardPage() {
                 <Stack spacing={10}>
                   {userData?.verified === false ? (
                     <UnverifiedComponent />
-                  ) : userData?.verified === false ? (
+                  ) : userData?.beingVerified === false ? (
                     <AwaitingVerificationComponent />
                   ) : upcomingCourses && !upcomingCourses?.length ? (
                     <CourseNoData
@@ -277,7 +277,7 @@ export default function DashboardPage() {
               <TabPanel p={{ base: 2 }}>
                 {userData?.verified === false ? (
                   <UnverifiedComponent />
-                ) : userData?.verified === false ? (
+                ) : userData?.beingVerified === false ? (
                   <AwaitingVerificationComponent />
                 ) : isCourseOpened ? (
                   <OpenedCourseComponent
@@ -423,7 +423,7 @@ export default function DashboardPage() {
               <TabPanel p={{ base: 2 }}>
                 {userData?.verified === false ? (
                   <UnverifiedComponent />
-                ) : userData?.verified === false ? (
+                ) : userData?.beingVerified === false ? (
                   <AwaitingVerificationComponent />
                 ) : isCourseOpened ? (
                   <OpenedCourseComponent
@@ -564,6 +564,20 @@ export default function DashboardPage() {
                     setAddDateActive={setAddDateActive}
                   />
                 )}
+              </TabPanel>
+
+              <TabPanel p={{ base: 2 }}>
+                <Stack spacing={10}>
+                  {userData?.verified === false ? (
+                      <UnverifiedComponent />
+                  ) : userData?.beingVerified === false ? (
+                      <AwaitingVerificationComponent />
+                  )  : (
+                      <Stack>
+                       приходи
+                      </Stack>
+                  )}
+                </Stack>
               </TabPanel>
             </TabPanels>
           )}

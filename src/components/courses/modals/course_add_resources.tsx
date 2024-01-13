@@ -117,7 +117,7 @@ const AddResourcesModal = ({
     if (!activeResource) setShowError(true);
 
     if (activeResource == 'assignment') {
-      setOpenedTheme(theme?.title);
+      setOpenedTheme(theme);
       onClose();
     } else {
       setShowSelected(true);

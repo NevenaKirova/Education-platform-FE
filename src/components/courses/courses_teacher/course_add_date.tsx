@@ -136,7 +136,7 @@ const CourseAddDate = ({
       setDates([...datesArr]);
     } else {
       try {
-        const res: any[] = await axiosInstance.post(`/lessons/addDate/${courseId}`, { data });
+        const res: any[] = await axiosInstance.post(`/lessons/addDate/${courseId}`, { courseTerminRequests: [data] });
 
         setDates(res.data);
       } catch (err) {
@@ -221,6 +221,7 @@ const CourseAddDate = ({
               *
             </Text>
           </Text>
+
           <Stack direction={'row'} spacing={10} align={'center'}>
             <Calendar
               value={dateStartValue}
@@ -261,7 +262,7 @@ const CourseAddDate = ({
             <MultiSelect
               {...registerDate('courseDaysNumbers', {
                 required: 'Полето е задължително',
-                minLength: { value: 1, message: 'das' },
+                minLength: { value: 1 },
               })}
               value={selectedDates}
               onChange={e => {

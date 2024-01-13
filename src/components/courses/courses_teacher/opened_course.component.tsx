@@ -29,7 +29,7 @@ import { getResponseMessage } from '../../../helpers/response.util';
 import CourseResources from './course_resources.component';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
 import CourseAddDate from './course_add_date';
-import CreateCourseComponent from './create_course.component';
+import CreateCourseComponent, { daysArr } from './create_course.component';
 import { addWhite, calendar, edit, add, editWhite, trash } from '../../../icons';
 
 import 'primereact/resources/primereact.min.css';
@@ -90,6 +90,8 @@ const OpenedCourseComponent = ({
   const [sort, setSort] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [openedTheme, setOpenedTheme] = useState(null);
+  const [isEditHomework, setIsEditHomework] = useState(false);
+  const [showSubmissions, setShowSubmissions] = useState(false);
 
   const getCourseDates = async courseId => {
     if (courseId) {
@@ -112,10 +114,10 @@ const OpenedCourseComponent = ({
     }
   };
 
-  const getCourseInformation = async () => {
+  const getCourseInformation = async courseId => {
     setIsLoading(true);
     try {
-      const res = await axiosInstance.get(`lessons/getCourseInformation/${course?.lessonID}`);
+      const res = await axiosInstance.get(`lessons/getCourseInformation/${courseId}`);
       setCourseInfo(res.data);
       setIsLoading(false);
     } catch (err) {
@@ -233,6 +235,7 @@ const OpenedCourseComponent = ({
                 setAddDateActive(false);
                 setIsCourseOpened(false);
                 setOpenedTheme(null);
+                setShowSubmissions(false);
               }}>
               {isPrivateLesson ? 'Моите частни уроци' : 'Моите курсове'}
             </BreadcrumbLink>
@@ -246,13 +249,24 @@ const OpenedCourseComponent = ({
                 setDateSelected({});
                 setShowAddDate(false);
                 setOpenedTheme(null);
+                setShowSubmissions(false);
               }}>
               {course?.title}
             </BreadcrumbLink>
           </BreadcrumbItem>
 
           {dateSelected?.courseTerminId && (
-            <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
+            <BreadcrumbItem
+              color={'purple.500'}
+              _hover={{ textDecoration: 'none' }}
+              cursor={'default'}
+              onClick={() => {
+                setDateSelected(dateSelected);
+                setShowAddDate(false);
+                setOpenedTheme(null);
+                setShowAddResources(true);
+                setShowSubmissions(false);
+              }}>
               <BreadcrumbLink textDecoration={'none'}>
                 {capitalizeMonth(format(new Date(dateSelected?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
                 {dateSelected?.endDate &&
@@ -261,21 +275,35 @@ const OpenedCourseComponent = ({
             </BreadcrumbItem>
           )}
 
-          {openedTheme && (
+          {openedTheme?.id && (
             <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
               <BreadcrumbLink
                 textDecoration={'none'}
                 onClick={() => {
                   setShowAddResources(true);
                 }}>
-                {openedTheme}
+                {openedTheme?.title}
               </BreadcrumbLink>
             </BreadcrumbItem>
           )}
 
-          {openedTheme && (
+          {openedTheme?.id && (
             <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
-              <BreadcrumbLink textDecoration={'none'}>Добавяне на задание</BreadcrumbLink>
+              <BreadcrumbLink textDecoration={'none'}>
+                {isEditHomework ? 'Задача за домашна работа' : 'Добавяне на задание'}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
+
+          {showSubmissions && (
+            <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
+              <BreadcrumbLink textDecoration={'none'}>Задача за домашна работа</BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
+
+          {showSubmissions && (
+            <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
+              <BreadcrumbLink textDecoration={'none'}> Предавания</BreadcrumbLink>
             </BreadcrumbItem>
           )}
         </Breadcrumb>
@@ -291,6 +319,10 @@ const OpenedCourseComponent = ({
             setDateSelected={setDateSelected}
             setOpenedTheme={setOpenedTheme}
             openedTheme={openedTheme}
+            isEditHomework={isEditHomework}
+            setIsEditHomework={setIsEditHomework}
+            showSubmissions={showSubmissions}
+            setShowSubmissions={setShowSubmissions}
           />
         ) : showAddDate ? (
           <CourseAddDate
@@ -329,7 +361,7 @@ const OpenedCourseComponent = ({
                     color={'grey.500'}
                     maxW={'fit-content'}
                     _selected={{ color: 'purple.500', fontWeight: 700 }}
-                    onClick={getCourseInformation}>
+                    onClick={() => getCourseInformation(course?.lessonID)}>
                     <Text>Информация</Text>
                   </Tab>
                   <Tab
@@ -547,6 +579,7 @@ const OpenedCourseComponent = ({
                       setEditInfo={setEditInfo}
                       courseInfo={courseInfo}
                       courseId={course?.lessonID}
+                      getCourseInformation={getCourseInformation}
                       getCourseDates={getCourseDates}
                     />
                   ) : (
@@ -643,9 +676,17 @@ const OpenedCourseComponent = ({
                                     capitalizeMonth(format(new Date(el?.endDate), 'dd LLL yyyy', { locale: bg }))}
                                 </Text>
 
-                                <Text fontSize={18}>{el?.courseDays}</Text>
+                                <Text color={'grey.500'} fontSize={18}>
+                                  {' '}
+                                  {el?.courseDaysNumbers
+                                    ?.sort()
+                                    ?.map(el => daysArr[el - 1].short)
+                                    ?.toString()}
+                                </Text>
 
-                                <Text fontSize={18}>{el?.courseHours}</Text>
+                                <Text color={'grey.500'} fontSize={18}>
+                                  {el?.time}
+                                </Text>
                               </Stack>
                             ))}
                           </Stack>

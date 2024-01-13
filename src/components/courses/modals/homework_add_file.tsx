@@ -14,26 +14,12 @@ import {
 
 import Dropzone from '../../../utils/dropzone';
 
-const AddHomeworkFileModal = ({
-  isOpen,
-  onClose,
-  files,
-  setFiles,
-  append,
-}: {
-  isOpen: boolean;
-  onClose: any;
-  files: any;
-  setFiles: any;
-  append: any;
-}) => {
+const AddHomeworkFileModal = ({ isOpen, onClose, append }: { isOpen: boolean; onClose: any; append: any }) => {
   const [file, setFile] = useState(null);
 
   const handleUpload = () => {
-    const newFiles = files;
-    newFiles.push(file);
-    setFiles(newFiles);
-    append(file);
+    append({ file });
+
     onClose();
   };
   const onFileAccepted = file => {

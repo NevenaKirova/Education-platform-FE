@@ -1,3 +1,6 @@
+import React, { useEffect, useState } from 'react';
+import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
+import { format } from 'date-fns';
 import {
   Box,
   Button,
@@ -18,30 +21,38 @@ import {
 } from '@chakra-ui/react';
 
 import { Calendar } from 'primereact/calendar';
-import { format } from 'date-fns';
-import React, { useState } from 'react';
-import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { addLocale } from 'primereact/api';
+
 import { getResponseMessage } from '../../../helpers/response.util';
-
-import { fileDownload, fileUpload, trash } from '../../../icons';
 import AddHomeworkFileModal from '../modals/homework_add_file';
+import { axiosInstance } from '../../../axios';
+import { fileDownload, fileUpload, trash } from '../../../icons';
 
-export type DatesForm = {
-  startDate: Date | string;
-  courseDaysNumbers: number[] | null;
-  courseHours: string;
-  weekLength: number | null;
-  studentsUpperBound: number | null;
-  files: any[];
+const defultHomeworkValues = {
+  title: '',
+  description: '',
+  date: '',
+  time: '',
+  files: [],
 };
-const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
+
+const CourseAddHomework = ({
+  setOpenedTheme,
+  openedTheme,
+  isEditHomework,
+  setIsEditHomework,
+}: {
+  setOpenedTheme?: any;
+  openedTheme?: any;
+  isEditHomework?: any;
+  setIsEditHomework?: any;
+}) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [files, setFiles] = useState([]);
+  const [homeworkData, setHomeworkData] = useState(defultHomeworkValues);
 
   addLocale('bg', {
     firstDayOfWeek: 1,
@@ -71,17 +82,13 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
     handleSubmit,
     reset,
     setValue,
+    getValues,
     watch,
     control,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      title: '',
-      description: '',
-      date: '',
-      time: '',
-      files: [],
-    },
+    defaultValues: defultHomeworkValues,
+    values: homeworkData,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -89,27 +96,15 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
     name: 'files',
   });
 
-  const onFileAccepted = files => {
-    setValue('files', files);
-  };
-
-  const handleDeleteFile = index => {
-    console.log(index);
-    const newFiles = files;
-    newFiles.splice(index, 1);
-    console.log(newFiles);
-    setFiles(newFiles);
-  };
-
-  const acceptedFileItems = fields.map((file, index) => {
-    const sizeInKb = file?.size / 1024;
+  const acceptedFileItems = fields.map((el, index) => {
+    const sizeInKb = el.file?.size / 1024;
 
     return (
-      <Stack key={file?.path} direction={'row'} spacing={2}>
+      <Stack key={index} direction={'row'} spacing={2}>
         <Stack direction={'row'} align={'center'} spacing={2}>
           <Img src={fileDownload} alt={'uploaded file'} w={5} h={5} />
           <Text fontWeight={600} color={'grey.600'}>
-            {file?.path}
+            {el.file?.path}
           </Text>
         </Stack>
 
@@ -137,9 +132,21 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
-      // const res: any[] = await axiosInstance.post(`/lessons/addDate/${courseId}`, { data });
-      //
-      // setDates(res.data);
+      const res = await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, { data });
+      await axiosInstance.post(`/uploadAssignmentFiles/${res.assignmentId}`, data.files);
+
+      toast({
+        title: 'Успешно създавне на домашно',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+
+      setIsEditHomework(false);
+      setDate('');
+      setTime('');
+      reset();
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -149,9 +156,31 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
         position: 'top-right',
       });
     }
-
-    reset();
   };
+
+  const getHomeworkData = async () => {
+    try {
+      const res = await axiosInstance.get(`/lessons/getAssignment/${openedTheme?.id}`);
+      setHomeworkData(res.data);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
+  useEffect(() => {
+    register('date', { required: 'Полето е задължително' });
+    register('time', { required: 'Полето е задължително' });
+  }, [register]);
+
+  useEffect(() => {
+    isEditHomework && getHomeworkData();
+  }, [isEditHomework]);
 
   return (
     <>
@@ -280,7 +309,7 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
             {acceptedFileItems}
 
             <Button
-              isDisabled={files.length === 4}
+              isDisabled={fields.length === 4}
               color={'purple.500'}
               bg={'transparent'}
               _hover={{ bg: 'transparent' }}
@@ -333,7 +362,7 @@ const CourseAddHomework = ({ setOpenedTheme }: { setOpenedTheme?: any }) => {
           </Stack>
         </Stack>
       </form>
-      <AddHomeworkFileModal isOpen={isOpen} onClose={onClose} files={files} setFiles={setFiles} append={append} />
+      <AddHomeworkFileModal isOpen={isOpen} onClose={onClose} append={append} />
     </>
   );
 };
