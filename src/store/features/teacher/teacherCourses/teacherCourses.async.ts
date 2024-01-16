@@ -5,9 +5,9 @@ import CreateToastMessage from '../../../../utils/toast.util';
 
 export const getUpcomingCourses = createAsyncThunk('teacher/getUpcomingCourses', async (_, { rejectWithValue }) => {
   try {
-    const res: any[] = await axiosInstance.get(`lessons/getTeacherUpcoming`);
+    const res: any= await axiosInstance.get(`lessons/getTeacherUpcoming`);
 
-    return res.data;
+    return res?.data;
   } catch (err) {
     CreateToastMessage('error', getResponseMessage(err));
 
@@ -57,19 +57,6 @@ export const getCoursesInactive = createAsyncThunk(
 export const getCoursesDraft = createAsyncThunk('teacher/getCoursesTypesDraft ', async (_, { rejectWithValue }) => {
   try {
     const res = await axiosInstance.get(`/lessons/getTeacherCourses/Draft`);
-
-    return res.data;
-  } catch (err) {
-    CreateToastMessage('error', getResponseMessage(err));
-
-    return rejectWithValue(getResponseMessage(err));
-  }
-});
-
-export const createCourse = createAsyncThunk('teacher/createCourse ', async ({ data }, { rejectWithValue }) => {
-  try {
-    const res = await axiosInstance.post(`/lessons/createCourse`, { data });
-    CreateToastMessage('success', 'Успешно създаване на курс');
 
     return res.data;
   } catch (err) {

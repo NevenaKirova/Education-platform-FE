@@ -525,3 +525,7 @@
 .credits a:hover {
   text-decoration: underline;
 }
+
+.fc-header-toolbar .fc-toolbar-chunk {
+  display: flex !important;
+}

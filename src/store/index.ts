@@ -1,11 +1,13 @@
 import { useDispatch } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import teacherCoursesSlice from './features/teacher/teacherCourses/teacherCourses.slice';
-import teacherLessonsSlice from "./features/teacher/teacherLessons/teacherLessons.slice";
+import teacherLessonsSlice from './features/teacher/teacherLessons/teacherLessons.slice';
+import { studentCoursesSlice } from './features/student/studentCourses/studentCourses.slice';
 
 export const reducer = {
   teacherCourses: teacherCoursesSlice.reducer,
-  teacherLessons: teacherLessonsSlice.reducer
+  teacherLessons: teacherLessonsSlice.reducer,
+  studentCourses: studentCoursesSlice.reducer,
 };
 
 export const store = configureStore({

@@ -42,7 +42,7 @@ const theme = extendTheme({
       status: '#ffd6a8',
       statusText: '#f8840a',
     },
-    gold: '#F9E852',
+    gold: '#FDC106',
   },
   shadows: {
     custom: '0px 0px 15px rgba(0, 0, 0, 0.1)',

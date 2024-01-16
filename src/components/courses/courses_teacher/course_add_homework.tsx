@@ -132,8 +132,18 @@ const CourseAddHomework = ({
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
-      const res = await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, { data });
-      await axiosInstance.post(`/uploadAssignmentFiles/${res.assignmentId}`, data.files);
+      const res = await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, data);
+
+      if (res.data) {
+        const formData = new FormData();
+        const files = fields.map(el => el.file);
+
+        if (files.length) {
+          files.forEach(el => formData.append('file[]', el));
+
+          await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
+        }
+      }
 
       toast({
         title: 'Успешно създавне на домашно',
@@ -146,6 +156,7 @@ const CourseAddHomework = ({
       setIsEditHomework(false);
       setDate('');
       setTime('');
+      setOpenedTheme(null)
       reset();
     } catch (err) {
       toast({
@@ -173,6 +184,10 @@ const CourseAddHomework = ({
     }
   };
 
+  const checkKeyDown = e => {
+    if (e.key === 'Enter') e.preventDefault();
+  };
+
   useEffect(() => {
     register('date', { required: 'Полето е задължително' });
     register('time', { required: 'Полето е задължително' });
@@ -184,7 +199,7 @@ const CourseAddHomework = ({
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} onKeyDown={e => checkKeyDown(e)}>
         <Stack spacing={10}>
           <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'grey.600'}>
             Добавяне на задание

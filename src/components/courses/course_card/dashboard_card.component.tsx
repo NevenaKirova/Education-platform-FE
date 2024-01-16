@@ -24,7 +24,7 @@ export default function DashboardCourseCard({
   course: CourseType;
   isGrid?: boolean;
   setIsCourseOpened?: any;
-  setOpenedCourse: any;
+  setOpenedCourse?: any;
   activeTab: number;
   setActiveTab?: any;
 }) {

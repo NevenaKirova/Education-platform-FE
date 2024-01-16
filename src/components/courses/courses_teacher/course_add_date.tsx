@@ -139,6 +139,14 @@ const CourseAddDate = ({
         const res: any[] = await axiosInstance.post(`/lessons/addDate/${courseId}`, { courseTerminRequests: [data] });
 
         setDates(res.data);
+
+        toast({
+          title: 'Успешно добавяне на дата',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
       } catch (err) {
         toast({
           title: getResponseMessage(err),

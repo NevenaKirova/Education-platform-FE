@@ -8,9 +8,10 @@ import Faq from '../components/faq/faq.component';
 import TestimonialsSection from '../components/testimonials/testimonial.component';
 import TestimonialDemoSection from '../components/testimonials/testimonial_demo.component';
 
-import { Stack } from '@chakra-ui/react';
+import { Stack, useToast } from '@chakra-ui/react';
 
 import '../styles/styles.scss';
+import { getResponseMessage } from '../helpers/response.util';
 
 export type CourseType = {
   lessonID: number;
@@ -35,6 +36,7 @@ export type CourseType = {
 };
 
 const IndexPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
+  const toast = useToast();
   const ref = useRef(null);
   const [popularCourses, setPopularCourses] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -47,14 +49,20 @@ const IndexPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMod
         setReviews(res.data?.reviewsResponse);
       })
       .catch(function (error) {
-        console.log(error);
+        toast({
+          title: getResponseMessage(error),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
       });
   }, []);
   return (
     <>
       <Header onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} elRef={ref} />
       <Stack pt={{ base: 16, lg: 24 }} spacing={32} ref={ref}>
-        <CourseLanding popularCourses={popularCourses} />
+        <CourseLanding popularCourses={popularCourses} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
         <ReasonsSection />
         <TestimonialDemoSection />
         <TestimonialsSection reviews={reviews} />

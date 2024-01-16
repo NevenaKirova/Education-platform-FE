@@ -81,7 +81,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
   const [isLoading, setIsLoading] = useState(false);
   const [showClasses, setShowClasses] = useState(false);
   const [classes, setClasses] = useState<any>([]);
-  const [classesTotal, setClassesTotal] = useState<number | undefined>(0);
+  const [classesTotal, setClassesTotal] = useState<number>(0);
 
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [availableGrades, setAvailableGrades] = useState([]);
@@ -164,7 +164,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
       inner: innerLimit,
     },
     initialState: {
-      pageSize: 10,
+      pageSize: 12,
       currentPage: 1,
     },
   });
@@ -213,9 +213,9 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
       });
 
       await setTimeout(() => setIsLoading(false), 200);
-      setShowClasses(!!res.data.length);
-      setClasses(res.data);
-      setClassesTotal(res.data.length);
+      setShowClasses(!!res.data.lessonResponses.length);
+      setClasses(res.data.lessonResponses);
+      setClassesTotal(res.data.total);
     } catch (error) {
       setIsLoading(false);
       setShowClasses(false);

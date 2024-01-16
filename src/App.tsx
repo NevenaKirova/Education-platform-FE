@@ -13,16 +13,19 @@ import Footer from './components/footer/footer.component';
 import LoginModal from './components/login/login.component';
 import ForgottenPasswordForm from './components/login/forgotten_password.component';
 import TeacherPage from './pages/teacher_page';
-import Calendar from './pages/student/calendar/calendar';
+import Calendar from './pages/calendar/calendar';
 import SecurityPolicyPage from './pages/security_policy';
 import TermsOfUsePage from './pages/terms_of_use';
 import PersonalDataPage from './pages/personal-data';
 import AboutUsPage from './pages/about_us';
 import CoursesPage from './pages/courses/courses';
+import MyDashboardPage from './pages/dashboard/my-dashboard';
+import StudentOpenedCoursePage from './pages/student/opened_course';
 
 import './App.css';
 
 import DashboardPage from './pages/dashboard/dashboard';
+
 const App = () => {
   const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
   const {
@@ -51,18 +54,29 @@ const App = () => {
             }
           />
           <Route path="/lessons" element={<LessonsPage />}></Route>
-          <Route path="/lessons/:lessonId" element={<LessonPage />} />
+          <Route
+            path="/lessons/:lessonId"
+            element={<LessonPage setModalTabIndex={setModalTabIndex} onLoginOpen={onLoginOpen} />}
+          />
           <Route path="/lessons/:lessonId/enroll" element={<EnrollLessonPage />} />
           <Route path="/courses" element={<CoursesPage />}></Route>
-          <Route path="/courses/:coursesId" element={<LessonPage />} />
+          <Route
+            path="/courses/:lessonId"
+            element={<LessonPage setModalTabIndex={setModalTabIndex} onLoginOpen={onLoginOpen} />}
+          />
           <Route path="/courses/:coursesId/enroll" element={<EnrollLessonPage />} />
-          <Route path="/teacher/:teacherId" element={<TeacherPage />} />
+          <Route
+            path="/teacher/:teacherId"
+            element={<TeacherPage setModalTabIndex={setModalTabIndex} onLoginOpen={onLoginOpen} />}
+          />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/security-policy" element={<SecurityPolicyPage />} />
           <Route path="/terms-of-use" element={<TermsOfUsePage />} />
           <Route path="/personal-data-policy" element={<PersonalDataPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/my-dashboard" element={<MyDashboardPage />} />
+          <Route path="/course/:courseId" element={<StudentOpenedCoursePage />} />
           <Route path="/404" element={<PageNotFound />} />
           <Route path="*" element={<Navigate to="/404" />} />
         </Routes>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 
 import {
   Stack,
@@ -24,9 +24,14 @@ import { group, hat, heart, heartFull, location, messageWhite } from '../icons';
 import axios from '../axios';
 import { getResponseMessage } from '../helpers/response.util';
 import PageLoader from '../utils/loader.component';
+import { useParams } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
 
-const TeacherPage = () => {
+const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
   const toast = useToast();
+
+  const { teacherId } = useParams();
+  const { userData } = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(true);
   const [heartIcon, setHeartIcon] = useState(heart);
@@ -35,6 +40,15 @@ const TeacherPage = () => {
   const [teacherInfo, setTeacherInfo] = useState<any>({});
   const [classes, setClasses] = useState<any>([]);
   const [numberOfContentShown, setNumberOfContentToShow] = useState(6);
+
+  const addToFavourites = ev => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
 
   const showLessReviews = () => {
     setNumberOfReviewsToShow(3);
@@ -54,7 +68,7 @@ const TeacherPage = () => {
   const contentToShow = useMemo(() => {
     return classes?.slice(0, numberOfContentShown).map((el: any, index: number) => (
       <GridItem key={index}>
-        <CourseCard course={el} />
+        <CourseCard course={el} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
       </GridItem>
     ));
   }, [classes, numberOfContentShown]);
@@ -69,7 +83,7 @@ const TeacherPage = () => {
 
   useEffect(() => {
     axios
-      .get('users/getTeacherProfile/2052')
+      .get(`users/getTeacherProfile/${teacherId}`)
       .then(res => {
         setTeacherInfo(res.data);
         setReviews(res.data?.reviews);
@@ -174,7 +188,8 @@ const TeacherPage = () => {
               variant="link"
               _hover={{ textDecoration: 'none' }}
               onMouseEnter={() => setHeartIcon(heartFull)}
-              onMouseLeave={() => setHeartIcon(heart)}>
+              onMouseLeave={() => setHeartIcon(heart)}
+              onClick={ev => addToFavourites(ev)}>
               <IconButton aria-label="Add to favourites" icon={<Img src={heartIcon} h={5} w={'full'} />} />
               <Button color={'purple.500'} _hover={{ textDecoration: 'none', opacity: 0.9 }}>
                 <Text fontSize={16} fontWeight={700} ml={2}>

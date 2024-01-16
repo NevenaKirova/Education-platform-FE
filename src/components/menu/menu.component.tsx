@@ -83,7 +83,7 @@ const NAV_ITEMS_STUDENT: Array<NavItem> = [
   {
     key: 'dashboard',
     label: 'Моето табло',
-    path: '/dashboard',
+    path: '/my-dashboard',
   },
   {
     key: 'calendar',

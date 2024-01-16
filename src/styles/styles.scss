@@ -178,14 +178,26 @@ form {
   left: -3px;
 }
 
-.stack-disabled{
+.stack-disabled {
   cursor: not-allowed;
 }
 
-.invalid-dropdown{
-  border: 2px solid #E53E3E
+.invalid-dropdown {
+  border: 2px solid #e53e3e;
 }
 
-.chakra-radio__control{
+.chakra-radio__control {
   background: #ebedf1;
+}
+
+.no-padding {
+  padding: 0 !important;
+}
+
+.chakra-checkbox__control {
+  background: #ebedf1;
+}
+
+.fc-toolbar-chunk {
+  display: flex;
 }

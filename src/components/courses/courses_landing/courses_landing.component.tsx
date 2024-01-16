@@ -29,7 +29,15 @@ export const responsive = {
   },
 };
 
-export default function CourseSection({ popularCourses }: { popularCourses: any }) {
+export default function CourseSection({
+  popularCourses,
+  onLoginOpen,
+  setModalTabIndex,
+}: {
+  popularCourses: any;
+  onLoginOpen: any;
+  setModalTabIndex: any;
+}) {
   return (
     <Stack spacing={{ base: 6, lg: 8 }} px={{ base: 12, lg: 24, '2xl': '15vw' }}>
       <Grid
@@ -74,7 +82,9 @@ export default function CourseSection({ popularCourses }: { popularCourses: any 
         showDots={true}
         infinite={true}
         containerClass={style.containerClass}>
-        {popularCourses?.map((course, index) => <CourseCard key={index} course={course} />)}
+        {popularCourses?.map((course, index) => (
+          <CourseCard key={index} course={course} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
+        ))}
       </Carousel>
     </Stack>
   );

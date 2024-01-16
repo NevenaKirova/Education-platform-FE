@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useMemo, useEffect, useContext } from 'react';
 import { NavLink as ReactRouterLink, useParams } from 'react-router-dom';
 import { format, getYear } from 'date-fns';
 import Carousel from 'react-multi-carousel';
@@ -36,16 +36,17 @@ import EnrollCourseCard from '../../components/courses/course_card/enroll_lesson
 import { Rating } from '../../components/testimonials/testimonial_card.component';
 import ReviewsSection from '../../components/reviews';
 import { responsive } from '../../components/courses/courses_landing/courses_landing.component';
-
-import axios from '../../axios';
+import { getResponseMessage } from '../../helpers/response.util';
+import PageLoader from '../../utils/loader.component';
+import { daysArr } from '../../components/courses/courses_teacher/create_course.component';
+import axios, { axiosInstance } from '../../axios';
+import AuthContext from '../../context/AuthContext';
 
 import { heart, heartFull, message, group, location, hat } from '../../icons/index';
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import style from '../../components/courses/courses_landing/courses_landing.module.scss';
-import { getResponseMessage } from '../../helpers/response.util';
-import PageLoader from '../../utils/loader.component';
 
 export const getDate = date => {
   const month = format(new Date(date), 'LLL', { locale: bg });
@@ -55,30 +56,65 @@ export const getDate = date => {
   return `${day} ${month.charAt(0).toUpperCase() + month.slice(1)} ${year}`;
 };
 
-const LessonPage = () => {
+const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
   const { lessonId } = useParams();
   const toast = useToast();
+
+  const { userData } = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(true);
   const [dateValue, setDateValue] = React.useState('0');
   const [heartIcon, setHeartIcon] = useState(heart);
-  const [selectedCity, setSelectedCity] = useState(null);
+  const [reviewSort, setReviewSort] = useState(null);
   const [content, setContent] = useState<any>([]);
   const [reviews, setReviews] = useState<any>([]);
+  const [reviewsTotal, setReviewsTotal] = useState(0);
   const [numberOfContentShown, setNumberOfContentToShow] = useState(4);
   const [numberOfReviewsShown, setNumberOfReviewsToShow] = useState(3);
   const [course, setCourse] = useState<any>({});
   const [teacherInfo, setTeacherInfo] = useState<any>({});
   const [similarCourses, setSimilarCourses] = useState<any>([]);
+  const [isLiked, setIsLiked] = useState(false);
 
   const DatesRef = useRef(null);
   const testimonialsRef = useRef<any>(null);
+  const topRef = useRef(null);
 
-  const cities = [
-    { name: 'Най-нови', code: 'NY' },
-    { name: 'Най-високи', code: 'RM' },
-    { name: 'Най-ниски', code: 'LDN' },
+  const reviewsSortValues = [
+    { name: 'Най-нови', value: 'Newest' },
+    { name: 'Най-стари', value: 'Oldest' },
+    { name: 'Най-висок рейтинг', value: 'Highest rating' },
+    { name: 'Най-нисък рейтинг', value: 'Lowest rating' },
   ];
+
+  const addToFavourites = async ev => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+      try {
+        await axiosInstance.get(`lessons/likeCourse/${course.lessonID}`);
+        toast({
+          title: 'Успешно добавяне в любими',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+        setHeartIcon(heartFull);
+        setIsLiked(true);
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
 
   const handleScroll = () => {
     testimonialsRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -132,8 +168,15 @@ const LessonPage = () => {
     }
   };
 
-  useEffect(() => {
-    axios
+  const handleScrollTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  const getCoursePage = async () => {
+    await axios
       .get(`lessons/getCoursePage/${lessonId}`)
       .then(res => {
         setCourse(res.data[0]);
@@ -152,7 +195,12 @@ const LessonPage = () => {
           position: 'top-right',
         });
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    getCoursePage();
+    handleScrollTop();
+  }, [lessonId]);
 
   useEffect(() => {
     axios
@@ -162,7 +210,8 @@ const LessonPage = () => {
         page: 1,
       })
       .then(res => {
-        setReviews(res.data);
+        setReviews(res.data.reviewResponses);
+        setReviewsTotal(res.data.total);
       })
       .catch(function (error) {
         setIsLoading(false);
@@ -188,7 +237,8 @@ const LessonPage = () => {
         align={'start'}
         justify={'space-between'}
         flex={1}
-        w={'full'}>
+        w={'full'}
+        ref={topRef}>
         <Stack spacing={8} w={{ base: 'full', lg: '60%' }}>
           <Stack spacing={{ base: 12, lg: 16 }}>
             <Stack spacing={{ base: 6, lg: 8 }}>
@@ -258,8 +308,12 @@ const LessonPage = () => {
                   variant="link"
                   _hover={{ textDecoration: 'none' }}
                   onMouseEnter={() => setHeartIcon(heartFull)}
-                  onMouseLeave={() => setHeartIcon(heart)}>
-                  <IconButton aria-label="Add to favourites" icon={<Img src={heartIcon} h={5} w={'full'} />} />
+                  onMouseLeave={() => setHeartIcon(heart)}
+                  onClick={ev => addToFavourites(ev)}>
+                  <IconButton
+                    aria-label="Add to favourites"
+                    icon={<Img src={isLiked ? heartFull : heartIcon} h={5} w={'full'} />}
+                  />
                   <Button color={'purple.500'} _hover={{ textDecoration: 'none', opacity: 0.9 }}>
                     <Text fontSize={16} fontWeight={700} ml={2}>
                       Добави в любими
@@ -383,13 +437,13 @@ const LessonPage = () => {
 
                               <Stack spacing={4} align={'start'}>
                                 <Text fontWeight={600} fontSize={14}>
-                                  {el.courseHours}
+                                  {el?.time}
                                 </Text>
                                 <Text fontWeight={600} fontSize={14}>
-                                  {el.courseDays}
+                                  {el.courseDaysNumbers.map(day => daysArr[day - 1].name).toString()}
                                 </Text>
                                 <Text fontWeight={600} fontSize={14}>
-                                  {el.studentsLowerBound} - {el.studentsUpperBound} ученици
+                                  до {el.studentsUpperBound} {el.studentsUpperBound > 1 ? 'ученици' : 'ученик'}
                                 </Text>
                               </Stack>
                             </Stack>
@@ -494,9 +548,9 @@ const LessonPage = () => {
               </Stack>
 
               <Dropdown
-                value={selectedCity}
-                onChange={e => setSelectedCity(e.value)}
-                options={cities}
+                value={reviewSort}
+                onChange={e => setReviewSort(e.value)}
+                options={reviewsSortValues}
                 optionLabel="name"
                 placeholder="Сортирай по"></Dropdown>
             </Stack>
@@ -548,11 +602,10 @@ const LessonPage = () => {
               <GridItem colStart={{ base: 1, lg: 5 }} textAlign={{ base: 'center', lg: 'right' }}>
                 <Button
                   as={ReactRouterLink}
-                  to={'/'}
+                  to={course?.privateLesson ? '/lessons' : '/courses'}
                   fontSize={{ base: 18, lg: 20 }}
                   fontWeight={600}
                   variant={'link'}
-                  href={'#'}
                   color={'purple.500'}
                   _hover={{ opacity: '0.9' }}>
                   Виж всички
@@ -570,7 +623,7 @@ const LessonPage = () => {
               infinite={true}
               containerClass={style.containerClass}>
               {similarCourses.map((course, index) => (
-                <CourseCard key={index} course={course} />
+                <CourseCard key={index} course={course} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
               ))}
             </Carousel>
           </Stack>

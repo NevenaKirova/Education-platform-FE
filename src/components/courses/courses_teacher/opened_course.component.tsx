@@ -331,6 +331,7 @@ const OpenedCourseComponent = ({
             setShowAddResources={setShowAddResources}
             setShowAddDate={setShowAddDate}
             courseId={course?.lessonID}
+            setDates={setDates}
           />
         ) : (
           <Stack spacing={10} mt={4}>

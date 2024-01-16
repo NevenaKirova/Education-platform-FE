@@ -18,6 +18,7 @@ import {
   TabPanel,
   Img,
   SimpleGrid,
+  useToast,
 } from '@chakra-ui/react';
 
 import AuthContext from '../../context/AuthContext';
@@ -38,13 +39,13 @@ import {
   getUpcomingCourses,
 } from '../../store/features/teacher/teacherCourses/teacherCourses.async';
 import OpenedCourseComponent from '../../components/courses/courses_teacher/opened_course.component';
-import CreateToastMessage from '../../utils/toast.util';
 import { getResponseMessage } from '../../helpers/response.util';
 import CreateLessonComponent from '../../components/courses/courses_teacher/create_lesson.component';
 
 export default function DashboardPage() {
   const { user, userData } = useContext(AuthContext);
   const dispatch = useAppDispatch();
+  const toast = useToast();
 
   const courseTypes = [
     { label: 'Всички', type: 'all' },
@@ -90,7 +91,13 @@ export default function DashboardPage() {
 
       dispatch(getCoursesInactive());
     } catch (err) {
-      CreateToastMessage('error', getResponseMessage(err));
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
     }
   };
 
@@ -569,13 +576,11 @@ export default function DashboardPage() {
               <TabPanel p={{ base: 2 }}>
                 <Stack spacing={10}>
                   {userData?.verified === false ? (
-                      <UnverifiedComponent />
+                    <UnverifiedComponent />
                   ) : userData?.beingVerified === false ? (
-                      <AwaitingVerificationComponent />
-                  )  : (
-                      <Stack>
-                       приходи
-                      </Stack>
+                    <AwaitingVerificationComponent />
+                  ) : (
+                    <Stack>приходи</Stack>
                   )}
                 </Stack>
               </TabPanel>

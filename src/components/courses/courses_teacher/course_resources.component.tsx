@@ -425,7 +425,7 @@ const CourseResources = ({
                           {el?.assignment && (
                             <Stack
                               rounded={'md'}
-                              bg={'purple.100'}
+                              bg={'#E3F7FF'}
                               w={'full'}
                               p={4}
                               align={'center'}
@@ -471,17 +471,7 @@ const CourseResources = ({
                           )}
 
                           <Stack direction={'row'} align={'center'} justify={'space-between'} w={'full'}>
-                            <Stack direction={'row'} align={'center'} spacing={4}>
-                              <AvatarGroup size="xs" max={4}>
-                                <Avatar name="Ryan Florence" src="https://bit.ly/ryan-florence" />
-                                <Avatar name="Segun Adebayo" src="https://bit.ly/sage-adebayo" />
-                                <Avatar name="Kent Dodds" src="https://bit.ly/kent-c-dodds" />
-                                <Avatar name="Prosper Otemuyiwa" src="https://bit.ly/prosper-baba" />
-                                <Avatar name="Christian Nwamba" src="https://bit.ly/code-beast" />
-                              </AvatarGroup>
-
-                              <Text color={'grey.500'}> 0/ {openedCourse?.enrolledStudents} предадени</Text>
-                            </Stack>
+                            <Text color={'grey.500'}> 0/ {openedCourse?.enrolledStudents} предадени</Text>
 
                             <Button
                               size={{ base: 'md', lg: 'md' }}

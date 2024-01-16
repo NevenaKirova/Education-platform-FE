@@ -27,6 +27,7 @@ import {
   FormControl,
   useToast,
   IconButton,
+  Box,
 } from '@chakra-ui/react';
 import { Calendar } from 'primereact/calendar';
 import { addLocale } from 'primereact/api';
@@ -43,14 +44,18 @@ import {
   getUpcomingCourses,
 } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
 import { addMinutesToString } from './create_course.component';
-import { add, close, closeRed } from '../../../icons';
+import { add, close, closeRed, trash } from '../../../icons';
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import {
+  getLessonsActive,
+  getLessonsAll,
+  getLessonsInactive,
+} from '../../../store/features/teacher/teacherLessons/teacherLessons.async';
 
 type Inputs = {
   title: string | null;
-  grade: string | null;
   subject: string | null;
   studentsUpperBound: number | null;
   price: number | string | null;
@@ -63,20 +68,18 @@ type Inputs = {
 const CreateLessonComponent = ({
   setShowCreateCourse,
   showCreateCourse,
-  addDateActive,
   setAddDateActive,
   isEdit = false,
 }: {
   setShowCreateCourse: any;
   showCreateCourse: boolean;
-  addDateActive: boolean;
   setAddDateActive: any;
   isEdit?: boolean;
 }) => {
   const toast = useToast();
   const dispatch = useAppDispatch();
 
-  const themesRef = useRef(null);
+  const dateRef = useRef(null);
   const topRef = useRef(null);
 
   const defaultTime = new Date();
@@ -92,6 +95,7 @@ const CreateLessonComponent = ({
   const [courseLength, setCourseLength] = useState<string>('60');
   const [dates, setDates] = useState([]);
   const [editableIndexes, setEditableIndexes] = useState([0]);
+  const [showDateError, setShowDateError] = useState(false);
 
   const {
     register,
@@ -106,7 +110,6 @@ const CreateLessonComponent = ({
   } = useForm<Inputs>({
     defaultValues: {
       title: null,
-      grade: null,
       subject: null,
       isPrivateLesson: true,
       price: 200,
@@ -119,7 +122,7 @@ const CreateLessonComponent = ({
           lessonHours: [],
         },
       ],
-      themas: [],
+      themas: [{ title: '' }],
     },
   });
 
@@ -151,19 +154,33 @@ const CreateLessonComponent = ({
               align={'center'}
               justify={'center'}
               pl={2}>
-              <Text>{item.time}</Text>
+              <Text>{item?.time}</Text>
               <Text>-</Text>
-              <Text>{addMinutesToString(item.time, courseLength)}</Text>
+              <Text>{addMinutesToString(item?.time, courseLength)}</Text>
 
               <IconButton
                 bg="transparent"
                 aria-label="delete time"
                 _hover={{ bg: 'white' }}
                 onClick={() => removeTime(k)}
+                isDisabled={timeFields.length <= 1}
                 icon={<Img src={closeRed} h={{ base: 5 }} w={'full'} />}
               />
             </Stack>
           ))}
+
+          {timeFields.length && (
+            <Button
+              size={{ base: 'sm', lg: 'md' }}
+              color={'purple.500'}
+              bg={'transparent'}
+              fontSize={{ base: 16, '2xl': 20 }}
+              fontWeight={700}
+              _hover={{ bg: 'transparent' }}
+              onClick={() => setEditableIndexes([nestIndex])}>
+              <Img src={add} alt={'аdd lesson'} w={5} h={5} />
+            </Button>
+          )}
         </Stack>
 
         {editableIndexes.indexOf(nestIndex) != -1 && (
@@ -202,6 +219,7 @@ const CreateLessonComponent = ({
             </Stack>
 
             <Button
+              isDisabled={!getValues(`privateLessonTermins[${nestIndex}].date`)}
               type={'submit'}
               size={{ base: 'md' }}
               w={'fit-content'}
@@ -214,6 +232,7 @@ const CreateLessonComponent = ({
               _hover={{ opacity: '0.9' }}
               _focus={{ outline: 'none' }}
               _active={{ bg: 'purple.500' }}
+              _disabled={{ opacity: '0.3', cursor: 'not-allowed' }}
               onClick={() => appendTime({ time: format(time, 'HH:mm') })}>
               Запази
             </Button>
@@ -221,21 +240,6 @@ const CreateLessonComponent = ({
         )}
       </>
     );
-  };
-
-  const allowEdit = index => {
-    const arr = [...editableIndexes];
-
-    if (arr.indexOf(index) == -1) {
-      arr.push(index);
-      setEditableIndexes(arr);
-    }
-  };
-
-  const completeEdit = index => {
-    const arr = [...editableIndexes].filter(el => el != index);
-
-    setEditableIndexes(arr);
   };
 
   const { fields, append, remove } = useFieldArray({
@@ -317,7 +321,6 @@ const CreateLessonComponent = ({
         position: 'top-right',
       });
     } catch (err) {
-      setValue('themas', [{ title: '', description: '' }, {}, {}]);
       toast({
         title: getResponseMessage(err),
         status: 'error',
@@ -329,31 +332,45 @@ const CreateLessonComponent = ({
   };
 
   const onSubmit: SubmitHandler<any> = async data => {
-    const oneHasTitle = data.themas.some(el => el.title);
+    const oneHasData = data.privateLessonTermins.some(el => el.date && el.lessonHours.length);
 
-    if (!data?.themas?.length || !oneHasTitle) {
-      handleScroll(themesRef);
+    if (!data?.privateLessonTermins?.length || !oneHasData) {
+      setShowDateError(true);
+      handleScroll(dateRef);
     } else {
-      data.themas = data.themas.filter(el => el.title.length);
+      data.privateLessonTermins = data.privateLessonTermins.filter(el => el.date.length);
 
+      setIsLoading(true);
       try {
-        await axiosInstance.post('/lessons/createCourse', data);
+        // if (editInfo) {
+        //   if (!!courseInfo && courseInfo.isDraft) {
+        //     await axiosInstance.post(`/lessons/editCourseDraft/${courseId}`, data);
+        //   } else {
+        //     await axiosInstance.post(`/lessons/editCourse/${courseId}`, data);
+        //   }
+        //   setEditInfo(false);
+        //   getCourseInformation(data.lessonID);
+        //   getCourseDates(data.lessonID);
+        // } else {
+        await axiosInstance.post('/lessons/createPrivateLesson', data);
+        dispatch(getLessonsAll());
+        dispatch(getLessonsActive());
+        dispatch(getLessonsInactive());
+        // }
 
         setShowCreateCourse(false);
-        refreshForm();
-        dispatch(getCoursesAll());
-        dispatch(getCoursesActive());
-        dispatch(getCoursesInactive());
-        dispatch(getUpcomingCourses());
+        reset();
 
+        setIsLoading(false);
         toast({
-          title: 'Успешно създаване на курс',
+          title: false ? 'Успешна редакция на курс' : 'Успешно създаване на курс',
           status: 'success',
           duration: 3000,
           isClosable: true,
           position: 'top-right',
         });
       } catch (err) {
+        setIsLoading(false);
         toast({
           title: getResponseMessage(err),
           status: 'error',
@@ -365,18 +382,9 @@ const CreateLessonComponent = ({
     }
   };
 
-  const removeDate = index => {
-    if (dates[index] !== undefined) {
-      const newDates = dates;
-      newDates.splice(index, 1);
-      setValue('courseTerminRequests', newDates, { shouldValidate: true });
-      setDates([...newDates]);
-    }
-  };
-
   useEffect(() => {
     register('subject', { required: 'Полето е задължително' });
-    register('privateLessonTermins', { required: 'Добавете поне една дата на провеждане' });
+    // register('privateLessonTermins', { required: 'Добавете поне една дата на провеждане' });
   }, [register]);
 
   useEffect(() => {
@@ -384,9 +392,8 @@ const CreateLessonComponent = ({
   }, []);
 
   useEffect(() => {
-    console.log(getValues('privateLessonTermins'));
-    // console.log(time);
-  }, [getValues()]);
+    fields?.length == 1 && setEditableIndexes([0]);
+  }, [fields.length]);
 
   return (
     <Stack w={{ base: 'full', xl: '40vw' }} spacing={10}>
@@ -558,7 +565,7 @@ const CreateLessonComponent = ({
                 </Text>
               </Text>
 
-              <FormControl isInvalid={!!errors.thema}>
+              <FormControl isInvalid={!!errors.themas}>
                 <Input
                   pr="4.5rem"
                   type="text"
@@ -567,16 +574,16 @@ const CreateLessonComponent = ({
                   size={{ base: 'sm', lg: 'md' }}
                   bg={'grey.100'}
                   rounded={'md'}
-                  {...register('thema', { required: 'Полето е задължително' })}
+                  {...register('themas[0].title', { required: 'Полето е задължително' })}
                 />
 
-                <FormErrorMessage>{errors?.thema?.message}</FormErrorMessage>
+                <FormErrorMessage>{errors?.themas?.message}</FormErrorMessage>
               </FormControl>
             </Stack>
 
             <Stack spacing={4}>
               <Text fontSize={18} fontWeight={600}>
-                Дължина на урок{' '}
+                Продължителност на урока{' '}
                 <Text as={'span'} color={'red'}>
                   *
                 </Text>
@@ -663,33 +670,62 @@ const CreateLessonComponent = ({
                 </Text>
               </Text>
 
-              <Stack spacing={10}>
+              <Stack spacing={10} w={'full'}>
                 {fields?.map((el, index: number) => (
-                  <Stack key={index} direction={'column'} spacing={8} ref={themesRef}>
-                    <Calendar
-                      value={
-                        getValues(`privateLessonTermins[${index}].date`)
-                          ? new Date(getValues(`privateLessonTermins[${index}].date`))
-                          : ''
-                      }
-                      onChange={e => {
-                        if (e.value) setValue(`privateLessonTermins[${index}].date`, format(e.value, 'yyyy-MM-dd'));
-                      }}
-                      placeholder={'Изберете дата'}
-                      minDate={new Date()}
-                      dateFormat="dd M yy"
-                      locale={'bg'}
-                      showIcon
-                      className={'max-w-full'}
-                    />
+                  <Stack key={index} direction={'column'} spacing={6} ref={dateRef} w={'full'}>
+                    <Stack direction={'row'} spacing={2} w={'full'} align={'center'}>
+                      <Calendar
+                        value={
+                          getValues(`privateLessonTermins[${index}].date`)
+                            ? new Date(getValues(`privateLessonTermins[${index}].date`))
+                            : ''
+                        }
+                        onChange={e => {
+                          if (e.value) {
+                            setValue(`privateLessonTermins[${index}].date`, format(e.value, 'yyyy-MM-dd'));
+                            setEditableIndexes([index]);
+                          }
+                          trigger('privateLessonTermins');
+                        }}
+                        placeholder={'Изберете дата'}
+                        minDate={new Date()}
+                        dateFormat="dd M yy"
+                        locale={'bg'}
+                        showIcon
+                        className={'max-w-full w-full'}
+                      />
+
+                      <Box
+                        as={IconButton}
+                        aria-label={'delete theme'}
+                        size="xs"
+                        bg={'none'}
+                        _hover={{ bg: 'none' }}
+                        isDisabled={fields.length == 1}
+                        onClick={() => {
+                          remove(index);
+                          const length = getValues('privateLessonTermins').length;
+                          setEditableIndexes([length - 1]);
+                        }}
+                        icon={<Img src={trash} w={5} />}
+                      />
+                    </Stack>
 
                     <NestedTime nestIndex={index} />
                   </Stack>
                 ))}
+
+                <FormControl isInvalid={showDateError}>
+                  <FormErrorMessage>Добавете поне една дата</FormErrorMessage>
+                </FormControl>
               </Stack>
             </Stack>
 
             <Button
+              isDisabled={
+                getValues('privateLessonTermins')?.filter(el => el.date).length !==
+                getValues('privateLessonTermins').length
+              }
               size={{ base: 'md', lg: 'md' }}
               color={'purple.500'}
               fontSize={{ base: 16, '2xl': 20 }}
@@ -701,10 +737,15 @@ const CreateLessonComponent = ({
               mt={4}
               borderColor={'purple.500'}
               onClick={() => {
+                if (!getValues(`privateLessonTermins[${editableIndexes[0]}].lessonHours`)?.length) {
+                  setValue(`privateLessonTermins[${editableIndexes[0]}].lessonHours`, [{ time: '08:00' }]);
+                }
+
                 append({
                   date: '',
                   lessonHours: [],
                 });
+
                 let length = getValues('privateLessonTermins').length;
                 setEditableIndexes([length - 1]);
               }}>

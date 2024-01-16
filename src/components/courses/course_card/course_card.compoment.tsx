@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -15,15 +15,59 @@ import {
   IconButton,
   Img,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
 
 import { BsStarFill } from 'react-icons/bs';
 import { heart, heartFull, user } from '../../../icons';
 
 import { CourseType } from '../../../pages';
+import AuthContext from '../../../context/AuthContext';
+import { axiosInstance } from '../../../axios';
+import { getResponseMessage } from '../../../helpers/response.util';
 
-export default function CourseCard({ course }: { course: CourseType }) {
+export default function CourseCard({
+  course,
+  onLoginOpen,
+  setModalTabIndex,
+}: {
+  course: CourseType;
+  onLoginOpen: any;
+  setModalTabIndex: any;
+}) {
   const [heartIcon, setHeartIcon] = useState(heart);
+  const [isLiked, setIsLiked] = useState(false);
+  const { userData } = useContext(AuthContext);
+  const toast = useToast();
+
+  const addToFavourites = async ev => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+      try {
+        await axiosInstance.get(`lessons/likeCourse/${course.lessonID}`);
+        toast({
+          title: 'Успешно добавяне в любими',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+        setHeartIcon(heartFull);
+        setIsLiked(true);
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
 
   return (
     <Center
@@ -34,7 +78,7 @@ export default function CourseCard({ course }: { course: CourseType }) {
       _hover={{ transform: 'scale(1.04)  perspective(1px)' }}>
       <Box
         as={ReactRouterLink}
-        to={`/lessons/${course?.lessonID}`}
+        to={course?.privateLesson ? `/lessons/${course?.lessonID}` : `/courses/${course?.lessonID}`}
         maxW={{ base: '70vw', sm: '39vw', md: '35vw', lg: '25vw', xl: '24vw', '2xl': '20vw' }}
         h={'full'}
         w={'full'}
@@ -163,7 +207,8 @@ export default function CourseCard({ course }: { course: CourseType }) {
               _hover={{ bg: 'none' }}
               onMouseEnter={() => setHeartIcon(heartFull)}
               onMouseLeave={() => setHeartIcon(heart)}
-              icon={<Img src={heartIcon} w={5} h={5} />}
+              onClick={ev => addToFavourites(ev)}
+              icon={<Img src={isLiked ? heartFull : heartIcon} w={5} h={5} />}
             />
           </Stack>
         </Stack>
