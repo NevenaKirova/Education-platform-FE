@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import { Box, Center, Heading, Text, Stack, Avatar, Image, useColorModeValue, Button, Img } from '@chakra-ui/react';
 import { getDate } from '../../../pages/lessons/[id]';
-import { calendar } from '../../../icons/index';
+import { calendar } from '../../../icons';
 
 type Termin = {
   startDate: string;

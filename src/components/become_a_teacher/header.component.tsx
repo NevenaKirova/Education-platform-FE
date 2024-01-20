@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Flex, Image, Stack, Text, useBreakpointValue, VStack } from '@chakra-ui/react';
-import { teacherHeader } from '../../images/index';
+import { teacherHeader } from '../../images';
 export default function HeaderSection({
   onLoginOpen,
   setModalTabIndex,

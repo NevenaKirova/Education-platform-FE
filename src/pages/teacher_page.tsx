@@ -21,17 +21,22 @@ import { Rating } from '../components/testimonials/testimonial_card.component';
 import ReviewsSection from '../components/reviews';
 import { teacherPageBackground } from '../images';
 import { group, hat, heart, heartFull, location, messageWhite } from '../icons';
-import axios from '../axios';
+import axios, { axiosInstance } from '../axios';
 import { getResponseMessage } from '../helpers/response.util';
 import PageLoader from '../utils/loader.component';
 import { useParams } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import { useSelector } from 'react-redux';
+import { getStudentLiked } from '../store/selectors';
+import { useAppDispatch } from '../store';
+import { getLikedTeachers } from '../store/features/student/studentFavourites/studentFavourites.async';
 
 const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
   const toast = useToast();
 
   const { teacherId } = useParams();
   const { userData } = useContext(AuthContext);
+  const dispatch = useAppDispatch();
 
   const [isLoading, setIsLoading] = useState(true);
   const [heartIcon, setHeartIcon] = useState(heart);
@@ -40,15 +45,9 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const [teacherInfo, setTeacherInfo] = useState<any>({});
   const [classes, setClasses] = useState<any>([]);
   const [numberOfContentShown, setNumberOfContentToShow] = useState(6);
+  const [isLiked, setIsLiked] = useState(false);
 
-  const addToFavourites = ev => {
-    ev.preventDefault();
-    if (userData && userData.id) {
-    } else {
-      setModalTabIndex(1);
-      onLoginOpen();
-    }
-  };
+  const { likedTeachers } = useSelector(getStudentLiked);
 
   const showLessReviews = () => {
     setNumberOfReviewsToShow(3);
@@ -81,6 +80,35 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
     setNumberOfContentToShow(6);
   };
 
+  const addToFavourites = async ev => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+      try {
+        await axiosInstance.get(`/users/likeTeacher/${teacherId}`);
+        toast({
+          title: 'Успешно добавяне в любими',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+        setHeartIcon(heartFull);
+        dispatch(getLikedTeachers());
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
+
   useEffect(() => {
     axios
       .get(`users/getTeacherProfile/${teacherId}`)
@@ -101,6 +129,9 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
         setIsLoading(false);
       });
   }, []);
+
+  useEffect(() => {}, [likedTeachers]);
+
   return isLoading ? (
     <PageLoader isLoading={isLoading} />
   ) : (
@@ -168,7 +199,9 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
               </Text>
               <Stack direction={'row'}>
                 <Rating rating={teacherInfo?.rating} />
-                <Text color={'grey.400'}>({teacherInfo?.numberOfReviews} отзива)</Text>
+                <Text color={'grey.400'}>
+                  ({teacherInfo?.numberOfReviews} {teacherInfo?.numberOfReviews > 1 ? 'отзива' : 'отзив'} )
+                </Text>
               </Stack>
             </Stack>
             <Button
@@ -253,7 +286,7 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
           </Text>
         )}
 
-        {contentToShow.length && (
+        {contentToShow.length && classes.length == contentToShow.length ? null : (
           <Button
             px={8}
             fontSize={{ base: 18, lg: 20 }}

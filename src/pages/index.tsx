@@ -12,6 +12,10 @@ import { Stack, useToast } from '@chakra-ui/react';
 
 import '../styles/styles.scss';
 import { getResponseMessage } from '../helpers/response.util';
+import { useAppDispatch } from '../store';
+import { getStudentLiked } from '../store/selectors';
+import { useSelector } from 'react-redux';
+import { getLikedCourses } from '../store/features/student/studentFavourites/studentFavourites.async';
 
 export type CourseType = {
   lessonID: number;
@@ -37,9 +41,13 @@ export type CourseType = {
 
 const IndexPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
   const toast = useToast();
+  const dispatch = useAppDispatch();
+
   const ref = useRef(null);
   const [popularCourses, setPopularCourses] = useState([]);
   const [reviews, setReviews] = useState([]);
+
+  const { likedCourses, isLoading } = useSelector(getStudentLiked);
 
   useEffect(() => {
     axios
@@ -57,6 +65,10 @@ const IndexPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMod
           position: 'top-right',
         });
       });
+  }, []);
+
+  useEffect(() => {
+    dispatch(getLikedCourses());
   }, []);
   return (
     <>

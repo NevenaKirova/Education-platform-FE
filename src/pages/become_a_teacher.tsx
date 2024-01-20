@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import Header from '../components/become_a_teacher/header.component';
 import InfoSection from '../components/become_a_teacher/info.component';
 
-import { gradientDivider } from '../images/index';
+import { gradientDivider } from '../images';
 
 import { Stack, Img, Heading, Text, Button, useBreakpointValue } from '@chakra-ui/react';
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { Stack, useDisclosure } from '@chakra-ui/react';
 
-import HomePage from './pages/index';
+import HomePage from './pages';
 import BecomeATeacherPage from './pages/become_a_teacher';
 import LessonsPage from './pages/lessons/lessons';
 import LessonPage from './pages/lessons/[id]';
@@ -21,10 +21,10 @@ import AboutUsPage from './pages/about_us';
 import CoursesPage from './pages/courses/courses';
 import MyDashboardPage from './pages/dashboard/my-dashboard';
 import StudentOpenedCoursePage from './pages/student/opened_course';
+import DashboardPage from './pages/dashboard/dashboard';
+import StudentFavoritesPage from './pages/student/favorites';
 
 import './App.css';
-
-import DashboardPage from './pages/dashboard/dashboard';
 
 const App = () => {
   const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
@@ -77,6 +77,8 @@ const App = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/my-dashboard" element={<MyDashboardPage />} />
           <Route path="/course/:courseId" element={<StudentOpenedCoursePage />} />
+          <Route path="/favourites" element={<StudentFavoritesPage />} />
+
           <Route path="/404" element={<PageNotFound />} />
           <Route path="*" element={<Navigate to="/404" />} />
         </Routes>

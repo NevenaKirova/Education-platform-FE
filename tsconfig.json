@@ -19,5 +19,7 @@
     "noImplicitUseStrict": true,
     "no-empty": false
   },
-  "include": ["src"]
+  "include": [
+    "./src"
+  ]
 }

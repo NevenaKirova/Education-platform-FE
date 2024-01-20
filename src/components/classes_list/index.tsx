@@ -40,7 +40,7 @@ import {
   usePagination,
 } from '@ajna/pagination';
 
-import CourseCard from '../../components/courses/course_card/course_card.compoment';
+import CourseCard from '../courses/course_card/course_card.compoment';
 import PageLoader from '../../utils/loader.component';
 import { getResponseMessage } from '../../helpers/response.util';
 import axios from '../../axios';

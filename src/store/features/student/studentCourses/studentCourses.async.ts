@@ -9,7 +9,6 @@ export const getStudentAll = createAsyncThunk(
     try {
       const res = await axiosInstance.post(`/lessons/getStudentDashboard/All`, { sort, page });
 
-      console.log(res.data)
       return res.data;
     } catch (err) {
       CreateToastMessage('error', getResponseMessage(err));

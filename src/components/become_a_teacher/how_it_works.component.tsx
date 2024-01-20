@@ -1,6 +1,6 @@
 import React from 'react';
 import { Flex, Image, Stack, Text, VStack, useBreakpointValue } from '@chakra-ui/react';
-import { howItWorksImage } from '../../images/index';
+import { howItWorksImage } from '../../images';
 export default function HowItWorksComponent() {
   return (
     <Stack

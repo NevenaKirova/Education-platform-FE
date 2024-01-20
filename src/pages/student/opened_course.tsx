@@ -1,8 +1,4 @@
-import React, { useState, useMemo, useEffect, useContext } from 'react';
-
-import { format } from 'date-fns';
-
-import { bg } from 'date-fns/locale';
+import React, { useState, useEffect, useContext } from 'react';
 
 import {
   Stack,
@@ -17,17 +13,13 @@ import {
   AccordionItem,
   AccordionButton,
   AccordionPanel,
-  Grid,
-  GridItem,
-  useToast,
-  useDisclosure,
-  AvatarGroup,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  useToast,
+  useDisclosure,
 } from '@chakra-ui/react';
 
-import { capitalizeMonth } from '../../helpers/capitalizeMonth.util';
 import { axiosInstance } from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
 import {
@@ -44,7 +36,8 @@ import {
   fileUpload,
   messageWhite,
   report,
-} from '../../icons/index';
+  heartFull,
+} from '../../icons';
 
 import { Navigate, NavLink as ReactRouterLink, useLocation, useParams } from 'react-router-dom';
 
@@ -58,14 +51,29 @@ const StudentOpenedCoursePage = () => {
   const { courseId } = useParams();
   const { state } = useLocation();
 
-  console.log(state);
-
   const toast = useToast();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const downloadResource = async themeId => {
+    try {
+      const res = await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
+        responseType: 'blob',
+      });
+      console.log(res.data);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
 
   const getOpenedCourse = async () => {
     try {
@@ -116,24 +124,22 @@ const StudentOpenedCoursePage = () => {
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <Stack spacing={6} align={'start'} mb={6}>
+      <Stack spacing={6} align={'start'} mb={6} w={'full'}>
         <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
           {course?.lessonTitle}
         </Heading>
 
-        <Stack direction={'row'} spacing={4} align={'center'} flexWrap={'wrap'}>
+        <Stack direction={'row'} spacing={4} align={'center'} flexWrap={'wrap'} w={'full'}>
           <Text color={'grey.400'}>Преподавател:</Text>
           <Stack direction={'row'} spacing={2} align={'center'}>
             <Avatar
               as={ReactRouterLink}
               to={`/teacher/${course?.teacherId}`}
               size="xs"
-              name={`${course?.firstName} ${course?.secondName}`}
+              name={course?.teacherName}
               src="https://bit.ly/dan-abramov"
             />
-            <Text color={'grey.400'}>
-              {course?.firstName} {course?.secondName} Невена Кирова
-            </Text>
+            <Text color={'grey.400'}>{course?.teacherName}</Text>
           </Stack>
         </Stack>
 
@@ -145,7 +151,7 @@ const StudentOpenedCoursePage = () => {
         </Button>
       </Stack>
 
-      <Stack spacing={14}>
+      <Stack spacing={14} w={'full'}>
         <Stack spacing={6} justify={'start'}>
           <Heading flex={1} fontSize={{ base: 18, lg: 24 }} textAlign="start" color={'grey.600'}>
             Описание на курса
@@ -185,7 +191,7 @@ const StudentOpenedCoursePage = () => {
                 <>
                   <AccordionButton as={Stack} direction={'row'}>
                     <Heading flex={1} fontSize={{ base: 18, lg: 24 }} textAlign="start" color={'grey.600'}>
-                      {el?.title} Tema 1
+                      {el?.title}
                     </Heading>
 
                     {isExpanded ? (
@@ -214,69 +220,67 @@ const StudentOpenedCoursePage = () => {
                   <AccordionPanel py={4}>
                     <Stack spacing={6}>
                       <Text color={'grey.600'} textAlign={'start'}>
-                        {' '}
                         {el?.description}
                       </Text>
 
                       <Stack spacing={4}>
-                        {/*{el?.linkToRecording && (*/}
+                        {el?.linkToRecording && (
+                          <Stack
+                            as={ReactRouterLink}
+                            to={el?.linkToRecording}
+                            target={'_blank'}
+                            rounded={'md'}
+                            bg={'purple.100'}
+                            w={'full'}
+                            p={4}
+                            align={'center'}
+                            direction={'row'}
+                            justify={'start'}>
+                            <Img src={video} w={6} h={6} />
+                            <Text color={'grey.600'} fontWeight={'700'}>
+                              Видеозапис
+                            </Text>
+                          </Stack>
+                        )}
 
-                        <Stack
-                          as={ReactRouterLink}
-                          to={el?.linkToRecording}
-                          target={'_blank'}
-                          rounded={'md'}
-                          bg={'purple.100'}
-                          w={'full'}
-                          p={4}
-                          align={'center'}
-                          direction={'row'}
-                          justify={'start'}>
-                          <Img src={video} w={6} h={6} />
-                          <Text color={'grey.600'} fontWeight={'700'}>
-                            Видеозапис
-                          </Text>
-                        </Stack>
+                        {el?.presentation && (
+                          <Stack
+                            as={Button}
+                            to={el?.linkToRecording}
+                            target={'_blank'}
+                            rounded={'md'}
+                            bg={'purple.100'}
+                            w={'full'}
+                            p={4}
+                            align={'center'}
+                            direction={'row'}
+                            justify={'start'}
+                            onClick={() => downloadResource(el.themaID)}>
+                            <Img src={video} w={6} h={6} />
+                            <Text color={'grey.600'} fontWeight={'700'}>
+                              {el?.presentation}
+                            </Text>
+                          </Stack>
+                        )}
 
-                        {/*)}*/}
-
-                        {/*{el?.presentation && (*/}
-                        <Stack
-                          as={ReactRouterLink}
-                          to={el?.linkToRecording}
-                          target={'_blank'}
-                          rounded={'md'}
-                          bg={'purple.100'}
-                          w={'full'}
-                          p={4}
-                          align={'center'}
-                          direction={'row'}
-                          justify={'start'}>
-                          <Img src={video} w={6} h={6} />
-                          <Text color={'grey.600'} fontWeight={'700'}>
-                            {el?.presentation}
-                          </Text>
-                        </Stack>
-                        {/*)}*/}
-
-                        {/*{el?.assignment && (*/}
-                        <Stack
-                          as={ReactRouterLink}
-                          to={el?.linkToRecording}
-                          target={'_blank'}
-                          rounded={'md'}
-                          bg={'#E3F7FF'}
-                          w={'full'}
-                          p={4}
-                          align={'center'}
-                          direction={'row'}
-                          justify={'start'}>
-                          <Img src={fileUpload} w={6} h={6} />
-                          <Text color={'grey.600'} fontWeight={'700'}>
-                            Задача за домашна работа
-                          </Text>
-                        </Stack>
-                        {/*)}*/}
+                        {el?.assignment && (
+                          <Stack
+                            as={ReactRouterLink}
+                            to={el?.linkToRecording}
+                            target={'_blank'}
+                            rounded={'md'}
+                            bg={'#E3F7FF'}
+                            w={'full'}
+                            p={4}
+                            align={'center'}
+                            direction={'row'}
+                            justify={'start'}>
+                            <Img src={fileUpload} w={6} h={6} />
+                            <Text color={'grey.600'} fontWeight={'700'}>
+                              Задача за домашна работа
+                            </Text>
+                          </Stack>
+                        )}
                       </Stack>
                     </Stack>
                   </AccordionPanel>

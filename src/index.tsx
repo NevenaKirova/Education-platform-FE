@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { AuthProvider } from './context/AuthContext';
-import store from "./store";
+import store from './store';
 
 import App from './App';
 
@@ -12,6 +12,7 @@ import theme from './theme';
 import { ChakraProvider } from '@chakra-ui/react';
 
 import './styles/styles.scss';
+import './pages/calendar/calendar.module.scss';
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 

@@ -29,7 +29,7 @@ import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
 import EditCourseModal from '../modals/edit_course_theme';
 import { avatar2 } from '../../../images';
-import { message, edit, calendar, clock, link, trash, bottom, top, add, video, fileUpload } from '../../../icons/index';
+import { message, edit, calendar, clock, link, trash, bottom, top, add, video, fileUpload } from '../../../icons';
 import AddResourcesModal from '../modals/course_add_resources';
 import CourseAddHomework from './course_add_homework';
 import { NavLink as ReactRouterLink } from 'react-router-dom';

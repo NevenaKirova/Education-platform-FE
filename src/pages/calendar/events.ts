@@ -6,16 +6,6 @@ const events = [
     end: getDate('YEAR-MONTH-10'),
   },
   {
-    groupId: '999',
-    title: 'Repeating Event',
-    start: getDate('YEAR-MONTH-09T16:00:00+00:00'),
-  },
-  {
-    groupId: '999',
-    title: 'Repeating Event',
-    start: getDate('YEAR-MONTH-16T16:00:00+00:00'),
-  },
-  {
     title: 'Dontiste',
     start: 'YEAR-MONTH-17',
     end: getDate('YEAR-MONTH-19'),

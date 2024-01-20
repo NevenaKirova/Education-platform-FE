@@ -34,7 +34,7 @@ import {
 import CourseCard from '../../components/courses/course_card/course_card.compoment';
 import EnrollCourseCard from '../../components/courses/course_card/enroll_lesson_card';
 import { Rating } from '../../components/testimonials/testimonial_card.component';
-import ReviewsSection from '../../components/reviews';
+
 import { responsive } from '../../components/courses/courses_landing/courses_landing.component';
 import { getResponseMessage } from '../../helpers/response.util';
 import PageLoader from '../../utils/loader.component';
@@ -42,11 +42,24 @@ import { daysArr } from '../../components/courses/courses_teacher/create_course.
 import axios, { axiosInstance } from '../../axios';
 import AuthContext from '../../context/AuthContext';
 
-import { heart, heartFull, message, group, location, hat } from '../../icons/index';
+import { heart, heartFull, message, group, location, hat } from '../../icons';
+
+import {
+  Pagination,
+  PaginationContainer,
+  PaginationNext,
+  PaginationPage,
+  PaginationPageGroup,
+  PaginationPrevious,
+  PaginationSeparator,
+  usePagination,
+} from '@ajna/pagination';
+
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import style from '../../components/courses/courses_landing/courses_landing.module.scss';
+
 
 export const getDate = date => {
   const month = format(new Date(date), 'LLL', { locale: bg });
@@ -65,12 +78,11 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
   const [isLoading, setIsLoading] = useState(true);
   const [dateValue, setDateValue] = React.useState('0');
   const [heartIcon, setHeartIcon] = useState(heart);
-  const [reviewSort, setReviewSort] = useState(null);
+  const [reviewSort, setReviewSort] = useState('');
   const [content, setContent] = useState<any>([]);
   const [reviews, setReviews] = useState<any>([]);
   const [reviewsTotal, setReviewsTotal] = useState(0);
   const [numberOfContentShown, setNumberOfContentToShow] = useState(4);
-  const [numberOfReviewsShown, setNumberOfReviewsToShow] = useState(3);
   const [course, setCourse] = useState<any>({});
   const [teacherInfo, setTeacherInfo] = useState<any>({});
   const [similarCourses, setSimilarCourses] = useState<any>([]);
@@ -120,6 +132,25 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
     testimonialsRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const outerLimit = 2;
+  const innerLimit = 2;
+
+  const { pages, pagesCount, currentPage, setCurrentPage } = usePagination({
+    total: reviewsTotal,
+    limits: {
+      outer: outerLimit,
+      inner: innerLimit,
+    },
+    initialState: {
+      pageSize: 12,
+      currentPage: 1,
+    },
+  });
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const contentToShow = useMemo(() => {
     return content?.slice(0, numberOfContentShown).map((el: any, index: number) => (
       <AccordionItem key={index} bg={'grey.100'} border={'none'} rounded={'md'}>
@@ -145,27 +176,12 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
     ));
   }, [content, numberOfContentShown]);
 
-  const reviewsToShow = useMemo(() => {
-    return ReviewsSection(reviews, numberOfReviewsShown);
-  }, [reviews, numberOfReviewsShown]);
   const showAll = () => {
     setNumberOfContentToShow(content.length);
   };
 
   const showLessContent = () => {
     setNumberOfContentToShow(4);
-  };
-
-  const showLessReviews = () => {
-    setNumberOfReviewsToShow(3);
-  };
-
-  const showMore = () => {
-    if (numberOfReviewsShown + 3 <= reviews.length) {
-      setNumberOfReviewsToShow(numberOfReviewsShown + 3);
-    } else {
-      setNumberOfReviewsToShow(reviews.length);
-    }
   };
 
   const handleScrollTop = () => {
@@ -197,18 +213,9 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
       });
   };
 
-  useEffect(() => {
-    getCoursePage();
-    handleScrollTop();
-  }, [lessonId]);
-
-  useEffect(() => {
-    axios
-      .post('/lessons/getReviews', {
-        id: lessonId,
-        sort: '',
-        page: 1,
-      })
+  const getReviews = async values => {
+    await axios
+      .post('/lessons/getReviews', values)
       .then(res => {
         setReviews(res.data.reviewResponses);
         setReviewsTotal(res.data.total);
@@ -222,8 +229,21 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
           isClosable: true,
           position: 'top-right',
         });
-      });
+      })
+  };
+
+  useEffect(() => {
+    getCoursePage();
+    handleScrollTop();
+  }, [lessonId]);
+
+  useEffect(() => {
+    getReviews({ id: lessonId, sort: '', page: currentPage });
   }, []);
+
+  useEffect(() => {
+    getReviews({ id: lessonId, sort: reviewSort, page: currentPage });
+  }, [currentPage, reviewSort]);
 
   return isLoading ? (
     <PageLoader isLoading={isLoading} />
@@ -556,31 +576,87 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
             </Stack>
 
             <Stack direction={'row'} spacing={8} align={'center'} flexWrap={'wrap'}>
-              {reviewsToShow?.length ? (
-                reviewsToShow
+              {reviews?.length ? (
+                reviews.map((el: any, index: number) => (
+                  <Stack key={index} w={'full'} justify={'space-between'} align={'start'} direction={'row'}>
+                    <Stack spacing={6} align={{ base: 'center', md: 'start' }}>
+                      <Stack
+                        spacing={4}
+                        direction={{ base: 'column', lg: 'row' }}
+                        align={{ base: 'start', lg: 'center' }}
+                        justify={'space-between'}>
+                        <Stack flex={1} direction={'row'} spacing={4} align={'center'}>
+                          <Avatar
+                            size="sm"
+                            name={`${el.studentsName} ${el.studentsSurname}`}
+                            src="https://bit.ly/dan-abramov"
+                          />
+                          <Text color={'grey.600'}>
+                            {el.studentName} {el.studentSurname}
+                          </Text>
+                          <Rating rating={el.rating} />
+                        </Stack>
+
+                        <Text color={'grey.400'} w={'fit-content'}>
+                          {el.date}
+                        </Text>
+                      </Stack>
+
+                      <Stack maxW={'80%'} spacing={6}>
+                        <Text textAlign={'start'}>{el.message}</Text>
+                      </Stack>
+                    </Stack>
+                  </Stack>
+                ))
               ) : (
                 <Text fontSize={{ base: 18, lg: 20 }}>Няма налични мнения на ученици</Text>
               )}
-
-              {reviewsToShow?.length && (
-                <Button
-                  fontSize={{ base: 18, lg: 20 }}
-                  fontWeight={600}
-                  bg={'transparent'}
-                  color="purple.500"
-                  _hover={{ bg: 'transparent' }}
-                  width={'fit-content'}
-                  p={0}
-                  onClick={reviewsToShow.length < reviews.length ? showMore : showLessReviews}>
-                  {reviews.length <= reviewsToShow.length
-                    ? ''
-                    : reviewsToShow.length < reviews.length
-                      ? 'Виж повече '
-                      : 'Виж по-малко'}
-                </Button>
-              )}
             </Stack>
           </Stack>
+
+          <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
+            <PaginationContainer align="center" justify="end" p={4} w="full">
+              <PaginationPrevious
+                _hover={{
+                  bg: 'transparent',
+                }}
+                bg="transparent">
+                <Text>Предишна</Text>
+              </PaginationPrevious>
+              <PaginationPageGroup
+                align="center"
+                separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
+                {pages.map((page: number) => (
+                  <PaginationPage
+                    w={7}
+                    bg="transparent"
+                    key={`pagination_page_${page}`}
+                    page={page}
+                    fontSize="sm"
+                    color={'grey.400'}
+                    _hover={{
+                      color: 'purple.400',
+                    }}
+                    _current={{
+                      color: 'purple.500',
+                      bg: 'transparent',
+                      fontSize: 'sm',
+                      w: 7,
+                    }}
+                  />
+                ))}
+              </PaginationPageGroup>
+              <PaginationNext
+                _hover={{
+                  bg: 'transparent',
+                }}
+                color={'purple.500'}
+                bg="transparent"
+                onClick={() => console.log('Im executing my own function along with Next component functionality')}>
+                <Text>Следваща</Text>
+              </PaginationNext>
+            </PaginationContainer>
+          </Pagination>
         </Stack>
         {similarCourses.length && (
           <Stack spacing={{ base: 4, lg: 8 }} py={{ base: 10, lg: 0 }}>

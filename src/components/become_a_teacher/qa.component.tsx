@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Flex, Heading, Image, Stack, Text, Link, useBreakpointValue, VStack } from '@chakra-ui/react';
-import { graphics } from '../../images/index';
+import { graphics } from '../../images';
 export default function QASection() {
   return (
     <Stack

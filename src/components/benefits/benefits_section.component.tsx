@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Keyboard } from 'swiper/modules';
 
 import BenefitComponent from './benefit.component';
-import { benefit1, benefit2, benefit3 } from '../../images/index';
+import { benefit1, benefit2, benefit3 } from '../../images';
 
 import 'swiper/css';
 import 'swiper/css/navigation';

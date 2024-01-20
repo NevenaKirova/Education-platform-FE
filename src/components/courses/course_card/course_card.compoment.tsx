@@ -18,8 +18,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
-import { BsStarFill } from 'react-icons/bs';
 import { heart, heartFull, user } from '../../../icons';
+import { FaStar } from 'react-icons/fa';
 
 import { CourseType } from '../../../pages';
 import AuthContext from '../../../context/AuthContext';
@@ -144,7 +144,9 @@ export default function CourseCard({
               </HStack>
 
               <HStack align={'center'} spacing={1}>
-                <BsStarFill style={{ marginLeft: '1' }} color={'gold'} />
+                <Box as="label" color={'gold'}>
+                  <FaStar cursor={'pointer'} size={16} />
+                </Box>
                 <Text color={'grey.600'} fontSize={12}>
                   {course?.rating}
                 </Text>

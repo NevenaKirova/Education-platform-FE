@@ -27,7 +27,7 @@ import {
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
 import AuthContext from '../../context/AuthContext';
-import { logo, logoWhite } from '../../images/index';
+import { logo, logoWhite } from '../../images';
 import {
   bell,
   heart,
@@ -199,6 +199,8 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
           <Stack flex={{ base: 1, md: 0 }} justify={'flex-end'} align={'center'} direction={'row'} spacing={1}>
             <Show above={'lg'}>
               <IconButton
+                as={ReactRouterLink}
+                to={'/favourites'}
                 bg="transparent"
                 aria-label="favourites"
                 _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
@@ -206,13 +208,13 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
               />
               <IconButton
                 bg="transparent"
-                aria-label="favourites"
+                aria-label="messages"
                 _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
                 icon={<Img src={isHomePage ? messageWhite : message} h={5} w={'full'} />}
               />
               <IconButton
                 bg="transparent"
-                aria-label="favourites"
+                aria-label="notifications"
                 _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
                 icon={<Img src={isHomePage ? bellWhite : bell} h={5} w={'full'} />}
               />

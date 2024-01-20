@@ -7,9 +7,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { Stack } from '@chakra-ui/react';
 import events from './events';
 
-import './calendar.module.scss';
 import bgLocale from '@fullcalendar/core/locales/bg';
-import { imageOptimizer } from 'next/dist/server/image-optimizer';
 
 function Calendar() {
   return (
@@ -25,12 +23,14 @@ function Calendar() {
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView={'dayGridMonth'}
         events={events}
+        displayEventTime={false}
         weekNumberCalculation={'ISO'}
-        locale={'bg'}
+        locale={bgLocale}
+        dateClick={info => console.log(info)}
         headerToolbar={{
-          start: 'today ', // will normally be on the left. if RTL, will be on the right
+          start: '', // will normally be on the left. if RTL, will be on the right
           center: 'prev title next',
-          end: 'timeGridWeek,timeGridDay', // will normally be on the right. if RTL, will be on the left
+          end: 'today', // will normally be on the right. if RTL, will be on the left
         }}
         height={'90vh'}
       />

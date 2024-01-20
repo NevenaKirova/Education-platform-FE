@@ -17,6 +17,7 @@ const data = {
 
 interface RatingProps {
   rating: number;
+  size?: number;
 }
 
 interface TestimonialProps {
@@ -24,7 +25,7 @@ interface TestimonialProps {
   padding?: number;
 }
 
-export function Rating({ rating }: RatingProps) {
+export function Rating({ rating, size = 16 }: RatingProps) {
   return (
     <Box display="flex" alignItems="center">
       {Array(5)
@@ -32,12 +33,28 @@ export function Rating({ rating }: RatingProps) {
         .map((_, i) => {
           const roundedRating = Math.round(rating * 2) / 2;
           if (roundedRating - i >= 1) {
-            return <BsStarFill key={i} style={{ marginLeft: '1' }} color={'gold'} />;
+            return (
+              <BsStarFill
+                key={i}
+                style={{ marginLeft: '1', marginRight: 3, fontSize: size }}
+                fontSize={18}
+                color={'gold'}
+              />
+            );
           }
           if (roundedRating - i === 0.5) {
-            return <BsStarHalf key={i} style={{ marginLeft: '1' }} color={'gold'} />;
+            return (
+              <BsStarHalf
+                key={i}
+                style={{ marginLeft: '1', marginRight: 3, fontSize: size }}
+                fontSize={18}
+                color={'gold'}
+              />
+            );
           }
-          return <BsStar key={i} style={{ marginLeft: '1' }} color={'gold'} />;
+          return (
+            <BsStar key={i} style={{ marginLeft: '1', marginRight: 3, fontSize: size }} fontSize={18} color={'gold'} />
+          );
         })}
     </Box>
   );

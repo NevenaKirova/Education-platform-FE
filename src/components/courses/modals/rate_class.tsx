@@ -41,6 +41,7 @@ export default function RateClassModal({
   const handleOnClose = () => {
     onClose();
     setRating(0);
+    setReview('');
   };
 
   const leaveReview = async () => {
