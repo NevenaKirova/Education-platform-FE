@@ -3,8 +3,8 @@ import { getLikedCourses, getLikedTeachers } from './studentFavourites.async';
 import studentCoursesSlice from '../studentCourses/studentCourses.slice';
 
 const initialState: any = {
-  likedCourses: null,
-  likedTeachers: null,
+  likedCourses: [],
+  likedTeachers: [],
   isLoading: true,
 };
 

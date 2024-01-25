@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { NavLink as ReactRouterLink, useLocation } from 'react-router-dom';
+import { NavLink as ReactRouterLink, useLocation, useMatch } from 'react-router-dom';
 import { Avatar, ButtonGroup, Link as ChakraLink } from '@chakra-ui/react';
 
 import {
@@ -40,6 +40,7 @@ import {
   settings,
   logout,
   money,
+  heartFull,
 } from '../../icons';
 
 interface NavItem {
@@ -124,6 +125,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
 
   const [isHomePage, setIsHomePage] = useState(false);
   const location = useLocation();
+  const matchFavourites = useMatch('/favourites');
 
   useEffect(() => {
     location.pathname === '/' ? setIsHomePage(true) : setIsHomePage(false);
@@ -198,15 +200,20 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
         {userData ? (
           <Stack flex={{ base: 1, md: 0 }} justify={'flex-end'} align={'center'} direction={'row'} spacing={1}>
             <Show above={'lg'}>
+              {userData.role === 'STUDENT' && (
+                <IconButton
+                  as={ReactRouterLink}
+                  to={'/favourites'}
+                  bg="transparent"
+                  aria-label="favourites"
+                  _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
+                  icon={<Img src={isHomePage ? heartWhite : matchFavourites ? heartFull : heart} h={5} w={'full'} />}
+                />
+              )}
+
               <IconButton
                 as={ReactRouterLink}
-                to={'/favourites'}
-                bg="transparent"
-                aria-label="favourites"
-                _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
-                icon={<Img src={isHomePage ? heartWhite : heart} h={5} w={'full'} />}
-              />
-              <IconButton
+                to={'/messages'}
                 bg="transparent"
                 aria-label="messages"
                 _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}

@@ -46,11 +46,11 @@ export default function CourseSection({
         gap={{ base: 6, md: 8 }}
         pr={{ base: 0, lg: 8 }}
         alignItems={'baseline'}>
-        <GridItem colSpan={{ base: 1, lg: 3 }} colStart={{ base: 1, lg: 2 }}>
+        <GridItem colSpan={{ base: 1, lg: 4, xl: 3 }} colStart={{ base: 1, xl: 2 }}>
           <Heading
             flex={1}
             as="h1"
-            fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', xl: '2vw' }}
+            fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', lg: '2.5vw', xl: '2vw' }}
             textAlign="center">
             <Text as="span" color={'purple.500'}>
               Най-популярни
@@ -63,7 +63,7 @@ export default function CourseSection({
           <Button
             as={ReactRouterLink}
             to={'/courses'}
-            fontSize={{ base: '4.7vw', md: ' 2.5vw', xl: '1.4vw' }}
+            fontSize={{ base: '4.7vw', md: ' 2.5vw', lg: '1.8vw', xl: '1.4vw' }}
             fontWeight={700}
             variant={'link'}
             color={'purple.500'}

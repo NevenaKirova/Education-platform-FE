@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 
@@ -38,6 +38,7 @@ import { Calendar } from 'primereact/calendar';
 import { format } from 'date-fns';
 import { addLocale } from 'primereact/api';
 import PageLoader from '../../utils/loader.component';
+import AuthContext from '../../context/AuthContext';
 
 type Inputs = {
   name: string | null;
@@ -55,10 +56,12 @@ type Inputs = {
 };
 export default function VerifyProfileComponent({ setShowForm }: { setShowForm: any }) {
   const toast = useToast();
+  const { getUserData } = useContext(AuthContext);
+
   const [gender, setGender] = useState('');
   const [degree, setDegree] = useState('');
   const [withExperience, setWithExperience] = useState('no');
-  const [city, setCity] = useState(null);
+  const [city, setCity] = useState('');
   const [cities, setCities] = useState([]);
   const [showExperienceFields, setShowExperienceFields] = useState(false);
   const [dateStartValue, setDateStartValue] = useState([]);
@@ -111,6 +114,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
       hasExperience: 'no',
       experience: [{ place: '', startYear: '', endYear: '', description: '' }],
       agreeToConditions: false,
+      file: null,
     },
   });
 
@@ -135,12 +139,21 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
     }
   };
 
+  const onFileAccepted = file => {
+    setValue('file', file);
+  };
+
   const onSubmit: SubmitHandler<any> = async data => {
     await trigger('city');
+
+    const formData = new FormData();
+    formData.append('file', data.file);
 
     setIsLoading(true);
     try {
       await axiosInstance.post(`/users/verifyTeacher`, data);
+      await axiosInstance.post(`users/uploadImageTeacher`, formData);
+      await getUserData();
       setIsLoading(false);
       setShowForm(false);
       reset();
@@ -165,7 +178,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
 
   useEffect(() => {
     register('city', { required: 'Полето е задължително' });
-    // register('picture', { required: 'Полето е задължително' });
+    register('file', { required: 'Полето е задължително' });
   }, [register]);
 
   useEffect(() => {
@@ -257,29 +270,29 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                 </FormControl>
               </Stack>
 
-              {/*<Stack spacing={4}>*/}
-              {/*  <FormControl isInvalid={!!errors.picture}>*/}
-              {/*    <FormLabel fontWeight={700} color={'grey.600'} pb={2}>*/}
-              {/*      Профилна снимка{' '}*/}
-              {/*      <Text as={'span'} color={'red'}>*/}
-              {/*        **/}
-              {/*      </Text>*/}
-              {/*    </FormLabel>*/}
+              <Stack spacing={4}>
+                <FormControl isInvalid={!!errors.picture}>
+                  <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
+                    Профилна снимка{' '}
+                    <Text as={'span'} color={'red'}>
+                      *
+                    </Text>
+                  </FormLabel>
 
-              {/*    <PreviewDropzone onFileAccepted={onFileAccepted} />*/}
+                  <PreviewDropzone onFileAccepted={onFileAccepted} />
 
-              {/*    <FormErrorMessage>{errors?.picture?.message}</FormErrorMessage>*/}
-              {/*  </FormControl>*/}
+                  <FormErrorMessage>{errors?.picture?.message}</FormErrorMessage>
+                </FormControl>
 
-              {/*  <Stack fontSize={{ base: 14, lg: 16 }}>*/}
-              {/*    <Text fontWeight={400} color={'grey.400'}>*/}
-              {/*      Моля добавете ясна профилна снимка (5 MB)*/}
-              {/*    </Text>*/}
-              {/*    <Text fontWeight={400} color={'grey.400'}>*/}
-              {/*      Допустими файлови формати .jpg .jpeg .png*/}
-              {/*    </Text>*/}
-              {/*  </Stack>*/}
-              {/*</Stack>*/}
+                <Stack fontSize={{ base: 14, lg: 16 }}>
+                  <Text fontWeight={400} color={'grey.400'}>
+                    Моля добавете ясна профилна снимка (5 MB)
+                  </Text>
+                  <Text fontWeight={400} color={'grey.400'}>
+                    Допустими файлови формати .jpg .jpeg .png
+                  </Text>
+                </Stack>
+              </Stack>
 
               <FormControl isInvalid={!!errors.gender}>
                 <FormLabel fontWeight={700} color={'grey.600'} pb={2}>

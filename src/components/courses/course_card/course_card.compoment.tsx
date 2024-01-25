@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -21,37 +21,49 @@ import {
 import { heart, heartFull, user } from '../../../icons';
 import { FaStar } from 'react-icons/fa';
 
-import { CourseType } from '../../../pages';
+import pages, { CourseType } from '../../../pages';
 import AuthContext from '../../../context/AuthContext';
 import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
+import { useSelector } from 'react-redux';
+import { getStudentLiked } from '../../../store/selectors';
+import { getLikedCourses } from '../../../store/features/student/studentFavourites/studentFavourites.async';
+import { useAppDispatch } from '../../../store';
 
 export default function CourseCard({
   course,
   onLoginOpen,
   setModalTabIndex,
+  sort,
+  page,
 }: {
   course: CourseType;
-  onLoginOpen: any;
-  setModalTabIndex: any;
+  onLoginOpen?: any;
+  setModalTabIndex?: any;
+  sort?: string;
+  page?: number;
 }) {
-  const [heartIcon, setHeartIcon] = useState(heart);
-  const [isLiked, setIsLiked] = useState(false);
+  const dispatch = useAppDispatch();
   const { userData } = useContext(AuthContext);
   const toast = useToast();
+
+  const [heartIcon, setHeartIcon] = useState(heart);
+  const [isLiked, setIsLiked] = useState(false);
+
+  const { likedCourses } = useSelector(getStudentLiked);
+
+  useEffect(() => {
+    const findCourse = likedCourses?.lessonResponses?.find(el => el?.lessonID === course?.lessonID);
+
+    if (findCourse?.lessonID) setIsLiked(true);
+  }, [likedCourses]);
 
   const addToFavourites = async ev => {
     ev.preventDefault();
     if (userData && userData.id) {
       try {
         await axiosInstance.get(`lessons/likeCourse/${course.lessonID}`);
-        toast({
-          title: 'Успешно добавяне в любими',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-          position: 'top-right',
-        });
+
         setHeartIcon(heartFull);
         setIsLiked(true);
       } catch (err) {
@@ -69,24 +81,49 @@ export default function CourseCard({
     }
   };
 
+  const removeFromFavourites = async ev => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+      try {
+        await axiosInstance.get(`lessons/dislikeCourse/${course.lessonID}`);
+        setHeartIcon(heart);
+        setIsLiked(false);
+
+        if (sort && page) dispatch(getLikedCourses({ sort: sort, page: page }));
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
   return (
-    <Center
+    <Stack
       h={'full'}
       py={6}
       w={'full'}
       transition={'transform .2s'}
-      _hover={{ transform: 'scale(1.04)  perspective(1px)' }}>
+      justify={'flex-start'}
+      _hover={{ transform: 'scale(1.02)  perspective(1px)' }}>
       <Box
         as={ReactRouterLink}
         to={course?.privateLesson ? `/lessons/${course?.lessonID}` : `/courses/${course?.lessonID}`}
-        maxW={{ base: '70vw', sm: '39vw', md: '35vw', lg: '25vw', xl: '24vw', '2xl': '20vw' }}
+        maxW={{ base: 'full', md: '42vw', lg: '35vw', xl: '26vw', '2xl': '21vw' }}
         h={'full'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.900')}
         rounded={'md'}
         p={6}
         boxShadow="custom"
-        overflow={'hidden'}>
+        overflow={'hidden'}
+        className={'cardBox'}>
         <Stack h={'full'} justify={'space-between'}>
           <Stack>
             <Box bg={'white'} mt={-6} mx={-6} pos={'relative'} rounded="lg">
@@ -209,12 +246,12 @@ export default function CourseCard({
               _hover={{ bg: 'none' }}
               onMouseEnter={() => setHeartIcon(heartFull)}
               onMouseLeave={() => setHeartIcon(heart)}
-              onClick={ev => addToFavourites(ev)}
+              onClick={ev => (isLiked ? removeFromFavourites(ev) : addToFavourites(ev))}
               icon={<Img src={isLiked ? heartFull : heartIcon} w={5} h={5} />}
             />
           </Stack>
         </Stack>
       </Box>
-    </Center>
+    </Stack>
   );
 }

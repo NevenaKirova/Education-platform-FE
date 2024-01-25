@@ -55,11 +55,9 @@ import {
   usePagination,
 } from '@ajna/pagination';
 
-
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import style from '../../components/courses/courses_landing/courses_landing.module.scss';
-
 
 export const getDate = date => {
   const month = format(new Date(date), 'LLL', { locale: bg });
@@ -104,13 +102,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
     if (userData && userData.id) {
       try {
         await axiosInstance.get(`lessons/likeCourse/${course.lessonID}`);
-        toast({
-          title: 'Успешно добавяне в любими',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-          position: 'top-right',
-        });
+
         setHeartIcon(heartFull);
         setIsLiked(true);
       } catch (err) {
@@ -229,7 +221,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
           isClosable: true,
           position: 'top-right',
         });
-      })
+      });
   };
 
   useEffect(() => {
@@ -248,7 +240,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
   return isLoading ? (
     <PageLoader isLoading={isLoading} />
   ) : (
-    <Stack py={{ base: 0, lg: 10 }} px={{ base: 10, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }}>
+    <Stack py={{ base: 0, lg: 10 }} px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}>
       <Stack
         direction={{ base: 'column', xl: 'row' }}
         spacing={30}
@@ -651,15 +643,14 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                   bg: 'transparent',
                 }}
                 color={'purple.500'}
-                bg="transparent"
-                onClick={() => console.log('Im executing my own function along with Next component functionality')}>
+                bg="transparent">
                 <Text>Следваща</Text>
               </PaginationNext>
             </PaginationContainer>
           </Pagination>
         </Stack>
         {similarCourses.length && (
-          <Stack spacing={{ base: 4, lg: 8 }} py={{ base: 10, lg: 0 }}>
+          <Stack spacing={{ base: 4, lg: 8 }} py={{ base: 10, lg: 0 }} px={{ base: 0, xl: '5vw' }}>
             <Grid
               w={'full'}
               templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(5, 1fr)' }}

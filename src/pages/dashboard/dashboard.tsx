@@ -41,6 +41,13 @@ import {
 import OpenedCourseComponent from '../../components/courses/courses_teacher/opened_course.component';
 import { getResponseMessage } from '../../helpers/response.util';
 import CreateLessonComponent from '../../components/courses/courses_teacher/create_lesson.component';
+import {
+  getLessonsActive,
+  getLessonsAll,
+  getLessonsDraft,
+  getLessonsInactive,
+} from '../../store/features/teacher/teacherLessons/teacherLessons.async';
+import DashboardLessonCard from '../../components/courses/course_card/dashboard__lesson_card.component';
 
 export default function DashboardPage() {
   const { user, userData } = useContext(AuthContext);
@@ -101,6 +108,25 @@ export default function DashboardPage() {
     }
   };
 
+  const getLessonTypes = async () => {
+    try {
+      dispatch(getLessonsAll());
+
+      dispatch(getLessonsActive());
+
+      dispatch(getLessonsInactive());
+
+      dispatch(getLessonsDraft());
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
   const NoData = ({ isPrivateLesson = false }: { isPrivateLesson?: boolean }) => {
     return (
       <Center h={'50vh'}>
@@ -132,7 +158,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     upcomingCourses && getCourseTypes();
+    dispatch(getLessonsAll());
   }, [upcomingCourses]);
+
+  useEffect(() => {
+    activeTab == 2 && getLessonTypes();
+  }, [activeTab]);
 
   if (!user) return <Navigate to={'/'} replace />;
 
@@ -434,7 +465,7 @@ export default function DashboardPage() {
                   <AwaitingVerificationComponent />
                 ) : isCourseOpened ? (
                   <OpenedCourseComponent
-                    isPrivateLesson={isPrivateLessonToCreate}
+                    isPrivateLesson={true}
                     showCreateCourse={showCreateLesson}
                     setShowCreateCourse={setShowCreateCourse}
                     addDateActive={addDateActive}
@@ -492,7 +523,7 @@ export default function DashboardPage() {
                           {allLessons && allLessons?.length ? (
                             <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {allLessons.map((el, index) => (
-                                <DashboardCourseCard
+                                <DashboardLessonCard
                                   key={index}
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}
@@ -510,7 +541,7 @@ export default function DashboardPage() {
                           {activeLessons && activeLessons?.length ? (
                             <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {activeLessons.map((el, index) => (
-                                <DashboardCourseCard
+                                <DashboardLessonCard
                                   key={index}
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}
@@ -528,7 +559,7 @@ export default function DashboardPage() {
                           {inactiveLessons && inactiveLessons?.length ? (
                             <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {inactiveLessons.map((el, index) => (
-                                <DashboardCourseCard
+                                <DashboardLessonCard
                                   key={index}
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}
@@ -546,7 +577,7 @@ export default function DashboardPage() {
                           {draftLessons && draftLessons?.length ? (
                             <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
                               {draftLessons.map((el, index) => (
-                                <DashboardCourseCard
+                                <DashboardLessonCard
                                   key={index}
                                   course={el}
                                   setIsCourseOpened={setIsCourseOpened}

@@ -97,7 +97,8 @@ const OpenedCourseComponent = ({
     if (courseId) {
       setIsLoading(true);
       try {
-        const res: any[] = await axiosInstance.get(`/lessons/getCourseDates/${courseId}`);
+        const url = isPrivateLesson ? 'getLessonDates' : 'getCourseDates';
+        const res: any[] = await axiosInstance.get(`/lessons/${url}/${courseId}`);
 
         setDates(res.data);
         setIsLoading(false);
@@ -173,7 +174,7 @@ const OpenedCourseComponent = ({
 
   const publishDraft = async () => {
     try {
-      await axiosInstance.post(`lessons/publishDraft/1552/${course.lessonID}`);
+      await axiosInstance.get(`lessons/publishDraft/${course.lessonID}`);
       setShowCreateCourse(false);
       setAddDateActive(false);
       setIsCourseOpened(false);
@@ -216,6 +217,10 @@ const OpenedCourseComponent = ({
   }, [currentPage, sort]);
 
   useEffect(() => {
+    if (activeTab == 1) {
+      getCourseInformation(course?.lessonID);
+    }
+
     if (activeTab !== 1) {
       setShowCreateCourse(false);
       setEditInfo(false);
@@ -361,8 +366,7 @@ const OpenedCourseComponent = ({
                     fontWeight={600}
                     color={'grey.500'}
                     maxW={'fit-content'}
-                    _selected={{ color: 'purple.500', fontWeight: 700 }}
-                    onClick={() => getCourseInformation(course?.lessonID)}>
+                    _selected={{ color: 'purple.500', fontWeight: 700 }}>
                     <Text>Информация</Text>
                   </Tab>
                   <Tab
@@ -561,6 +565,7 @@ const OpenedCourseComponent = ({
                         course={el}
                         setShowAddResources={setShowAddResources}
                         setDateSelected={setDateSelected}
+                        isPrivateLesson={isPrivateLesson}
                       />
                     ))
                   ) : (

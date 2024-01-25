@@ -80,7 +80,7 @@ export default function MyDashboardPage() {
       <Center h={{ base: '65vh', md: '60vh' }}>
         <Stack justify={'center'} align={{ base: 'start', md: 'center' }} spacing={6}>
           <Image src={noneToShow} alt="Profile Verification" h={'35vh'} />
-          <Text color={'grey.400'}>Нямате записани {isPrivateLesson ? 'уроци' : 'курсове'} </Text>
+          <Text color={'grey.400'}>Нямате записани {isPrivateLesson ? ' частни уроци' : 'курсове'} </Text>
           <Button
             as={ReactRouterLink}
             to={isPrivateLesson ? '/lessons' : '/courses'}
@@ -92,8 +92,7 @@ export default function MyDashboardPage() {
             fontWeight={700}
             _hover={{ bg: 'purple.500', opacity: 0.9 }}>
             <Stack direction={'row'} align={'center'} spacing={2}>
-              <Img src={addWhite} alt={'add course'} />
-              <Text>{isPrivateLesson ? 'Към уроците' : 'Към курсовете'} </Text>
+              <Text>{isPrivateLesson ? 'Към частните уроци' : 'Към курсовете'} </Text>
             </Stack>
           </Button>
         </Stack>
@@ -311,7 +310,7 @@ export default function MyDashboardPage() {
                     ))}
                   </SimpleGrid>
                 ) : (
-                  <NoData />
+                  <NoData isPrivateLesson={true} />
                 )}
               </TabPanel>
             </TabPanels>

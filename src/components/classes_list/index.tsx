@@ -272,7 +272,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
     <Stack
       spacing={12}
       py={{ base: 0, lg: 10 }}
-      px={{ base: 8, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }}
+      px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}
       mt={{ base: 36, lg: 40 }}
       align={'start'}
       justify={'start'}
@@ -307,7 +307,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
 
           <Grid
             templateColumns={{ base: 'repeat(auto-fill, minmax(300px, 1fr))', xl: 'repeat(7, 1fr)' }}
-            gap={{ base: 6, lg: 4 }}
+            gap={{ base: 6, lg: 6 }}
             w={'full'}>
             <GridItem>
               <Dropdown
@@ -459,7 +459,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
               <Dropdown
                 value={grade}
                 onChange={e => {
-                  setValue('grade', e.value?.value);
+                  setValue('grade', e.value);
                   setGrade(e.value);
                 }}
                 options={availableGrades}
@@ -539,7 +539,14 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
         <PageLoader isLoading={isLoading} />
       ) : showClasses ? (
         <>
-          <Grid w={'full'} templateColumns="repeat(auto-fill, minmax(280px, 1fr))" gap={12}>
+          <Grid
+            w={'full'}
+            templateColumns={{
+              base: 'repeat(auto-fill, minmax(260px, 1fr))',
+              lg: 'repeat(3, 1fr)',
+              '2xl': 'repeat(4, 1fr)',
+            }}
+            gap={12}>
             {classes?.map((el, index) => <CourseCard key={index} course={el} />)}
           </Grid>
 
@@ -583,8 +590,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
                     bg: 'transparent',
                   }}
                   color={'purple.500'}
-                  bg="transparent"
-                  onClick={() => console.log('Im executing my own function along with Next component functionality')}>
+                  bg="transparent">
                   <Text>Следваща</Text>
                 </PaginationNext>
               </PaginationContainer>

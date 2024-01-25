@@ -44,7 +44,7 @@ export default function TestimonialsSection({ reviews }: { reviews: any }) {
       </Heading>
 
       <Carousel
-        autoPlay={true}
+        autoPlay={false}
         autoPlaySpeed={5000}
         responsive={responsive}
         partialVisible={true}

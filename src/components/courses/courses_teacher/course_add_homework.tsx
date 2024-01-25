@@ -136,13 +136,9 @@ const CourseAddHomework = ({
 
       if (res.data) {
         const formData = new FormData();
-        const files = fields.map(el => el.file);
+        formData.append('file', data.file);
 
-        if (files.length) {
-          files.forEach(el => formData.append('file[]', el));
-
-          await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
-        }
+        await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
       }
 
       toast({
@@ -156,7 +152,7 @@ const CourseAddHomework = ({
       setIsEditHomework(false);
       setDate('');
       setTime('');
-      setOpenedTheme(null)
+      setOpenedTheme(null);
       reset();
     } catch (err) {
       toast({

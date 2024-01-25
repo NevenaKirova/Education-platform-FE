@@ -3,11 +3,11 @@ import { NavLink as ReactRouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
 
-import { Heading, Text, Stack, Image, Tag, Img, Box, Button, IconButton, Avatar } from '@chakra-ui/react';
+import { Heading, Text, Stack, Image, Tag, Img, Box, Button, Avatar } from '@chakra-ui/react';
 
 import { CourseType } from '../../../pages';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
-import { calendar, clock, closeRed } from '../../../icons';
+import { calendar, clock } from '../../../icons';
 
 import { addMinutesToString, daysArr } from '../courses_teacher/create_course.component';
 import StarRating from '../../rating/starRating';

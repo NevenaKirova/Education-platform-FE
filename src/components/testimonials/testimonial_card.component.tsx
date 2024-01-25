@@ -17,7 +17,7 @@ const data = {
 
 interface RatingProps {
   rating: number;
-  size?: number;
+  size?: any;
 }
 
 interface TestimonialProps {
@@ -62,8 +62,10 @@ export function Rating({ rating, size = 16 }: RatingProps) {
 
 function TestimonialCard({ review, padding = 5 }: TestimonialProps) {
   return (
-    <Flex p={padding} w="full" alignItems="center" justifyContent="center">
+    <Flex p={padding} w="full" h={'full'} alignItems="center" justifyContent="center">
       <Box
+        h={'full'}
+        flex={1}
         w={'full'}
         maxW={{ base: '70vw', sm: '50vw', md: '35vw', lg: '35vw', xl: '24vw', '2xl': '20vw' }}
         bg={useColorModeValue('white', 'gray.800')}

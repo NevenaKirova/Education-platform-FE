@@ -2,19 +2,17 @@ import React, { useRef } from 'react';
 
 import Header from '../components/become_a_teacher/header.component';
 import InfoSection from '../components/become_a_teacher/info.component';
+import HowItWorksComponent from '../components/become_a_teacher/how_it_works.component';
+import TeacherDemoSection from '../components/become_a_teacher/teacher_demo.component';
+import HowToSection from '../components/become_a_teacher/how_to_become_a_teacher.component';
+import QASection from '../components/become_a_teacher/qa.component';
+import BenefitsSection from '../components/benefits/benefits_section.component';
 
 import { gradientDivider } from '../images';
 
 import { Stack, Img, Heading, Text, Button, useBreakpointValue } from '@chakra-ui/react';
 
-import HowItWorksComponent from '../components/become_a_teacher/how_it_works.component';
-import TeacherDemoSection from '../components/become_a_teacher/teacher_demo.component';
-import HowToSection from '../components/become_a_teacher/how_to_become_a_teacher.component';
-import QASection from '../components/become_a_teacher/qa.component';
-
 import '../styles/styles.scss';
-import BenefitsSection from '../components/benefits/benefits_section.component';
-
 const BecomeATeacherPage = ({
   onLoginOpen,
   setModalTabIndex,

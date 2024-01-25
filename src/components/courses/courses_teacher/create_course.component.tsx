@@ -293,8 +293,20 @@ const CreateCourseComponent = ({
   };
 
   useEffect(() => {
-    register('subject', { required: 'Полето е задължително' });
-    register('courseTerminRequests', { required: 'Добавете поне една дата на провеждане' });
+    register('subject', {
+      validate: value => {
+        if (courseInfo?.draft) return true;
+
+        if (!value) return 'Полето е задължително';
+      },
+    });
+    register('courseTerminRequests', {
+      validate: value => {
+        if (courseInfo?.draft) return true;
+
+        if (!value) return 'Добавете поне една дата на провеждане';
+      },
+    });
   }, [register]);
 
   useEffect(() => {
@@ -302,12 +314,12 @@ const CreateCourseComponent = ({
   }, []);
 
   useEffect(() => {
-    if (!!courseInfo) {
+    if (courseInfo) {
       setCourse(courseInfo);
       setSelectedGrade(courseInfo?.grade);
       setSelectedSubject({ name: courseInfo?.subject, code: courseInfo?.subject });
-      setCourseLength(course?.length?.toString());
-      setDates(course?.courseTerminResponses);
+      setCourseLength(courseInfo?.length?.toString());
+      setDates(courseInfo?.courseTerminResponses);
     }
   }, [courseInfo, availableGrades, availableSubjects]);
 
@@ -355,7 +367,7 @@ const CreateCourseComponent = ({
                 <Text fontSize={18} fontWeight={600}>
                   Заглавие{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
                 <FormControl isInvalid={!!errors.title}>
@@ -365,8 +377,14 @@ const CreateCourseComponent = ({
                       type="text"
                       placeholder="Български език за 8ми клас"
                       maxLength={100}
-                      isDisabled={editInfo}
-                      {...register('title', { required: 'Полето е задължително' })}
+                      isDisabled={editInfo && !courseInfo?.draft}
+                      {...register('title', {
+                        validate: value => {
+                          if (courseInfo?.draft) return true;
+
+                          if (!value) return 'Полето е задължително';
+                        },
+                      })}
                     />
                     <InputRightElement width="4.5rem" color={'grey.500'}>
                       {watch('title')?.length || 0}/100
@@ -381,11 +399,11 @@ const CreateCourseComponent = ({
                 </Text>
               </Stack>
 
-              <Stack spacing={4} className={editInfo ? 'stack-disabled' : ''}>
+              <Stack spacing={4} className={editInfo && !courseInfo?.draft ? 'stack-disabled' : ''}>
                 <Text fontSize={18} fontWeight={600}>
                   Предмет{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
 
@@ -399,7 +417,7 @@ const CreateCourseComponent = ({
                     options={availableSubjects}
                     optionLabel="name"
                     placeholder="Изберете предмет"
-                    disabled={editInfo}
+                    disabled={editInfo && !courseInfo?.draft}
                     className={errors.subject ? 'invalid-dropdown w-full' : 'p-invalid w-full'}
                     showClear
                   />
@@ -411,7 +429,7 @@ const CreateCourseComponent = ({
                 </Text>
               </Stack>
 
-              <Stack spacing={4} className={editInfo ? 'stack-disabled' : ''}>
+              <Stack spacing={4} className={editInfo && !courseInfo?.draft ? 'stack-disabled' : ''}>
                 <Text fontSize={18} fontWeight={600}>
                   Клас
                 </Text>
@@ -423,7 +441,7 @@ const CreateCourseComponent = ({
                     setSelectedGrade(e.value);
                   }}
                   options={availableGrades}
-                  disabled={editInfo}
+                  disabled={editInfo && !courseInfo?.draft}
                   optionLabel="grade"
                   placeholder="Изберете клас"
                   className={errors.grade ? 'p-invalid' : ''}
@@ -438,7 +456,7 @@ const CreateCourseComponent = ({
                 <Text fontSize={18} fontWeight={600}>
                   Описание на курса{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
 
@@ -449,7 +467,13 @@ const CreateCourseComponent = ({
                       maxLength={600}
                       resize={'none'}
                       rows={4}
-                      {...register('description', { required: 'Полето е задължително' })}
+                      {...register('description', {
+                        validate: value => {
+                          if (courseInfo?.draft) return true;
+
+                          if (!value) return 'Полето е задължително';
+                        },
+                      })}
                     />
                     <InputRightElement width="4.5rem" color={'grey.500'}>
                       {watch('description')?.length || 0}/600
@@ -468,7 +492,7 @@ const CreateCourseComponent = ({
                 <Text fontSize={18} fontWeight={600}>
                   Теми в курса{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
 
@@ -550,7 +574,7 @@ const CreateCourseComponent = ({
                 <Text fontSize={18} fontWeight={600}>
                   Дължина на урок{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
 
@@ -562,32 +586,57 @@ const CreateCourseComponent = ({
                     setCourseLength(e);
                   }}>
                   <Stack spacing={10} direction="row" align={'start'}>
-                    <Radio size="lg" colorScheme="purple" value={'15'} isDisabled={!!dates?.length}>
+                    <Radio
+                      size="lg"
+                      colorScheme="purple"
+                      value={'15'}
+                      isDisabled={!!dates?.length && !courseInfo?.draft}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         15 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'30'} isDisabled={!!dates?.length}>
+                    <Radio
+                      size="lg"
+                      colorScheme="purple"
+                      value={'30'}
+                      isDisabled={!!dates?.length && !courseInfo?.draft}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         30 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'45'} isDisabled={!!dates?.length}>
+                    <Radio
+                      size="lg"
+                      colorScheme="purple"
+                      value={'45'}
+                      isDisabled={!!dates?.length && !courseInfo?.draft}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         45 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'60'} defaultChecked isDisabled={!!dates?.length}>
+                    <Radio
+                      size="lg"
+                      colorScheme="purple"
+                      value={'60'}
+                      defaultChecked
+                      isDisabled={!!dates?.length && !courseInfo?.draft}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         60 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'90'} isDisabled={!!dates?.length}>
+                    <Radio
+                      size="lg"
+                      colorScheme="purple"
+                      value={'90'}
+                      isDisabled={!!dates?.length && !courseInfo?.draft}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         90 мин
                       </Text>
                     </Radio>
-                    <Radio size="lg" colorScheme="purple" value={'120'} isDisabled={!!dates?.length}>
+                    <Radio
+                      size="lg"
+                      colorScheme="purple"
+                      value={'120'}
+                      isDisabled={!!dates?.length && !courseInfo?.draft}>
                       <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                         120 мин
                       </Text>
@@ -600,7 +649,7 @@ const CreateCourseComponent = ({
                 <Text fontSize={18} fontWeight={600}>
                   Брой ученици{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
 
@@ -610,7 +659,7 @@ const CreateCourseComponent = ({
                   keepWithinRange={true}
                   clampValueOnBlur={false}
                   w={{ base: 'full', md: '30%' }}
-                  isDisabled={!!dates?.length}>
+                  isDisabled={!!dates?.length && !courseInfo?.draft}>
                   <NumberInputField {...register('studentsUpperBound', { required: true })} />
                   <NumberInputStepper>
                     <NumberIncrementStepper />
@@ -632,7 +681,7 @@ const CreateCourseComponent = ({
                 <Text fontSize={18} fontWeight={600}>
                   Цена на курса{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
 
@@ -642,7 +691,7 @@ const CreateCourseComponent = ({
                     clampValueOnBlur={false}
                     w={{ base: 'full', md: '30%' }}
                     bg={'grey.100'}
-                    isDisabled={editInfo}>
+                    isDisabled={editInfo && !courseInfo?.draft}>
                     <NumberInputField {...register('price', { required: true })} />
                     <NumberInputStepper>
                       <NumberIncrementStepper />
@@ -664,7 +713,7 @@ const CreateCourseComponent = ({
                 <Text fontSize={18} fontWeight={600}>
                   Дати на провеждане{' '}
                   <Text as={'span'} color={'red'}>
-                    *
+                    {courseInfo?.draft ? '' : '*'}
                   </Text>
                 </Text>
 
@@ -775,7 +824,7 @@ const CreateCourseComponent = ({
                     _hover={{ opacity: '0.9' }}
                     _focus={{ outline: 'none' }}
                     _active={{ bg: 'purple.500' }}>
-                    Запаси промените
+                    Запази промените
                   </Button>
 
                   <Button

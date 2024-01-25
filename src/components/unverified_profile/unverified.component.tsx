@@ -11,19 +11,19 @@ export default function UnverifiedComponent() {
     <VerifyProfileComponent setShowForm={setShowForm} />
   ) : (
     <Stack
-      direction={{ base: 'column', lg: 'row' }}
+      direction={{ base: 'column', xl: 'row' }}
       align={'start'}
       justify={'space-between'}
-      h={{ base: '75vh', lg: '70vh' }}
+      h={{ base: '75vh', lg: 'full' }}
       mt={4}>
-      <Stack spacing={6} w={{ base: 'full', lg: '50%' }}>
-        <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
+      <Stack spacing={6} w={{ base: 'full', xl: '50%' }}>
+        <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 26, xl: 30 }} textAlign="start" color={'grey.600'}>
           Необходима е верификация на профила
         </Heading>
         <Heading
           flex={1}
           as="h1"
-          fontSize={{ base: 18, lg: 32, xl: 20 }}
+          fontSize={{ base: 18, lg: 22, xl: 20 }}
           fontWeight={400}
           textAlign="start"
           color={'grey.500'}>
@@ -46,8 +46,13 @@ export default function UnverifiedComponent() {
         </Button>
       </Stack>
 
-      <Stack align={'end'} justify={'end'} h={'60vh'}>
-        <Image src={profileVerification} alt="Profile Verification" h={'40vh'} />
+      <Stack align={{ base: 'center', xl: 'end' }} justify={{ base: 'center', xl: 'end' }} w={'full'} flex={1}>
+        <Image
+          src={profileVerification}
+          alt="Profile Verification"
+          h={{ base: 'full', lg: '50vh' }}
+          w={{ base: 'full', lg: '50vw' }}
+        />
       </Stack>
     </Stack>
   );

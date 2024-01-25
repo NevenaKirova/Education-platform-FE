@@ -48,102 +48,12 @@ import { axiosInstance } from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
 import { Dropdown } from 'primereact/dropdown';
 
-const sortValues = [
-  { name: 'Най-нов', value: 'Newest' },
-  { name: 'Най-ниска цена', value: 'Cheapest' },
-  { name: 'Най-висока цена', value: 'Most expensive' },
-  { name: 'Най-популярен', value: 'Most popular' },
-  { name: 'Най-висок рейтинг', value: 'Highest rating' },
-  { name: 'Най-скорошен', value: 'Starting soonest' },
-];
-
-const StudentFavouritesPage = () => {
+const StudentSettingsPage = () => {
   const dispatch = useAppDispatch();
   const toast = useToast();
   const { user, userData } = useContext(AuthContext);
-  const { likedCourses, likedTeachers, isLoading } = useSelector(getStudentLiked);
 
-  const [sort, setSort] = useState(sortValues[5]);
-  const [tabIndex, setTabIndex] = useState(0);
-
-  const teacherRemoveFromFavourites = async (ev, id) => {
-    ev.preventDefault();
-
-    try {
-      await axiosInstance.get(`users/dislikeTeacher/${id}`);
-
-      dispatch(getLikedTeachers({ page: 1 }));
-    } catch (err) {
-      toast({
-        title: getResponseMessage(err),
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
-    }
-  };
-
-  const outerLimit = 2;
-  const innerLimit = 2;
-
-  const { pages, pagesCount, currentPage, setCurrentPage } = usePagination({
-    total: likedTeachers?.total,
-    limits: {
-      outer: outerLimit,
-      inner: innerLimit,
-    },
-    initialState: {
-      pageSize: 12,
-      currentPage: 1,
-    },
-  });
-
-  const {
-    pages: pagesCourses,
-    pagesCount: pagesCountCourses,
-    currentPage: currentPageCourses,
-    setCurrentPage: setCurrentPageCourses,
-  } = usePagination({
-    total: likedCourses?.total,
-    limits: {
-      outer: outerLimit,
-      inner: innerLimit,
-    },
-    initialState: {
-      pageSize: 8,
-      currentPage: 1,
-    },
-  });
-
-  const handlePageChangeTeacher = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handlePageChangeCourses = (page: number) => {
-    setCurrentPageCourses(page);
-  };
-
-  const handleTabsChange = index => {
-    setTabIndex(index);
-  };
-
-  useEffect(() => {
-    dispatch(getLikedCourses({ sort: sort?.value, page: currentPageCourses }));
-    dispatch(getLikedTeachers({ page: currentPage }));
-  }, []);
-
-  useEffect(() => {
-    dispatch(getLikedCourses({ sort: sort, page: currentPageCourses }));
-  }, [currentPageCourses, sort]);
-
-  useEffect(() => {
-    dispatch(getLikedTeachers({ page: currentPage }));
-  }, [currentPage]);
-
-
-  console.log(userData)
-  if (!user || userData?.role !== 'STUDENT') return <Navigate to={'/'} replace />;
+  if (!user || userData.role !== 'STUDENT') return <Navigate to={'/'} replace />;
 
   return isLoading ? (
     <PageLoader isLoading={isLoading} />

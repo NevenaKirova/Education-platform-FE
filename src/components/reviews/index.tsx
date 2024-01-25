@@ -1,8 +1,8 @@
+import React from 'react';
 import { Avatar, Stack, Text } from '@chakra-ui/react';
 import { Rating } from '../testimonials/testimonial_card.component';
-import { BiDislike, BiLike } from 'react-icons/all';
-import React from 'react';
-import StarRating from "../rating/starRating";
+
+
 
 export default function ReviewsSection(reviews, numberOfReviewsShown) {
   return (

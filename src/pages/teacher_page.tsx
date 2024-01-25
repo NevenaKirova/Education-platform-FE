@@ -85,13 +85,7 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
     if (userData && userData.id) {
       try {
         await axiosInstance.get(`/users/likeTeacher/${teacherId}`);
-        toast({
-          title: 'Успешно добавяне в любими',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-          position: 'top-right',
-        });
+
         setHeartIcon(heartFull);
         dispatch(getLikedTeachers());
       } catch (err) {
@@ -130,7 +124,7 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
       });
   }, []);
 
-  useEffect(() => {}, [likedTeachers]);
+  // useEffect(() => {}, [likedTeachers]);
 
   return isLoading ? (
     <PageLoader isLoading={isLoading} />

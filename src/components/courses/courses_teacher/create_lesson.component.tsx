@@ -36,13 +36,7 @@ import { getResponseMessage } from '../../../helpers/response.util';
 import PageLoader from '../../../utils/loader.component';
 import { axiosInstance } from '../../../axios';
 import { useAppDispatch } from '../../../store';
-import {
-  getCoursesActive,
-  getCoursesAll,
-  getCoursesDraft,
-  getCoursesInactive,
-  getUpcomingCourses,
-} from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
+import { getCoursesAll, getCoursesDraft } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
 import { addMinutesToString } from './create_course.component';
 import { add, close, closeRed, trash } from '../../../icons';
 
@@ -295,17 +289,8 @@ const CreateLessonComponent = ({
   };
 
   const submitAsDraft = async () => {
-    setValue(
-      'themas',
-      getValues('themas').filter(el => el.title.length),
-    );
-
-    const hasTitle = await trigger('title');
-
-    if (!hasTitle) return handleScroll(topRef);
-
     try {
-      await axiosInstance.post('/lessons/saveCourseDraft', getValues());
+      await axiosInstance.post('/lessons/savePrivateLessonDraft', getValues());
 
       setIsLoading(false);
       setShowCreateCourse(false);
@@ -362,20 +347,18 @@ const CreateLessonComponent = ({
         reset();
 
         setIsLoading(false);
-        toast({
-          title: false ? 'Успешна редакция на курс' : 'Успешно създаване на курс',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-          position: 'top-right',
-        });
+        // toast({
+        //   title: editInfo ? 'Успешна редакция на курс' : 'Успешно създаване на курс',
+        //   status: 'success',
+        //   duration: 3000,
+        //   position: 'top-right',
+        // });
       } catch (err) {
         setIsLoading(false);
         toast({
           title: getResponseMessage(err),
           status: 'error',
           duration: 3000,
-          isClosable: true,
           position: 'top-right',
         });
       }
@@ -746,7 +729,7 @@ const CreateLessonComponent = ({
                   lessonHours: [],
                 });
 
-                let length = getValues('privateLessonTermins').length;
+                const length = getValues('privateLessonTermins').length;
                 setEditableIndexes([length - 1]);
               }}>
               <Stack direction={'row'} align={'center'} spacing={2}>
@@ -769,7 +752,7 @@ const CreateLessonComponent = ({
                 _hover={{ opacity: '0.9' }}
                 _focus={{ outline: 'none' }}
                 _active={{ bg: 'purple.500' }}>
-                Запаси промените
+                Запази промените
               </Button>
             ) : (
               <Stack
