@@ -93,6 +93,7 @@ export const addMinutesToString = (time, length) => {
 
   return D(((mins % (24 * 60)) / 60) | 0) + ':' + D(mins % 60);
 };
+
 const CreateCourseComponent = ({
   setShowCreateCourse,
   showCreateCourse,
@@ -180,6 +181,7 @@ const CreateCourseComponent = ({
     setEditableIndexes([]);
     setDates([]);
   };
+
   const handleScroll = ref => {
     ref.current?.scrollIntoView({ inline: 'start', behavior: 'smooth', block: 'center' });
   };
@@ -821,7 +823,7 @@ const CreateCourseComponent = ({
                     color={'white'}
                     fontSize={16}
                     fontWeight={700}
-                    _hover={{ opacity: '0.9' }}
+                    _hover={{ opacity: '0.95' }}
                     _focus={{ outline: 'none' }}
                     _active={{ bg: 'purple.500' }}>
                     Запази промените

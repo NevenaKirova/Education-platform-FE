@@ -50,6 +50,7 @@ import { Dropdown } from 'primereact/dropdown';
 import PageLoader from '../../../utils/loader.component';
 import { useAppDispatch } from '../../../store';
 import { getCoursesAll } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
+import CreateLessonComponent from './create_lesson.component';
 
 const sortValues = [
   { name: 'Най-нови', value: 'Newest' },
@@ -62,6 +63,8 @@ const OpenedCourseComponent = ({
   isPrivateLesson,
   showCreateCourse,
   setShowCreateCourse,
+  showCreateLesson,
+  setShowCreateLesson,
   addDateActive,
   setAddDateActive,
   setIsCourseOpened,
@@ -69,7 +72,9 @@ const OpenedCourseComponent = ({
 }: {
   isPrivateLesson: boolean;
   showCreateCourse: boolean;
-  setShowCreateCourse: any;
+  setShowCreateCourse?: any;
+  showCreateLesson: boolean;
+  setShowCreateLesson?: any;
   addDateActive: boolean;
   setAddDateActive: any;
   setIsCourseOpened: any;
@@ -176,6 +181,7 @@ const OpenedCourseComponent = ({
     try {
       await axiosInstance.get(`lessons/publishDraft/${course.lessonID}`);
       setShowCreateCourse(false);
+      setShowCreateLesson(false);
       setAddDateActive(false);
       setIsCourseOpened(false);
     } catch (err) {
@@ -193,6 +199,7 @@ const OpenedCourseComponent = ({
     try {
       await axiosInstance.get(`lessons/deleteCourse/${course.lessonID}`);
       setShowCreateCourse(false);
+      setShowCreateLesson(false);
       setAddDateActive(false);
       setIsCourseOpened(false);
       setOpenedTheme(null);
@@ -223,6 +230,7 @@ const OpenedCourseComponent = ({
 
     if (activeTab !== 1) {
       setShowCreateCourse(false);
+      setShowCreateLesson(false);
       setEditInfo(false);
     }
   }, [activeTab]);
@@ -237,6 +245,7 @@ const OpenedCourseComponent = ({
               cursor={'default'}
               onClick={() => {
                 setShowCreateCourse(false);
+                setShowCreateLesson(false);
                 setAddDateActive(false);
                 setIsCourseOpened(false);
                 setOpenedTheme(null);
@@ -260,25 +269,25 @@ const OpenedCourseComponent = ({
             </BreadcrumbLink>
           </BreadcrumbItem>
 
-          {dateSelected?.courseTerminId && (
-            <BreadcrumbItem
-              color={'purple.500'}
-              _hover={{ textDecoration: 'none' }}
-              cursor={'default'}
-              onClick={() => {
-                setDateSelected(dateSelected);
-                setShowAddDate(false);
-                setOpenedTheme(null);
-                setShowAddResources(true);
-                setShowSubmissions(false);
-              }}>
-              <BreadcrumbLink textDecoration={'none'}>
-                {capitalizeMonth(format(new Date(dateSelected?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
-                {dateSelected?.endDate &&
-                  capitalizeMonth(format(new Date(dateSelected?.endDate), 'dd LLL yyyy', { locale: bg }))}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-          )}
+          {/*{dateSelected?.courseTerminId && (*/}
+          {/*  <BreadcrumbItem*/}
+          {/*    color={'purple.500'}*/}
+          {/*    _hover={{ textDecoration: 'none' }}*/}
+          {/*    cursor={'default'}*/}
+          {/*    onClick={() => {*/}
+          {/*      setDateSelected(dateSelected);*/}
+          {/*      setShowAddDate(false);*/}
+          {/*      setOpenedTheme(null);*/}
+          {/*      setShowAddResources(true);*/}
+          {/*      setShowSubmissions(false);*/}
+          {/*    }}>*/}
+          {/*    <BreadcrumbLink textDecoration={'none'}>*/}
+          {/*      {capitalizeMonth(format(new Date(dateSelected?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}*/}
+          {/*      {dateSelected?.endDate &&*/}
+          {/*        capitalizeMonth(format(new Date(dateSelected?.endDate), 'dd LLL yyyy', { locale: bg }))}*/}
+          {/*    </BreadcrumbLink>*/}
+          {/*  </BreadcrumbItem>*/}
+          {/*)}*/}
 
           {openedTheme?.id && (
             <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
@@ -328,16 +337,19 @@ const OpenedCourseComponent = ({
             setIsEditHomework={setIsEditHomework}
             showSubmissions={showSubmissions}
             setShowSubmissions={setShowSubmissions}
+            isPrivateLesson={isPrivateLesson}
           />
         ) : showAddDate ? (
-          <CourseAddDate
-            studentsUpperBound={course?.studentsUpperBound}
-            courseLength={course?.length}
-            setShowAddResources={setShowAddResources}
-            setShowAddDate={setShowAddDate}
-            courseId={course?.lessonID}
-            setDates={setDates}
-          />
+          isPrivateLesson ? null : (
+            <CourseAddDate
+              studentsUpperBound={course?.studentsUpperBound}
+              courseLength={course?.length}
+              setShowAddResources={setShowAddResources}
+              setShowAddDate={setShowAddDate}
+              courseId={course?.lessonID}
+              setDates={setDates}
+            />
+          )
         ) : (
           <Stack spacing={10} mt={4}>
             <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
@@ -394,7 +406,7 @@ const OpenedCourseComponent = ({
                           px={8}
                           w={'fit-content'}
                           onClick={() => {
-                            setShowCreateCourse(true);
+                            isPrivateLesson ? setShowCreateLesson(true) : setShowCreateCourse(true);
                             setActiveTab(1);
                             setEditInfo(true);
                           }}>
@@ -504,7 +516,7 @@ const OpenedCourseComponent = ({
                             px={8}
                             w={'fit-content'}
                             onClick={() => {
-                              setShowCreateCourse(true);
+                              isPrivateLesson ? setShowCreateLesson(true) : setShowCreateCourse(true);
                               setActiveTab(1);
                               setEditInfo(true);
                             }}>
@@ -541,7 +553,7 @@ const OpenedCourseComponent = ({
                         px={8}
                         w={'fit-content'}
                         onClick={() => {
-                          setShowCreateCourse(true);
+                          isPrivateLesson ? setShowCreateLesson(true) : setShowCreateCourse(true);
                           setEditInfo(true);
                         }}>
                         <Stack direction={'row'} align={'center'} spacing={2}>
@@ -576,18 +588,32 @@ const OpenedCourseComponent = ({
                 </TabPanel>
                 <TabPanel px={0}>
                   {editInfo ? (
-                    <CreateCourseComponent
-                      setShowCreateCourse={setShowCreateCourse}
-                      showCreateCourse={showCreateCourse}
-                      addDateActive={addDateActive}
-                      setAddDateActive={setAddDateActive}
-                      editInfo={editInfo}
-                      setEditInfo={setEditInfo}
-                      courseInfo={courseInfo}
-                      courseId={course?.lessonID}
-                      getCourseInformation={getCourseInformation}
-                      getCourseDates={getCourseDates}
-                    />
+                    isPrivateLesson ? (
+                      <CreateLessonComponent
+                        setShowCreateCourse={setShowCreateLesson}
+                        showCreateCourse={showCreateLesson}
+                        setAddDateActive={setAddDateActive}
+                        courseInfo={courseInfo}
+                        courseId={course?.lessonID}
+                        editInfo={editInfo}
+                        setEditInfo={setEditInfo}
+                        isEdit={true}
+                        getCourseInformation={getCourseInformation}
+                      />
+                    ) : (
+                      <CreateCourseComponent
+                        setShowCreateCourse={setShowCreateCourse}
+                        showCreateCourse={showCreateCourse}
+                        addDateActive={addDateActive}
+                        setAddDateActive={setAddDateActive}
+                        editInfo={editInfo}
+                        setEditInfo={setEditInfo}
+                        courseInfo={courseInfo}
+                        courseId={course?.lessonID}
+                        getCourseInformation={getCourseInformation}
+                        getCourseDates={getCourseDates}
+                      />
+                    )
                   ) : (
                     <Stack rounded={'md'} p={6} mt={8} direction={'column'} spacing={8} bg={'purple.100'}>
                       isLoading ? <PageLoader isLoading={isLoading} /> : (
@@ -653,14 +679,18 @@ const OpenedCourseComponent = ({
                             {courseInfo?.studentsUpperBound}
                           </Text>
                         </Stack>
-                        <Stack direction={'column'} spacing={4}>
-                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                            Продължителност
-                          </Text>
-                          <Text color={'grey.500'} fontSize={18}>
-                            {courseInfo?.weekLength} {courseInfo?.weekLength === 1 ? 'седмица' : 'седмици'}
-                          </Text>
-                        </Stack>
+
+                        {!isPrivateLesson && (
+                          <Stack direction={'column'} spacing={4}>
+                            <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                              Продължителност
+                            </Text>
+                            <Text color={'grey.500'} fontSize={18}>
+                              {courseInfo?.weekLength} {courseInfo?.weekLength === 1 ? 'седмица' : 'седмици'}
+                            </Text>
+                          </Stack>
+                        )}
+
                         <Stack direction={'column'} spacing={4}>
                           <Text color={'purple.500'} fontWeight={700} fontSize={18}>
                             Цена на курса
@@ -674,7 +704,7 @@ const OpenedCourseComponent = ({
                             Дати на провеждане
                           </Text>
                           <Stack spacing={4}>
-                            {courseInfo?.courseTerminResponses?.map((el, index) => (
+                            {courseInfo?.courseTerminRequests?.map((el, index) => (
                               <Stack key={index} spacing={4} direction={'row'}>
                                 <Text color={'grey.500'} fontSize={18}>
                                   {capitalizeMonth(format(new Date(el?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
@@ -688,6 +718,18 @@ const OpenedCourseComponent = ({
                                     ?.sort()
                                     ?.map(el => daysArr[el - 1].short)
                                     ?.toString()}
+                                </Text>
+
+                                <Text color={'grey.500'} fontSize={18}>
+                                  {el?.time}
+                                </Text>
+                              </Stack>
+                            ))}
+
+                            {courseInfo?.privateLessonTermins?.map((el, index) => (
+                              <Stack key={index} spacing={4} direction={'row'}>
+                                <Text color={'grey.500'} fontSize={18}>
+                                  {capitalizeMonth(format(new Date(el?.date), 'dd LLL yyyy', { locale: bg }))}
                                 </Text>
 
                                 <Text color={'grey.500'} fontSize={18}>

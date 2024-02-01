@@ -127,6 +127,7 @@ export default function DashboardPage() {
       });
     }
   };
+
   const NoData = ({ isPrivateLesson = false }: { isPrivateLesson?: boolean }) => {
     return (
       <Center h={'50vh'}>
@@ -171,7 +172,7 @@ export default function DashboardPage() {
     <Stack
       spacing={{ base: 16, md: 24 }}
       py={{ base: 0, lg: 10 }}
-      px={{ base: 8, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }}
+      px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}
       mt={{ base: 36, lg: 40 }}
       align={'start'}
       justify={'start'}
@@ -322,6 +323,8 @@ export default function DashboardPage() {
                     isPrivateLesson={isPrivateLessonToCreate}
                     showCreateCourse={showCreateCourse}
                     setShowCreateCourse={setShowCreateCourse}
+                    showCreateLesson={showCreateLesson}
+                    setShowCreateLesson={setShowCreateLesson}
                     addDateActive={addDateActive}
                     setAddDateActive={setAddDateActive}
                     setIsCourseOpened={setIsCourseOpened}
@@ -468,6 +471,8 @@ export default function DashboardPage() {
                     isPrivateLesson={true}
                     showCreateCourse={showCreateLesson}
                     setShowCreateCourse={setShowCreateCourse}
+                    showCreateLesson={showCreateLesson}
+                    setShowCreateLesson={setShowCreateLesson}
                     addDateActive={addDateActive}
                     setAddDateActive={setAddDateActive}
                     setIsCourseOpened={setIsCourseOpened}
@@ -598,7 +603,6 @@ export default function DashboardPage() {
                   <CreateLessonComponent
                     setShowCreateCourse={setShowCreateLesson}
                     showCreateCourse={showCreateLesson}
-                    addDateActive={addDateActive}
                     setAddDateActive={setAddDateActive}
                   />
                 )}

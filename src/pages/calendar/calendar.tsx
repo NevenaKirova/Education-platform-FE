@@ -1,16 +1,87 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import Fullcalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Show, Stack } from '@chakra-ui/react';
-import events from './events';
+import { Box, Show, Stack, Text, useDisclosure, useToast } from '@chakra-ui/react';
 
 import bgLocale from '@fullcalendar/core/locales/bg';
+import AuthContext from '../../context/AuthContext';
+import { axiosInstance } from '../../axios';
+import { getResponseMessage } from '../../helpers/response.util';
+import { Navigate } from 'react-router-dom';
+import CalendarDayViewModal from './calendar_day_view';
+import PageLoader from '../../utils/loader.component';
 
 function Calendar() {
-  return (
+  const { user, userData } = useContext(AuthContext);
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [events, setEvents] = useState([]);
+  const [date, setDate] = useState(null);
+  const [dateEvents, setDateEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const getEvents = async () => {
+    if (userData?.role) {
+      try {
+        setIsLoading(true);
+        const res = await axiosInstance.get(
+          `/users/${userData?.role === 'STUDENT' ? 'getStudentCalendar' : 'getTeacherCalendar'}`,
+        );
+        setEvents(res.data);
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    }
+  };
+
+  const openDayModal = async (info, isEvent) => {
+    let date;
+    if (isEvent) {
+      const dateTemp = info?.event?.start;
+      date = dateTemp;
+    } else {
+      date = info?.dateStr;
+    }
+
+    if (userData?.role && date) {
+      try {
+        const res: any[] = await axiosInstance.get(
+          `/lessons/${userData?.role === 'STUDENT' ? 'getStudentCalendarEvents' : 'getTeacherCalendarEvents'}/${date}`,
+        );
+
+        setDateEvents(res.data);
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    getEvents();
+  }, [userData?.role]);
+
+  if (!user) return <Navigate to={'/'} replace />;
+  return isLoading ? (
+    <PageLoader isLoading={isLoading} />
+  ) : (
     <>
       <Show above={'lg'}>
         <Stack
@@ -28,11 +99,12 @@ function Calendar() {
             displayEventTime={false}
             weekNumberCalculation={'ISO'}
             locale={bgLocale}
-            dateClick={info => console.log(info)}
+            eventClick={info => openDayModal(info, true)}
+            dateClick={info => openDayModal(info, false)}
             headerToolbar={{
-              start: '', // will normally be on the left. if RTL, will be on the right
+              start: '',
               center: 'prev title next',
-              end: 'today', // will normally be on the right. if RTL, will be on the left
+              end: 'today',
             }}
             height={'85vh'}
           />
@@ -46,7 +118,7 @@ function Calendar() {
           px={{ base: 8 }}
           mx={2}
           mt={{ base: 28, md: 36 }}
-          mb={24}
+          mb={12}
           justify={'start'}
           w={'full'}>
           <Fullcalendar
@@ -59,14 +131,35 @@ function Calendar() {
             eventClassNames={'eventClass'}
             dateClick={info => console.log(info)}
             headerToolbar={{
-              start: '', // will normally be on the left. if RTL, will be on the right
+              start: '',
               center: 'prev title next',
-              end: '', // will normally be on the right. if RTL, will be on the left
+              end: '',
             }}
-            height={'55vh'}
+            height={'40vh'}
           />
         </Stack>
       </Show>
+
+      {userData && userData?.role === 'TEACHER' && (
+        <Stack
+          direction={{ base: 'column', md: 'row' }}
+          w={'full'}
+          align={{ base: 'start', lg: 'center' }}
+          justify={{ base: 'start', md: 'end' }}
+          spacing={{ base: 6, lg: 8 }}
+          px={{ base: 12, sm: 16, xl: 20, '2xl': 40 }}
+          pb={12}>
+          <Stack align={'center'} direction={'row'} spacing={2}>
+            <Box w={5} h={5} bg={'purple.500'}></Box>{' '}
+            <Text fontSize={{ base: 14, lg: 16 }}>Имате записани ученици</Text>
+          </Stack>
+          <Stack align={'center'} direction={'row'} spacing={2}>
+            <Box w={5} h={5} bg={'grey.300'}></Box> <Text fontSize={{ base: 14, lg: 16 }}>Нямате записани ученици</Text>
+          </Stack>
+        </Stack>
+      )}
+
+      <CalendarDayViewModal isOpen={isOpen} onClose={onClose} date={date} />
     </>
   );
 }

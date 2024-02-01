@@ -36,15 +36,15 @@ import { getResponseMessage } from '../../../helpers/response.util';
 import PageLoader from '../../../utils/loader.component';
 import { axiosInstance } from '../../../axios';
 import { useAppDispatch } from '../../../store';
-import { getCoursesAll, getCoursesDraft } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
 import { addMinutesToString } from './create_course.component';
-import { add, close, closeRed, trash } from '../../../icons';
+import { add, closeRed, trash } from '../../../icons';
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import {
   getLessonsActive,
   getLessonsAll,
+  getLessonsDraft,
   getLessonsInactive,
 } from '../../../store/features/teacher/teacherLessons/teacherLessons.async';
 
@@ -59,16 +59,43 @@ type Inputs = {
   privateLessonTermins: any[];
   isPrivateLesson: boolean;
 };
+
+const defaultCourseValues = {
+  title: null,
+  subject: null,
+  isPrivateLesson: true,
+  price: 200,
+  studentsUpperBound: 1,
+  description: null,
+  length: '60',
+  privateLessonTermins: [
+    {
+      date: '',
+      lessonHours: [],
+    },
+  ],
+  themas: [{ title: '' }],
+};
+
 const CreateLessonComponent = ({
   setShowCreateCourse,
   showCreateCourse,
   setAddDateActive,
+  courseInfo,
+  courseId,
+  editInfo,
   isEdit = false,
+  setEditInfo,
 }: {
   setShowCreateCourse: any;
   showCreateCourse: boolean;
   setAddDateActive: any;
+  courseInfo?: any;
+  courseId?: number;
   isEdit?: boolean;
+  editInfo?: boolean;
+  setEditInfo?: any;
+  getCourseInformation?: any;
 }) => {
   const toast = useToast();
   const dispatch = useAppDispatch();
@@ -90,6 +117,7 @@ const CreateLessonComponent = ({
   const [dates, setDates] = useState([]);
   const [editableIndexes, setEditableIndexes] = useState([0]);
   const [showDateError, setShowDateError] = useState(false);
+  const [course, setCourse] = useState(defaultCourseValues);
 
   const {
     register,
@@ -102,22 +130,8 @@ const CreateLessonComponent = ({
     control,
     formState: { errors },
   } = useForm<Inputs>({
-    defaultValues: {
-      title: null,
-      subject: null,
-      isPrivateLesson: true,
-      price: 200,
-      studentsUpperBound: 1,
-      description: null,
-      length: '60',
-      privateLessonTermins: [
-        {
-          date: '',
-          lessonHours: [],
-        },
-      ],
-      themas: [{ title: '' }],
-    },
+    defaultValues: course,
+    values: course,
   });
 
   const NestedTime = ({ nestIndex }: { nestIndex: number }) => {
@@ -295,8 +309,8 @@ const CreateLessonComponent = ({
       setIsLoading(false);
       setShowCreateCourse(false);
       refreshForm();
-      dispatch(getCoursesDraft());
-      dispatch(getCoursesAll());
+      dispatch(getLessonsDraft());
+      dispatch(getLessonsAll());
 
       toast({
         title: 'Успешно запазване на чернова',
@@ -327,32 +341,32 @@ const CreateLessonComponent = ({
 
       setIsLoading(true);
       try {
-        // if (editInfo) {
-        //   if (!!courseInfo && courseInfo.isDraft) {
-        //     await axiosInstance.post(`/lessons/editCourseDraft/${courseId}`, data);
-        //   } else {
-        //     await axiosInstance.post(`/lessons/editCourse/${courseId}`, data);
-        //   }
-        //   setEditInfo(false);
-        //   getCourseInformation(data.lessonID);
-        //   getCourseDates(data.lessonID);
-        // } else {
-        await axiosInstance.post('/lessons/createPrivateLesson', data);
-        dispatch(getLessonsAll());
-        dispatch(getLessonsActive());
-        dispatch(getLessonsInactive());
-        // }
+        if (editInfo) {
+          if (!!courseInfo && courseInfo.isDraft) {
+            await axiosInstance.post(`/lessons/editPrivateLessonDraft/${courseId}`, data);
+          } else {
+            await axiosInstance.post(`/lessons/editPrivateLesson/${courseId}`, data);
+          }
+          setEditInfo(false);
+          // getCourseInformation(data.lessonID);
+          // getCourseDates(data.lessonID);
+        } else {
+          await axiosInstance.post('/lessons/createPrivateLesson', data);
+          dispatch(getLessonsAll());
+          dispatch(getLessonsActive());
+          dispatch(getLessonsInactive());
+        }
 
         setShowCreateCourse(false);
         reset();
 
         setIsLoading(false);
-        // toast({
-        //   title: editInfo ? 'Успешна редакция на курс' : 'Успешно създаване на курс',
-        //   status: 'success',
-        //   duration: 3000,
-        //   position: 'top-right',
-        // });
+        toast({
+          title: editInfo ? 'Успешна редакция на урок' : 'Успешно създаване на урок',
+          status: 'success',
+          duration: 3000,
+          position: 'top-right',
+        });
       } catch (err) {
         setIsLoading(false);
         toast({
@@ -367,7 +381,7 @@ const CreateLessonComponent = ({
 
   useEffect(() => {
     register('subject', { required: 'Полето е задължително' });
-    // register('privateLessonTermins', { required: 'Добавете поне една дата на провеждане' });
+    register('privateLessonTermins', { required: 'Добавете поне една дата на провеждане' });
   }, [register]);
 
   useEffect(() => {
@@ -377,6 +391,17 @@ const CreateLessonComponent = ({
   useEffect(() => {
     fields?.length == 1 && setEditableIndexes([0]);
   }, [fields.length]);
+
+  useEffect(() => {
+    if (courseInfo) {
+      setCourse(courseInfo);
+      setLowerGrade(courseInfo?.lowerGrade);
+      setUpperGrade(courseInfo?.upperGrade);
+      setSelectedSubject({ name: courseInfo?.subject, code: courseInfo?.subject });
+      setCourseLength(courseInfo?.length?.toString());
+      setDates(courseInfo?.courseTerminResponses);
+    }
+  }, [courseInfo, availableGrades, availableSubjects]);
 
   return (
     <Stack w={{ base: 'full', xl: '40vw' }} spacing={10}>
@@ -580,32 +605,32 @@ const CreateLessonComponent = ({
                   setCourseLength(e);
                 }}>
                 <Stack spacing={10} direction="row" align={'start'}>
-                  <Radio size="lg" colorScheme="purple" value={'15'} isDisabled={!!dates.length}>
+                  <Radio size="lg" colorScheme="purple" value={'15'} isDisabled={!!dates?.length}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       15 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'30'} isDisabled={!!dates.length}>
+                  <Radio size="lg" colorScheme="purple" value={'30'} isDisabled={!!dates?.length}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       30 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'45'} isDisabled={!!dates.length}>
+                  <Radio size="lg" colorScheme="purple" value={'45'} isDisabled={!!dates?.length}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       45 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'60'} defaultChecked isDisabled={!!dates.length}>
+                  <Radio size="lg" colorScheme="purple" value={'60'} defaultChecked isDisabled={!!dates?.length}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       60 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'90'} isDisabled={!!dates.length}>
+                  <Radio size="lg" colorScheme="purple" value={'90'} isDisabled={!!dates?.length}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       90 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'120'} isDisabled={!!dates.length}>
+                  <Radio size="lg" colorScheme="purple" value={'120'} isDisabled={!!dates?.length}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       120 мин
                     </Text>
@@ -749,7 +774,7 @@ const CreateLessonComponent = ({
                 color={'white'}
                 fontSize={16}
                 fontWeight={700}
-                _hover={{ opacity: '0.9' }}
+                _hover={{ opacity: '0.95' }}
                 _focus={{ outline: 'none' }}
                 _active={{ bg: 'purple.500' }}>
                 Запази промените

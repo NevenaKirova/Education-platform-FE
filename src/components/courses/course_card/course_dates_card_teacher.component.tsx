@@ -29,18 +29,13 @@ export default function CourseDateCard({
 }) {
   return isPrivateLesson ? (
     <Box
-      as={Button}
       py={isGrid ? 0 : 6}
       px={0}
       w={'full'}
       transition={'transform .2s'}
       _hover={{ transform: 'scale(1.02)  perspective(1px)', bg: 'transparent' }}
       h={'full'}
-      bg={'transparent'}
-      onClick={() => {
-        setShowAddResources(true);
-        setDateSelected(course);
-      }}>
+      bg={'transparent'}>
       <Stack
         direction={'row'}
         maxH={'230px'}
@@ -92,18 +87,24 @@ export default function CourseDateCard({
             <Stack direction={'row'} align={'center'} w={'full'}>
               <Stack direction={'row'} w={'full'} flexWrap={'wrap'} spacing={4}>
                 {course?.times.map((el, index) => (
-                  <Stack
-                    key={'index'}
-                    direction={'row'}
-                    align={'center'}
+                  <Box
+                    key={index}
+                    as={Button}
                     p={'5px'}
                     rounded={'md'}
                     border={'1px solid'}
-                    borderColor={el?.booked ? 'grey.500' : 'purple.500'}>
-                    <Text fontSize={16} fontWeight={500} color={el?.booked ? 'grey.500' : 'purple.500'}>
+                    bg={'white'}
+                    _hover={{ bg: 'purple.100' }}
+                    borderColor={el?.booked ? 'purple.500' : 'grey.500'}
+                    onClick={() => {
+                      console.log(el);
+                      setShowAddResources(true);
+                      setDateSelected(el);
+                    }}>
+                    <Text fontSize={16} fontWeight={500} color={el?.booked ? 'purple.500' : 'grey.500'}>
                       {el?.time}
                     </Text>
-                  </Stack>
+                  </Box>
                 ))}
               </Stack>
             </Stack>

@@ -141,9 +141,8 @@ const StudentFavouritesPage = () => {
     dispatch(getLikedTeachers({ page: currentPage }));
   }, [currentPage]);
 
-
-  console.log(userData)
-  if (!user || userData?.role !== 'STUDENT') return <Navigate to={'/'} replace />;
+  if (!user) return <Navigate to={'/'} replace />;
+  if (userData && userData?.role !== 'STUDENT') return <Navigate to={'/'} replace />;
 
   return isLoading ? (
     <PageLoader isLoading={isLoading} />

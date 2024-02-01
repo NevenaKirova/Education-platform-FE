@@ -82,7 +82,6 @@ const CourseAddHomework = ({
     handleSubmit,
     reset,
     setValue,
-    getValues,
     watch,
     control,
     formState: { errors },
@@ -132,17 +131,15 @@ const CourseAddHomework = ({
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
-      const res = await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, data);
+      const formData = new FormData();
+      formData.append('files', data?.files[0]?.file);
 
-      if (res.data) {
-        const formData = new FormData();
-        formData.append('file', data.file);
+      await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
 
-        await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
-      }
+      await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, data);
 
       toast({
-        title: 'Успешно създавне на домашно',
+        title: 'Успешно създаване на домашно',
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -167,7 +164,7 @@ const CourseAddHomework = ({
 
   const getHomeworkData = async () => {
     try {
-      const res = await axiosInstance.get(`/lessons/getAssignment/${openedTheme?.id}`);
+      const res = await axiosInstance.get(`/lessons/getAssignment/${openedTheme?.assignmentId}`);
       setHomeworkData(res.data);
     } catch (err) {
       toast({
@@ -313,14 +310,14 @@ const CourseAddHomework = ({
               </Heading>
 
               <Text fontSize={{ base: 14, lg: 16 }} fontWeight={400} color={'grey.400'}>
-                Качете до 4 файла
+                В случай, че желаете да качите няколко файла наведнъж, групирайте ги в архив
               </Text>
             </Stack>
 
             {acceptedFileItems}
 
             <Button
-              isDisabled={fields.length === 4}
+              isDisabled={fields.length === 1}
               color={'purple.500'}
               bg={'transparent'}
               _hover={{ bg: 'transparent' }}

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
-import { Navigate} from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { Button, Heading, Stack, Text, InputGroup, Input, InputRightElement, Image } from '@chakra-ui/react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
@@ -11,11 +11,15 @@ import { noData } from '../images';
 const MessagesPage = () => {
   const { user } = useContext(AuthContext);
 
-  const socketUrl = 'wss://localhost:8080/api/v1';
+  const socketUrl = 'ws://localhost:8080/app/chat';
 
   const [isLoading, setIsLoading] = useState(false);
   const [messageHistory, setMessageHistory] = useState([]);
-  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
+    shouldReconnect: closeEvent => true,
+    reconnectAttempts: 10,
+    reconnectInterval: attemptNumber => Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
+  });
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -32,7 +36,6 @@ const MessagesPage = () => {
     [ReadyState.CLOSED]: 'Closed',
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
-
 
   if (!user) return <Navigate to={'/'} replace />;
 
@@ -84,6 +87,16 @@ const MessagesPage = () => {
           <Stack justify={'center'} align={'center'} spacing={6}>
             <Image src={noData} alt="No messages" h={'40vh'} />
             <Text color={'grey.400'}>Нямате проведени разговори </Text>
+            <button onClick={handleClickSendMessage} disabled={readyState !== ReadyState.OPEN}>
+              Click Me to send Hello
+            </button>
+            <span>The WebSocket is currently {connectionStatus}</span>
+            {lastMessage ? <span>Last message: {lastMessage.data}</span> : null}
+            <ul>
+              {messageHistory.map((message, idx) => (
+                <span key={idx}>{message ? message?.data : null}</span>
+              ))}
+            </ul>
           </Stack>
         </Stack>
       </Stack>

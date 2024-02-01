@@ -23,6 +23,11 @@ import teacherPageBackground from './Teacher_profile_background.png';
 import noData from './No_data.svg';
 import noneToShow from './None_to_show.svg';
 import avatar2 from './Avatar_02.png';
+import avatar3 from './Avatar_03.png';
+import avatar4 from './Avatar_04.png';
+import avatar5 from './Avatar_05.png';
+import avatar6 from './Avatar_06.png';
+import account from './account.png';
 
 export {
   logo,
@@ -50,4 +55,9 @@ export {
   noData,
   noneToShow,
   avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  account,
 };

@@ -23,9 +23,10 @@ import MyDashboardPage from './pages/dashboard/my-dashboard';
 import StudentOpenedCoursePage from './pages/student/opened_course';
 import DashboardPage from './pages/dashboard/dashboard';
 import StudentFavoritesPage from './pages/student/favorites';
+import MessagesPage from './pages/messages';
+import StudentProfilePage from './pages/student/my_profile';
 
 import './App.css';
-import MessagesPage from './pages/messages';
 
 const App = () => {
   const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/course/:courseId" element={<StudentOpenedCoursePage />} />
           <Route path="/favourites" element={<StudentFavoritesPage />} />
           <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/my-profile" element={<StudentProfilePage />} />
           <Route path="/404" element={<PageNotFound />} />
           <Route path="*" element={<Navigate to="/404" />} />
         </Routes>

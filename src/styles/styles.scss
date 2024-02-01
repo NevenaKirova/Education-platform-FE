@@ -286,17 +286,33 @@ form {
   text-transform: uppercase;
 }
 
+.fc-daygrid-event-dot {
+  border-color: #adb5bd;
+}
+
 .fc-event {
+  bcolor: #adb5bd;
+}
+
+.fc-event.hasStudents {
   color: #5431d6;
+}
+
+.fc-event.hasStudents .fc-daygrid-event-dot {
+  border-color: #5431d6;
+}
+
+.fc-event-today .fc-event-title {
+  color: white;
+}
+
+.fc-event.fc-event-today .fc-daygrid-event-dot {
+  border-color: white;
 }
 
 .fc-event-title {
   font-weight: 500 !important;
   margin-left: 5px !important;
-}
-
-.fc-daygrid-event-dot {
-  border-color: #5431d6;
 }
 
 .fc-daygrid-day-frame {
@@ -309,6 +325,31 @@ form {
 
 .fc-toolbar-title {
   text-transform: capitalize;
+}
+
+.dashboard-calendar .fc-toolbar-title {
+  font-size: 20px;
+}
+
+.dashboard-calendar .fc .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 20px;
+}
+
+.dashboard-calendar .fc .fc-daygrid-day-frame {
+  min-height: 10px !important;
+}
+.dashboard-calendar .fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
+  min-height: 0;
+}
+
+.dashboard-calendar .fc-daygrid-day-number,
+.dashboard-calendar .fc th {
+  text-align: center;
+}
+
+.dashboard-calendar .fc .fc-daygrid-day.fc-day-today,
+.dashboard-calendar .fc .fc-daygrid-day {
+  height: 10px;
 }
 
 .fc-daygrid-day-frame:has(.eventClass) {
@@ -330,6 +371,13 @@ form {
 
 .fc .fc-toolbar.fc-header-toolbar {
   margin-bottom: 3rem;
+}
+.fc-event a {
+  color: grey;
+}
+
+.fc-event.hasStudents a {
+  color: red;
 }
 
 @media (max-width: 1000px) {

@@ -254,6 +254,8 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                 <PopoverBody color={'grey.500'} p={0} py={6}>
                   <Stack w={'full'} minW={{ base: '100px', lg: '200px' }} spacing={4}>
                     <ButtonGroup
+                      as={ReactRouterLink}
+                      to={'/my-profile'}
                       size="sm"
                       isAttached
                       variant="link"

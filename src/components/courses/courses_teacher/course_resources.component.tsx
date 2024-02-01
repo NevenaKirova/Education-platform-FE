@@ -21,7 +21,6 @@ import {
   GridItem,
   useToast,
   useDisclosure,
-  AvatarGroup,
 } from '@chakra-ui/react';
 
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
@@ -49,6 +48,7 @@ const CourseResources = ({
   setIsEditHomework,
   showSubmissions,
   setShowSubmissions,
+  isPrivateLesson,
 }: {
   date: any;
   course: any;
@@ -63,6 +63,7 @@ const CourseResources = ({
   setIsEditHomework?: any;
   showSubmissions?: any;
   setShowSubmissions?: any;
+  isPrivateLesson?: boolean;
 }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -122,7 +123,8 @@ const CourseResources = ({
 
   const getOpenedCourse = async () => {
     try {
-      const res = await axiosInstance.get(`lessons/getCourseClassroomPage/${date?.courseTerminId}`);
+      const id = isPrivateLesson ? date?.lessonTerminId : date?.courseTerminId;
+      const res = await axiosInstance.get(`lessons/getCourseClassroomPage/${id}`);
       setOpenedCourse(res.data);
       setStudents(res.data?.students);
     } catch (err) {
@@ -230,17 +232,32 @@ const CourseResources = ({
             <Stack spacing={4}>
               <Stack direction={'row'} spacing={4} align={'center'}>
                 <Img src={calendar} alt={'calendar icon'} w={5} h={5} />
-                <Text color={'grey.500'}>
-                  {capitalizeMonth(format(new Date(date?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
-                  {date?.endDate && capitalizeMonth(format(new Date(date?.endDate), 'dd LLL yyyy', { locale: bg }))}
-                </Text>
+                {isPrivateLesson ? (
+                  <Text color={'grey.500'}>
+                    {capitalizeMonth(format(new Date(date?.date), 'dd LLL yyyy', { locale: bg }))} -{' '}
+                  </Text>
+                ) : (
+                  <Text color={'grey.500'}>
+                    {capitalizeMonth(format(new Date(date?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
+                    {date?.endDate && capitalizeMonth(format(new Date(date?.endDate), 'dd LLL yyyy', { locale: bg }))}
+                  </Text>
+                )}
               </Stack>
 
               <Stack direction={'row'} spacing={4} align={'start'}>
                 <Img src={clock} alt={'calendar icon'} w={5} h={5} mt={2} />
                 <Stack spacing={1}>
-                  <Text color={'grey.500'}>{date?.courseDays}</Text>
-                  <Text color={'grey.500'}>{date?.courseHours}</Text>
+                  {isPrivateLesson ? (
+                    <>
+                      <Text color={'grey.500'}>{date?.dayOfTheWeek}</Text>
+                      {/*<Text color={'grey.500'}>{date?.courseHours}</Text>*/}
+                    </>
+                  ) : (
+                    <>
+                      ( <Text color={'grey.500'}>{date?.courseDays}</Text>
+                      <Text color={'grey.500'}>{date?.courseHours}</Text>)
+                    </>
+                  )}
                 </Stack>
               </Stack>
             </Stack>
@@ -422,71 +439,78 @@ const CourseResources = ({
                             </Stack>
                           )}
 
-                          {el?.assignment && (
-                            <Stack
-                              rounded={'md'}
-                              bg={'#E3F7FF'}
-                              w={'full'}
-                              p={4}
-                              align={'center'}
-                              justify={'space-between'}
-                              direction={'row'}>
-                              <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
-                                <Img src={fileUpload} w={6} h={6} />
-                                <Text color={'grey.600'} fontWeight={'700'}>
-                                  Задача за домашна работа
-                                </Text>
-                              </Stack>
+                          {el?.assignmentId && (
+                            <>
+                              <Stack
+                                rounded={'md'}
+                                bg={'#E3F7FF'}
+                                w={'full'}
+                                p={4}
+                                align={'center'}
+                                justify={'space-between'}
+                                direction={'row'}>
+                                <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
+                                  <Img src={fileUpload} w={6} h={6} />
+                                  <Text color={'grey.600'} fontWeight={'700'}>
+                                    Задача за домашна работа
+                                  </Text>
+                                </Stack>
 
-                              <Stack direction={'row'} spacing={4}>
+                                <Stack direction={'row'} spacing={4}>
+                                  <Box
+                                    as={IconButton}
+                                    aria-label={'edit homework'}
+                                    size="xs"
+                                    bg={'none'}
+                                    _hover={{ bg: 'none' }}
+                                    icon={
+                                      <Img
+                                        src={edit}
+                                        w={5}
+                                        onClick={() => {
+                                          setOpenedTheme({
+                                            id: el?.themaID,
+                                            title: el?.title,
+                                            assignmentId: el?.assignmentId,
+                                          }),
+                                            setIsEditHomework(true);
+                                        }}
+                                      />
+                                    }
+                                  />
+                                </Stack>
+
                                 <Box
                                   as={IconButton}
-                                  aria-label={'edit homework'}
+                                  aria-label={'delete theme'}
                                   size="xs"
                                   bg={'none'}
                                   _hover={{ bg: 'none' }}
-                                  icon={
-                                    <Img
-                                      src={edit}
-                                      w={5}
-                                      onClick={() => {
-                                        setOpenedTheme({ id: el?.themaID, title: el?.title }), setIsEditHomework(true);
-                                      }}
-                                    />
-                                  }
+                                  disabled
+                                  icon={<Img src={trash} w={5} />}
+                                  onClick={ev => handleDeleteResource(ev, 'file', el?.themaID)}
                                 />
                               </Stack>
 
-                              <Box
-                                as={IconButton}
-                                aria-label={'delete theme'}
-                                size="xs"
-                                bg={'none'}
-                                _hover={{ bg: 'none' }}
-                                disabled
-                                icon={<Img src={trash} w={5} />}
-                                onClick={ev => handleDeleteResource(ev, 'file', el?.themaID)}
-                              />
-                            </Stack>
+                              <Stack direction={'row'} align={'center'} justify={'space-between'} w={'full'}>
+                                <Text color={'grey.500'}> 0/ {openedCourse?.enrolledStudents} предадени</Text>
+
+                                <Button
+                                  size={{ base: 'md', lg: 'md' }}
+                                  color={'purple.500'}
+                                  bg={'transparent'}
+                                  fontSize={{ base: 16, '2xl': 20 }}
+                                  fontWeight={700}
+                                  _hover={{ bg: 'transparent', opacity: 0.9 }}
+                                  w={'20%'}
+                                  onClick={() => {
+                                    setShowSubmissions(true);
+                                  }}>
+                                  Виж предаванията
+                                </Button>
+                              </Stack>
+                            </>
                           )}
-
-                          <Stack direction={'row'} align={'center'} justify={'space-between'} w={'full'}>
-                            <Text color={'grey.500'}> 0/ {openedCourse?.enrolledStudents} предадени</Text>
-
-                            <Button
-                              size={{ base: 'md', lg: 'md' }}
-                              color={'purple.500'}
-                              bg={'transparent'}
-                              fontSize={{ base: 16, '2xl': 20 }}
-                              fontWeight={700}
-                              _hover={{ bg: 'transparent', opacity: 0.9 }}
-                              w={'20%'}
-                              onClick={() => {
-                                setShowSubmissions(true);
-                              }}>
-                              Виж предаванията
-                            </Button>
-                          </Stack>
                         </Stack>
                       </Stack>
                     </AccordionPanel>
