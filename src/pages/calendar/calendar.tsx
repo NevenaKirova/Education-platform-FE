@@ -13,6 +13,7 @@ import { getResponseMessage } from '../../helpers/response.util';
 import { Navigate } from 'react-router-dom';
 import CalendarDayViewModal from './calendar_day_view';
 import PageLoader from '../../utils/loader.component';
+import { format } from 'date-fns';
 
 function Calendar() {
   const { user, userData } = useContext(AuthContext);
@@ -31,7 +32,9 @@ function Calendar() {
         const res = await axiosInstance.get(
           `/users/${userData?.role === 'STUDENT' ? 'getStudentCalendar' : 'getTeacherCalendar'}`,
         );
+
         setEvents(res.data);
+
         setIsLoading(false);
       } catch (err) {
         setIsLoading(false);
@@ -50,10 +53,12 @@ function Calendar() {
     let date;
     if (isEvent) {
       const dateTemp = info?.event?.start;
-      date = dateTemp;
+      date = format(dateTemp, 'yyyy-MM-dd');
     } else {
       date = info?.dateStr;
     }
+
+    setDate(date);
 
     if (userData?.role && date) {
       try {
@@ -62,6 +67,7 @@ function Calendar() {
         );
 
         setDateEvents(res.data);
+        onOpen();
       } catch (err) {
         toast({
           title: getResponseMessage(err),
@@ -98,6 +104,7 @@ function Calendar() {
             events={events}
             displayEventTime={false}
             weekNumberCalculation={'ISO'}
+            fixedWeekCount={false}
             locale={bgLocale}
             eventClick={info => openDayModal(info, true)}
             dateClick={info => openDayModal(info, false)}
@@ -118,7 +125,7 @@ function Calendar() {
           px={{ base: 8 }}
           mx={2}
           mt={{ base: 28, md: 36 }}
-          mb={12}
+          mb={6}
           justify={'start'}
           w={'full'}>
           <Fullcalendar
@@ -129,13 +136,14 @@ function Calendar() {
             locale={bgLocale}
             events={events}
             eventClassNames={'eventClass'}
-            dateClick={info => console.log(info)}
+            dateClick={info => openDayModal(info, false)}
+            fixedWeekCount={false}
             headerToolbar={{
               start: '',
               center: 'prev title next',
               end: '',
             }}
-            height={'40vh'}
+            height={'45vh'}
           />
         </Stack>
       </Show>
@@ -150,16 +158,17 @@ function Calendar() {
           px={{ base: 12, sm: 16, xl: 20, '2xl': 40 }}
           pb={12}>
           <Stack align={'center'} direction={'row'} spacing={2}>
-            <Box w={5} h={5} bg={'purple.500'}></Box>{' '}
+            <Box w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} bg={'purple.500'}></Box>{' '}
             <Text fontSize={{ base: 14, lg: 16 }}>Имате записани ученици</Text>
           </Stack>
           <Stack align={'center'} direction={'row'} spacing={2}>
-            <Box w={5} h={5} bg={'grey.300'}></Box> <Text fontSize={{ base: 14, lg: 16 }}>Нямате записани ученици</Text>
+            <Box w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} bg={'grey.300'}></Box>{' '}
+            <Text fontSize={{ base: 14, lg: 16 }}>Нямате записани ученици</Text>
           </Stack>
         </Stack>
       )}
 
-      <CalendarDayViewModal isOpen={isOpen} onClose={onClose} date={date} />
+      <CalendarDayViewModal isOpen={isOpen} onClose={onClose} date={date} events={dateEvents} />
     </>
   );
 }

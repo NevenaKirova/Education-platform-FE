@@ -254,8 +254,8 @@ const CourseResources = ({
                     </>
                   ) : (
                     <>
-                      ( <Text color={'grey.500'}>{date?.courseDays}</Text>
-                      <Text color={'grey.500'}>{date?.courseHours}</Text>)
+                      <Text color={'grey.500'}>{date?.courseDays}</Text>
+                      <Text color={'grey.500'}>{date?.courseHours}</Text>
                     </>
                   )}
                 </Stack>

@@ -380,6 +380,19 @@ form {
   color: red;
 }
 
+.fc-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+  width: 6px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+  background: #5431d6;
+  borderradius: '24px';
+}
+
 @media (max-width: 1000px) {
   .fc .fc-toolbar.fc-header-toolbar {
     margin-bottom: 1.5rem;

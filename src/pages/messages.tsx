@@ -11,7 +11,7 @@ import { noData } from '../images';
 const MessagesPage = () => {
   const { user } = useContext(AuthContext);
 
-  const socketUrl = 'ws://localhost:8080/app/chat';
+  const socketUrl = 'ws://localhost:8080/ws';
 
   const [isLoading, setIsLoading] = useState(false);
   const [messageHistory, setMessageHistory] = useState([]);
