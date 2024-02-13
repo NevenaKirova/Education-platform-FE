@@ -115,7 +115,7 @@ export default function CourseCard({
       <Box
         as={ReactRouterLink}
         to={course?.privateLesson ? `/lessons/${course?.lessonID}` : `/courses/${course?.lessonID}`}
-        maxW={{ base: 'full', md: '42vw', lg: '35vw', xl: '26vw', '2xl': '21vw' }}
+        maxW={{ base: 'full', md: '360px', lg: '250px',xl: '350px' }}
         h={'full'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.900')}
@@ -161,23 +161,6 @@ export default function CourseCard({
                     </Text>
                   </Tag>
                 )}
-
-                {course?.privateLesson === false && course?.numberOfStudents && (
-                  <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-                    <Text as="span" color={'purple.500'} fontSize={10} fontWeight={600}>
-                      {course?.numberOfStudents + '/' + course.studentsUpperBound}
-                    </Text>
-                    <IconButton
-                      aria-label={'students'}
-                      size="xs"
-                      bg={'none'}
-                      p={0}
-                      _hover={{ bg: 'none' }}
-                      h={'fit'}
-                      icon={<Img src={user} w={4} h={3} />}
-                    />
-                  </Tag>
-                )}
               </HStack>
 
               <HStack align={'center'} spacing={1}>
@@ -197,13 +180,7 @@ export default function CourseCard({
                 <Heading color={'gray.700'} fontSize={{ base: 'lg', md: 'xl' }} textAlign={'start'}>
                   {course?.title}
                 </Heading>
-                <Stack
-                  direction={'row'}
-                  spacing={2}
-                  align={'center'}
-                  justify={'space-between'}
-                  flexWrap={'wrap'}
-                  w={'full'}>
+                <Stack direction={'column'} spacing={4} align={'start'} flexWrap={'wrap'} w={'full'}>
                   <Stack direction={'row'} align={'center'}>
                     <Avatar
                       size={{ base: 'xs', md: 'sm' }}
@@ -214,11 +191,14 @@ export default function CourseCard({
                     </Text>
                   </Stack>
 
-                  <Text color={'grey.500'}>
-                    {course?.firstDate &&
-                      course?.time &&
-                      `${format(new Date(course?.firstDate), ' dd/MM/yyyy')} ${course?.time}ч`}
-                  </Text>
+                  <Stack direction={'row'} align={'center'}>
+                    <Text color={'grey.500'}>Начална дата:</Text>
+                    <Text color={'grey.500'}>
+                      {course?.firstDate &&
+                        course?.time &&
+                        `${format(new Date(course?.firstDate), ' dd/MM/yyyy')} ${course?.time}ч`}
+                    </Text>
+                  </Stack>
                 </Stack>
               </Stack>
             </Stack>

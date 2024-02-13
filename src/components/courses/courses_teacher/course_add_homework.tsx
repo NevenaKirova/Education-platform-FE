@@ -131,12 +131,15 @@ const CourseAddHomework = ({
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
-      const formData = new FormData();
-      formData.append('files', data?.files[0]?.file);
+      const res = await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, data);
 
-      await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
+      console.log(res.data);
+      if (res.data) {
+        const formData = new FormData();
+        formData.append('files', data?.files[0]?.file);
 
-      await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, data);
+        await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
+      }
 
       toast({
         title: 'Успешно създаване на домашно',
@@ -152,6 +155,7 @@ const CourseAddHomework = ({
       setOpenedTheme(null);
       reset();
     } catch (err) {
+      console.log(err);
       toast({
         title: getResponseMessage(err),
         status: 'error',

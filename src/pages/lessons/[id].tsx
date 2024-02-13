@@ -42,7 +42,7 @@ import { daysArr } from '../../components/courses/courses_teacher/create_course.
 import axios, { axiosInstance } from '../../axios';
 import AuthContext from '../../context/AuthContext';
 
-import { heart, heartFull, message, group, location, hat } from '../../icons';
+import { heart, heartFull, message, group, location, hat, user } from '../../icons';
 
 import {
   Pagination,
@@ -120,6 +120,25 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
     }
   };
 
+  const openChat = async ev => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+      try {
+        console.log('open chat');
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
   const handleScroll = () => {
     testimonialsRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -346,6 +365,12 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                 <Tag size="md" color={'purple.500'} bg={'purple.200'} fontWeight={600} p={2}>
                   {course?.privateLesson ? 'Частен урок' : 'Групов курс'}
                 </Tag>
+
+                {!course?.privateLesson && (
+                  <Tag size="md" color={'purple.500'} bg={'purple.200'} fontWeight={600} p={2}>
+                    1 - {course.studentsUpperBound} ученици
+                  </Tag>
+                )}
               </Stack>
             </Stack>
 
@@ -467,7 +492,12 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                 </RadioGroup>
                 <Stack direction={{ base: 'column', lg: 'row' }} align={'center'}>
                   <Text>Не откривате подходяща дата?</Text>
-                  <Button bg={'transparent'} color={'purple.500'} fontWeight={700} _hover={{ bg: 'transparent' }}>
+                  <Button
+                    onClick={ev => openChat(ev)}
+                    bg={'transparent'}
+                    color={'purple.500'}
+                    fontWeight={700}
+                    _hover={{ bg: 'transparent' }}>
                     <Img src={message} mr={2} w={6} h={6} />
                     Свържете се с учителя
                   </Button>
@@ -519,7 +549,13 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                   {teacherInfo?.description}
                 </Text>
 
-                <Button bg={'transparent'} color={'purple.500'} fontWeight={700} pl={0} _hover={{ bg: 'transparent' }}>
+                <Button
+                  onClick={ev => openChat(ev)}
+                  bg={'transparent'}
+                  color={'purple.500'}
+                  fontWeight={700}
+                  pl={0}
+                  _hover={{ bg: 'transparent' }}>
                   <Stack align={'center'} direction={'row'}>
                     <Img src={message} mr={2} w={6} h={6} />
                     <Text> Свържете се с учителя</Text>

@@ -53,7 +53,7 @@ interface NavItem {
 const NAV_ITEMS_TEACHER: Array<NavItem> = [
   {
     key: 'dashboard',
-    label: 'Моето табло',
+    label: 'Моите уроци',
     path: '/dashboard',
   },
   {
@@ -83,7 +83,7 @@ const NAV_ITEMS_STUDENT: Array<NavItem> = [
   },
   {
     key: 'dashboard',
-    label: 'Моето табло',
+    label: 'Моите уроци',
     path: '/my-dashboard',
   },
   {
@@ -273,6 +273,8 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                     </ButtonGroup>
 
                     <ButtonGroup
+                      as={ReactRouterLink}
+                      to={'/favourites'}
                       size="sm"
                       isAttached
                       variant="link"

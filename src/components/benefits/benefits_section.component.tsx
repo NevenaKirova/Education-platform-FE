@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from '@chakra-ui/react';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Keyboard } from 'swiper/modules';
+import { Navigation, Pagination, Keyboard ,Autoplay} from 'swiper/modules';
 
 import BenefitComponent from './benefit.component';
 import { benefit1, benefit2, benefit3 } from '../../images';
@@ -45,11 +45,16 @@ export default function BenefitsSection() {
           pagination={{
             clickable: true,
           }}
+          autoplay={{
+            delay: 4500,
+            disableOnInteraction: false,
+          }}
           navigation={true}
-          modules={[Keyboard, Pagination, Navigation]}
+          modules={[Keyboard, Pagination, Navigation,Autoplay]}
           className="mySwiper"
           grabCursor={true}
-          loop={true}>
+          loop={true}
+         >
           {benefits.map(({ key, header, text, image }) => (
             <SwiperSlide key={key}>
               <BenefitComponent num={key} header={header} text={text} image={image} />

@@ -14,6 +14,7 @@ import { Navigate } from 'react-router-dom';
 import CalendarDayViewModal from './calendar_day_view';
 import PageLoader from '../../utils/loader.component';
 import { format } from 'date-fns';
+import eventsS from './events';
 
 function Calendar() {
   const { user, userData } = useContext(AuthContext);
@@ -101,7 +102,7 @@ function Calendar() {
           <Fullcalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView={'dayGridMonth'}
-            events={events}
+            events={eventsS}
             displayEventTime={false}
             weekNumberCalculation={'ISO'}
             fixedWeekCount={false}
@@ -168,7 +169,7 @@ function Calendar() {
         </Stack>
       )}
 
-      <CalendarDayViewModal isOpen={isOpen} onClose={onClose} date={date} events={dateEvents} />
+      <CalendarDayViewModal isOpen={isOpen} onClose={onClose} date={date} events={dateEvents} role={userData?.role} />
     </>
   );
 }

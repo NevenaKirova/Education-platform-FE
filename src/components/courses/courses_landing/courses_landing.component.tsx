@@ -12,11 +12,11 @@ import style from './courses_landing.module.scss';
 export const responsive = {
   superLargeDesktop: {
     // the naming can be any, depends on you.
-    breakpoint: { max: 4000, min: 3000 },
+    breakpoint: { max: 4000, min: 1500 },
     items: 4,
   },
   desktop: {
-    breakpoint: { max: 3000, min: 1024 },
+    breakpoint: { max: 1500, min: 1024 },
     items: 3,
   },
   tablet: {
@@ -39,53 +39,104 @@ export default function CourseSection({
   setModalTabIndex: any;
 }) {
   return (
-    <Stack spacing={{ base: 6, lg: 8 }} px={{ base: 12, lg: 24, '2xl': '15vw' }}>
-      <Grid
-        w={'full'}
-        templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(5, 1fr)' }}
-        gap={{ base: 6, md: 8 }}
-        pr={{ base: 0, lg: 8 }}
-        alignItems={'baseline'}>
-        <GridItem colSpan={{ base: 1, lg: 4, xl: 3 }} colStart={{ base: 1, xl: 2 }}>
-          <Heading
-            flex={1}
-            as="h1"
-            fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', lg: '2.5vw', xl: '2vw' }}
-            textAlign="center">
-            <Text as="span" color={'purple.500'}>
-              Най-популярни
-            </Text>{' '}
-            курсове
-          </Heading>
-        </GridItem>
+    <Stack spacing={32} px={{ base: 12, lg: 28, '2xl': 32 }}>
+      <Stack spacing={{ base: 6, lg: 8 }}>
+        <Grid
+          w={'full'}
+          templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(5, 1fr)' }}
+          gap={{ base: 6, md: 8 }}
+          pr={{ base: 0, lg: 8 }}
+          alignItems={'baseline'}>
+          <GridItem colSpan={{ base: 1, lg: 4, xl: 3 }} colStart={{ base: 1, xl: 2 }}>
+            <Heading
+              flex={1}
+              as="h1"
+              fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', lg: '2.5vw', xl: '2vw' }}
+              textAlign="center">
+              <Text as="span" color={'purple.500'}>
+                Най-популярни
+              </Text>{' '}
+              курсове
+            </Heading>
+          </GridItem>
 
-        <GridItem colStart={{ base: 1, lg: 5 }} textAlign={{ base: 'center', lg: 'right' }}>
-          <Button
-            as={ReactRouterLink}
-            to={'/courses'}
-            fontSize={{ base: '4.7vw', md: ' 2.5vw', lg: '1.8vw', xl: '1.4vw' }}
-            fontWeight={700}
-            variant={'link'}
-            color={'purple.500'}
-            _hover={{ opacity: '0.9' }}>
-            Виж всички
-          </Button>
-        </GridItem>
-      </Grid>
+          <GridItem colStart={{ base: 1, lg: 5 }} textAlign={{ base: 'center', lg: 'right' }}>
+            <Button
+              as={ReactRouterLink}
+              to={'/courses'}
+              fontSize={{ base: '4.7vw', md: ' 2.5vw', lg: '1.8vw', xl: '1.4vw' }}
+              fontWeight={700}
+              variant={'link'}
+              color={'purple.500'}
+              _hover={{ opacity: '0.9' }}>
+              Виж всички
+            </Button>
+          </GridItem>
+        </Grid>
 
-      <Carousel
-        autoPlay={true}
-        autoPlaySpeed={5000}
-        responsive={responsive}
-        partialVisible={true}
-        arrows={false}
-        showDots={true}
-        infinite={true}
-        containerClass={style.containerClass}>
-        {popularCourses?.map((course, index) => (
-          <CourseCard key={index} course={course} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
-        ))}
-      </Carousel>
+        <Carousel
+          autoPlay={true}
+          autoPlaySpeed={5000}
+          responsive={responsive}
+          partialVisible={true}
+          arrows={false}
+          showDots={true}
+          infinite={true}
+          containerClass={style.containerClass}>
+          {popularCourses?.map((course, index) => (
+            <CourseCard key={index} course={course} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
+          ))}
+        </Carousel>
+      </Stack>
+
+      <Stack spacing={{ base: 6, lg: 8 }}>
+        <Grid
+          w={'full'}
+          templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(5, 1fr)' }}
+          gap={{ base: 6, md: 8 }}
+          pr={{ base: 0, lg: 8 }}
+          alignItems={'baseline'}>
+          <GridItem colSpan={{ base: 1, lg: 4, xl: 3 }} colStart={{ base: 1, xl: 2 }}>
+            <Heading
+              flex={1}
+              as="h1"
+              fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', lg: '2.5vw', xl: '2vw' }}
+              textAlign="center">
+              <Text as="span" color={'purple.500'}>
+                Най-популярни
+              </Text>{' '}
+              частни уроци
+            </Heading>
+          </GridItem>
+
+          <GridItem colStart={{ base: 1, lg: 5 }} textAlign={{ base: 'center', lg: 'right' }}>
+            <Button
+              as={ReactRouterLink}
+              to={'/lessons'}
+              fontSize={{ base: '4.7vw', md: ' 2.5vw', lg: '1.8vw', xl: '1.4vw' }}
+              fontWeight={700}
+              variant={'link'}
+              color={'purple.500'}
+              _hover={{ opacity: '0.9' }}>
+              Виж всички
+            </Button>
+          </GridItem>
+        </Grid>
+
+        <Carousel
+          autoPlay={true}
+          autoPlaySpeed={5000}
+          responsive={responsive}
+          partialVisible={true}
+          arrows={false}
+          showDots={true}
+          infinite={true}
+          containerClass={style.containerClass}>
+          {popularCourses?.map((course, index) => (
+            <CourseCard key={index} course={course} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
+          ))}
+        </Carousel>
+      </Stack>
     </Stack>
   );
 }

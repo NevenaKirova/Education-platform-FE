@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Stack, Flex, Box, Heading, Text, Button, Center } from '@chakra-ui/react';
+import { Stack, Flex, Box, Heading, Text, Button, Center, useBreakpointValue } from '@chakra-ui/react';
 import { background1 } from '../../images';
 
 import styles from './testimonial_demo.module.scss';
+import { NavLink as ReactRouterLink } from 'react-router-dom';
 
 export const YoutubeEmbed = ({ embedId }: { embedId: string }) => (
   <div className={styles.video_responsive}>
@@ -46,13 +47,24 @@ export default function TestimonialDemoSection() {
             as="h1"
             fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', xl: '2vw' }}
             textAlign={{ base: 'center', lg: 'left' }}>
-            <Text>Стотици онлайн уроци от преподаватели</Text>
+            <Text>Стотици онлайн уроци от преподаватели от</Text>
             {''}
             <Text as="span" color={'purple.500'}>
               цялата страна
             </Text>
           </Heading>
+
+          <Text
+            color={'grey.600'}
+            fontWeight={400}
+            lineHeight={1.35}
+            textAlign={{ base: 'center', lg: 'left' }}
+            fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
+            Най-важното явление в училище, най-поучителния предмет, най-живият пример за ученика е самият учител.
+          </Text>
           <Button
+            as={ReactRouterLink}
+            to={'/lessons'}
             size={{ base: 'sm', md: 'md', '2xl': 'md' }}
             w={{ base: 'full', lg: '12vw' }}
             fontSize={'xl'}

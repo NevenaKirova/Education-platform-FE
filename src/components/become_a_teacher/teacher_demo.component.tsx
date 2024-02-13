@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Stack, Flex, Box, Heading, Text, Button, Center } from '@chakra-ui/react';
+import { Stack, Flex, Box, Heading, Text, Button, Center, useBreakpointValue } from '@chakra-ui/react';
 import { background1 } from '../../images';
 
 import styles from '../testimonials/testimonial_demo.module.scss';
@@ -39,7 +39,7 @@ export default function TeacherDemoSection() {
         spacing={{ base: 20, md: 32, lg: 28 }}
         py={{ base: 10, md: 28 }}
         direction={{ base: 'column', lg: 'row' }}>
-        <Stack flex={1} spacing={{ base: 8, md: 16 }} maxW={{ base: '70vw', md: '60vw', lg: '35vw', xl: '25vw' }}>
+        <Stack flex={1} spacing={{ base: 8, md: 10 }} maxW={{ base: '70vw', md: '60vw', lg: '35vw', xl: '25vw' }}>
           <Heading
             flex={1}
             as="h1"
@@ -51,6 +51,16 @@ export default function TeacherDemoSection() {
               нашите учители
             </Text>
           </Heading>
+
+          <Text
+            color={'grey.600'}
+            fontWeight={400}
+            lineHeight={1.35}
+            textAlign={{ base: 'center', lg: 'left' }}
+            fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
+            Гордеем се с набора от преподаватели, които обучават на платформата и градят своята кариера при нас!
+          </Text>
+
           <Button
             size={{ base: 'sm', md: 'md', '2xl': 'md' }}
             w={{ base: 'full', lg: '12vw' }}

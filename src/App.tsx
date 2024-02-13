@@ -25,6 +25,7 @@ import DashboardPage from './pages/dashboard/dashboard';
 import StudentFavoritesPage from './pages/student/favorites';
 import MessagesPage from './pages/messages';
 import StudentProfilePage from './pages/student/my_profile';
+import HelpCenterAll from './pages/help-center/help_center_all';
 
 import './App.css';
 
@@ -82,6 +83,7 @@ const App = () => {
           <Route path="/favourites" element={<StudentFavoritesPage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/my-profile" element={<StudentProfilePage />} />
+          <Route path="/help-center" element={<HelpCenterAll />} />
           <Route path="/404" element={<PageNotFound />} />
           <Route path="*" element={<Navigate to="/404" />} />
         </Routes>

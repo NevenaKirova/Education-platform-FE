@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Stack, Flex, Button, Text, VStack, useBreakpointValue } from '@chakra-ui/react';
 import { headerImage, headerImageMobile, headerImageDesktop } from '../../images';
+import AuthContext from '../../context/AuthContext';
 
 export const Header = ({
   onLoginOpen,
@@ -11,6 +12,8 @@ export const Header = ({
   setModalTabIndex: any;
   elRef: any;
 }) => {
+  const { userData } = useContext(AuthContext);
+  const [showRegButton, setShowRegButton] = useState(true);
   const handleModalOpen = (tabIndex: number) => {
     setModalTabIndex(tabIndex);
     onLoginOpen();
@@ -20,6 +23,13 @@ export const Header = ({
     elRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    if (userData) {
+      setShowRegButton(false);
+    } else {
+      setShowRegButton(true);
+    }
+  }, [userData]);
   return (
     <Flex
       w={'100vw'}
@@ -64,7 +74,7 @@ export const Header = ({
               textAlign={{ base: 'center', lg: 'left' }}
               fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
               Голямо разнообразие от онлайн частни уроци и курсове за ученици и студенти. Избери най – подходящия за
-              теб.
+              теб!
             </Text>
           </Stack>
 
@@ -87,18 +97,20 @@ export const Header = ({
               Научи повече
             </Button>
 
-            <Button
-              w={{ base: 'full', sm: 'fit-content', lg: 'inherit', xl: 'full' }}
-              size={{ base: 'xs', sm: 'md', lg: 'md', xl: 'lg' }}
-              p={{ base: '15px', sm: '20px', lg: 0 }}
-              fontSize={{ base: '4px', md: 'xl' }}
-              fontWeight={700}
-              bg={'white'}
-              color={'purple.500'}
-              onClick={() => handleModalOpen(1)}
-              _hover={{ opacity: '0.9' }}>
-              Регистрирай се
-            </Button>
+            {showRegButton && (
+              <Button
+                w={{ base: 'full', sm: 'fit-content', lg: 'inherit', xl: 'full' }}
+                size={{ base: 'xs', sm: 'md', lg: 'md', xl: 'lg' }}
+                p={{ base: '15px', sm: '20px', lg: 0 }}
+                fontSize={{ base: '4px', md: 'xl' }}
+                fontWeight={700}
+                bg={'white'}
+                color={'purple.500'}
+                onClick={() => handleModalOpen(1)}
+                _hover={{ opacity: '0.9' }}>
+                Регистрирай се
+              </Button>
+            )}
           </Stack>
         </Stack>
       </VStack>

@@ -33,12 +33,14 @@ import {
   IconButton,
   Link,
   useToast,
+  useDisclosure,
 } from '@chakra-ui/react';
 
 import { logo, studentAvatar, teacherAvatar } from '../../images';
 import { eye } from '../../icons';
 
 import AuthContext from '../../context/AuthContext';
+import AfterRegModal from '../courses/modals/after_reg';
 
 const REGISTER_URL = '/auth/register';
 
@@ -75,6 +77,7 @@ const LoginModal = ({
 }) => {
   const location = useLocation();
   const { loginUser } = useContext(AuthContext);
+  const { isOpen:isOpenMessage, onOpen:onOpenMessage, onClose:onCloseMessage } = useDisclosure();
 
   const [showLoginPass, setShowLoginPass] = useState(false);
   const [showRegPass, setShowRegPass] = useState(false);
@@ -99,8 +102,8 @@ const LoginModal = ({
 
   const onSubmit: SubmitHandler<InputsLogin> = async data => {
     await loginUser(data);
+
     reset();
-    window.location.href = '/';
   };
   const onSubmitReg: SubmitHandler<InputsRegister> = async data => {
     setIsFormLoading(true);
@@ -116,7 +119,8 @@ const LoginModal = ({
         position: 'top-right',
       });
 
-      setTabIndex(0);
+      onOpenMessage();
+
       resetReg();
 
       return response;
@@ -148,6 +152,7 @@ const LoginModal = ({
   useEffect(() => {
     onClose();
   }, [location]);
+
   return (
     <>
       <Modal
@@ -368,7 +373,7 @@ const LoginModal = ({
                             fontWeight={500}
                             textAlign={'center'}
                             color={'grey.400'}>
-                            Създай своя ученически профил, за да достъпиш стотици курсове
+                            Създай своя ученически профил, за да достъпиш стотици курсове и уроци
                           </Text>
 
                           <FormControl isInvalid={!!errorsReg.username}>
@@ -472,6 +477,7 @@ const LoginModal = ({
         </ModalContent>
       </Modal>
 
+      <AfterRegModal isOpen={isOpenMessage} onClose={onCloseMessage} />
       <PageLoader isLoading={isFormLoading} />
     </>
   );

@@ -1,76 +1,74 @@
 import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../../context/AuthContext';
-import { Navigate, NavLink as ReactRouterLink } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import {
   Box,
   Button,
   Heading,
-  Avatar,
-  Img,
   Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Text,
-  ButtonGroup,
-  IconButton,
-  Center,
-  Grid,
-  useToast,
-  Show,
   WrapItem,
   Wrap,
   Image,
   FormControl,
   FormLabel,
-  InputGroup,
   Input,
-  InputRightElement,
   FormErrorMessage,
   RadioGroup,
   Radio,
   Switch,
+  useToast,
 } from '@chakra-ui/react';
 
 import PageLoader from '../../utils/loader.component';
-import { useAppDispatch } from '../../store';
-import { useSelector } from 'react-redux';
-import { getStudentLiked } from '../../store/selectors';
-import {
-  getLikedCourses,
-  getLikedTeachers,
-} from '../../store/features/student/studentFavourites/studentFavourites.async';
-import { addPerson, heartFull } from '../../icons';
 
-import { Rating } from '../../components/testimonials/testimonial_card.component';
-import {
-  Pagination,
-  PaginationContainer,
-  PaginationNext,
-  PaginationPage,
-  PaginationPageGroup,
-  PaginationPrevious,
-  PaginationSeparator,
-  usePagination,
-} from '@ajna/pagination';
-import CourseCard from '../../components/courses/course_card/course_card.compoment';
 import { axiosInstance } from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
-import { Dropdown } from 'primereact/dropdown';
 import { account, avatar3, avatar4, avatar5, avatar6, studentAvatar, teacherAvatar } from '../../images';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 const StudentProfilePage = () => {
-  const dispatch = useAppDispatch();
   const toast = useToast();
   const { user, userData } = useContext(AuthContext);
 
   const [selectedAvatar, setSelectedAvatar] = useState(5);
   const [gender, setGender] = useState('');
+  const [profile, setProfile] = useState('');
+  const [client, setClient] = useState(false);
+  const [marketing, setMarketing] = useState(false);
+  const [reminders, setReminders] = useState(false);
+  const [chat, setChat] = useState(false);
+  const [courses, setCourses] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const avatars = [teacherAvatar, studentAvatar, avatar3, avatar4, avatar5, avatar6];
+
+  const getStudentProfile = async () => {
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.get(`users/getStudentProfile`);
+      setProfile(res.data);
+      setClient(res.data?.clientService);
+      setMarketing(res.data?.marketingService);
+      setReminders(res.data?.reminders);
+      setChat(res.data?.chatNotifications);
+      setCourses(res.data?.savedCoursesNotifications);
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
+  useEffect(() => {
+    getStudentProfile();
+  }, []);
 
   const {
     register,
@@ -79,14 +77,26 @@ const StudentProfilePage = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
+      id: null,
       name: '',
       surname: '',
       gender: '',
+      clientService: false,
+      marketingService: false,
+      reminders: false,
+      chatNotifications: false,
+      savedCoursesNotifications: false,
     },
     values: {
-      name: 'Невена',
-      surname: 'Кирова',
-      gender: 'жена',
+      id: profile?.id,
+      name: profile?.name,
+      surname: profile?.surname,
+      gender: profile?.gender,
+      clientService: profile?.clientService,
+      marketingService: profile?.marketingService,
+      reminders: profile?.reminders,
+      chatNotifications: profile?.chatNotifications,
+      savedCoursesNotifications: profile?.savedCoursesNotifications,
     },
   });
 
@@ -98,18 +108,39 @@ const StudentProfilePage = () => {
 
   const onSubmit: SubmitHandler<any> = async data => {
     console.log(data);
+
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.post(`users/editStudentProfile`, data);
+
+      // setClient(res.data?.clientService);
+      // setMarketing(res.data?.marketingService);
+      // setReminders(res.data?.reminders);
+      // setChat(res.data?.chatNotifications);
+      // setCourses(res.data?.savedCoursesNotifications);
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
   };
 
   const onSubmitEmail: SubmitHandler<any> = async data => {
     console.log(data);
   };
 
-  console.log(userData);
-
   if (!user) return <Navigate to={'/'} replace />;
   if (userData && userData?.role !== 'STUDENT') return <Navigate to={'/'} replace />;
 
-  return (
+  return isLoading ? (
+    <PageLoader isLoading={isLoading} />
+  ) : (
     <Stack
       spacing={{ base: 10, lg: 12 }}
       py={{ base: 0, lg: 10 }}
@@ -257,51 +288,102 @@ const StudentProfilePage = () => {
             </Text>
 
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
-              <Switch id="client" />
+              <Switch
+                id="client"
+                isChecked={client}
+                onChange={e => {
+                  setValue('clientService', e.target.checked);
+                  setClient(e.target.checked);
+                }}
+              />
               <FormLabel htmlFor="client">
                 <Stack spacing={0}>
-                  <Text fontWeight={700} color={'grey.600'}>Обслужване на клиенти</Text>
-                  <Text color={'grey.400'}>Искам да получавам информативни имейли във връзка с обслужването на клиенти</Text>
+                  <Text fontWeight={700} color={'grey.600'}>
+                    Обслужване на клиенти
+                  </Text>
+                  <Text color={'grey.400'}>
+                    Искам да получавам информативни имейли във връзка с обслужването на клиенти
+                  </Text>
                 </Stack>
               </FormLabel>
             </FormControl>
 
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
-              <Switch id="marketing" />
+              <Switch
+                id="marketing"
+                isChecked={marketing}
+                onChange={e => {
+                  setValue('marketingService', e.target.checked);
+                  setMarketing(e.target.checked);
+                }}
+              />
               <FormLabel htmlFor="marketing">
                 <Stack spacing={0}>
-                  <Text fontWeight={700} color={'grey.600'}>Маркетинг</Text>
-                  <Text color={'grey.400'}>Искам да получавам маркетингови имейли, свързани с предстоящи уроци и обучения</Text>
+                  <Text fontWeight={700} color={'grey.600'}>
+                    Маркетинг
+                  </Text>
+                  <Text color={'grey.400'}>
+                    Искам да получавам маркетингови имейли, свързани с предстоящи уроци и обучения
+                  </Text>
                 </Stack>
               </FormLabel>
             </FormControl>
 
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
-              <Switch id="reminders" />
+              <Switch
+                id="reminders"
+                isChecked={reminders}
+                onChange={e => {
+                  setValue('reminders', e.target.checked);
+                  setReminders(e.target.checked);
+                }}
+              />
               <FormLabel htmlFor="reminders">
                 <Stack spacing={0}>
-                  <Text fontWeight={700} color={'grey.600'}>Напомянния</Text>
+                  <Text fontWeight={700} color={'grey.600'}>
+                    Напомянния
+                  </Text>
                   <Text color={'grey.400'}>Искам да получавам имейли преди започването на урози, записани от мен</Text>
                 </Stack>
               </FormLabel>
             </FormControl>
 
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
-              <Switch id="chat" />
+              <Switch
+                id="chat"
+                isChecked={chat}
+                onChange={e => {
+                  setValue('chatNotifications', e.target.checked);
+                  setChat(e.target.checked);
+                }}
+              />
               <FormLabel htmlFor="chat">
                 <Stack spacing={0}>
-                  <Text fontWeight={700} color={'grey.600'}>Чат известия</Text>
+                  <Text fontWeight={700} color={'grey.600'}>
+                    Чат известия
+                  </Text>
                   <Text color={'grey.400'}>Искам да получавам имейли, свързани с нови съобщения </Text>
                 </Stack>
               </FormLabel>
             </FormControl>
 
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
-              <Switch id="courses" />
+              <Switch
+                id="courses"
+                isChecked={courses}
+                onChange={e => {
+                  setValue('savedCoursesNotifications', e.target.checked);
+                  setCourses(e.target.checked);
+                }}
+              />
               <FormLabel htmlFor="courses">
                 <Stack spacing={0}>
-                  <Text fontWeight={700} color={'grey.600'}>Известия за запазени курсове</Text>
-                  <Text color={'grey.400'}>Искам да получавам имейли, свързани с промени в курсове или уроци, които съм записал/а</Text>
+                  <Text fontWeight={700} color={'grey.600'}>
+                    Известия за запазени курсове
+                  </Text>
+                  <Text color={'grey.400'}>
+                    Искам да получавам имейли, свързани с промени в курсове или уроци, които съм записал/а
+                  </Text>
                 </Stack>
               </FormLabel>
             </FormControl>

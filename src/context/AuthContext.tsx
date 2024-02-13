@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => (getItem('authTokens') ? jwtDecode(getItem('authTokens') || '') : null));
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
-  const [isUserLogged, setIsUserLogged] = useState();
 
   const navigate = useNavigate();
 
@@ -42,7 +41,6 @@ export const AuthProvider = ({ children }) => {
       await localStorage.setItem('authTokens', JSON.stringify(response.data));
       await setAuthTokens({ ...response.data });
       navigate(0);
-      setIsUserLogged(true);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -59,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     setUser({});
     setUserData(null);
     localStorage.removeItem('authTokens');
-    setIsUserLogged(false);
+    navigate('/');
   };
 
   const contextData = {
@@ -82,8 +80,14 @@ export const AuthProvider = ({ children }) => {
   }, [authTokens, loading]);
 
   useEffect(() => {
-    isUserLogged !== undefined && navigate('/');
-  }, [isUserLogged]);
+    if (userData) {
+      if (userData?.role === 'TEACHER') {
+        navigate('/dashboard');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [userData]);
 
   return (
     <AuthContext.Provider value={contextData}>

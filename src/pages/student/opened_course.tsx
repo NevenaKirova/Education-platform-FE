@@ -115,7 +115,7 @@ const StudentOpenedCoursePage = () => {
       <Breadcrumb fontSize={{ base: 14, lg: 18 }} cursor={'default'}>
         <BreadcrumbItem _hover={{ textDecoration: 'none', cursor: 'default' }} cursor={'default'}>
           <BreadcrumbLink as={ReactRouterLink} to={`/my-dashboard`} textDecoration={'none'} cursor={'default'}>
-            Моето табло
+            Моите уроци
           </BreadcrumbLink>
         </BreadcrumbItem>
 

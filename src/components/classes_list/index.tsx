@@ -543,10 +543,11 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
             w={'full'}
             templateColumns={{
               base: 'repeat(auto-fill, minmax(260px, 1fr))',
-              lg: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
               '2xl': 'repeat(4, 1fr)',
             }}
             gap={12}>
+            {classes?.map((el, index) => <CourseCard key={index} course={el} />)}
             {classes?.map((el, index) => <CourseCard key={index} course={el} />)}
           </Grid>
 

@@ -12,7 +12,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { addPerson, calendar, clock, group } from '../../icons';
+import { addPerson, calendar, clock, group, hat } from '../../icons';
 import { capitalizeMonth } from '../../helpers/capitalizeMonth.util';
 import { format, getDay } from 'date-fns';
 import { bg } from 'date-fns/locale';
@@ -23,14 +23,15 @@ const CalendarDayViewModal = ({
   onClose,
   date,
   events,
+  role,
 }: {
   isOpen: boolean;
   onClose: any;
   date: any;
   events: any;
+  role: string;
 }) => {
-  useEffect(() => console.log(date), [date]);
-
+  console.log(role);
   return (
     <Modal size={{ base: 'xl', lg: '4xl' }} closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -78,7 +79,7 @@ const CalendarDayViewModal = ({
               events?.map((el, index) => (
                 <Stack key={index} rounded={'lg'} p={4} bg={'white'} spacing={4}>
                   <Heading flex={1} fontSize={{ base: 16, md: 18, lg: 20 }} textAlign="start" color={'purple.500'}>
-                    {el?.title}
+                    {el?.themaTitle}
                   </Heading>
                   <Stack spacing={2}>
                     <Stack direction={'row'} spacing={2} align={'center'}>
@@ -98,16 +99,25 @@ const CalendarDayViewModal = ({
                     <Stack direction={'row'} spacing={2} align={'center'}>
                       <Img src={group} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
                       <Text color={'grey.400'} fontSize={{ base: 14, lg: 16 }}>
-                        Частен урок
+                        {el?.type}
                       </Text>
                     </Stack>
+
                     <Stack direction={'row'} spacing={2} align={'center'}>
-                      <Img src={addPerson} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
+                      <Img src={hat} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
                       <Text color={'grey.400'} fontSize={{ base: 14, lg: 16 }}>
-                        {' '}
-                        Записани ученици (8)
+                        {el?.title}
                       </Text>
                     </Stack>
+
+                    {role == 'TEACHER' && (
+                      <Stack direction={'row'} spacing={2} align={'center'}>
+                        <Img src={addPerson} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
+                        <Text color={'grey.400'} fontSize={{ base: 14, lg: 16 }}>
+                          Записани ученици ({el?.enrolledStudents})
+                        </Text>
+                      </Stack>
+                    )}
                   </Stack>
                 </Stack>
               ))

@@ -189,7 +189,7 @@ export default function MyDashboardPage() {
           w={'full'}>
           <Stack flex={1} spacing={{ base: 5, md: 10 }}>
             <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 34 }} color={'grey.600'}>
-              Моето табло
+              Моите уроци
             </Heading>
 
             <Stack flex={1} spacing={{ base: 5, md: 10 }} w={'full'}>
