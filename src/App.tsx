@@ -82,6 +82,7 @@ const App = () => {
           <Route path="/course/:courseId" element={<StudentOpenedCoursePage />} />
           <Route path="/favourites" element={<StudentFavoritesPage />} />
           <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/messages/:userId" element={<MessagesPage />} />
           <Route path="/my-profile" element={<StudentProfilePage />} />
           <Route path="/help-center" element={<HelpCenterAll />} />
           <Route path="/404" element={<PageNotFound />} />

@@ -21,6 +21,7 @@ import {
   Center,
   Avatar,
   useToast,
+  Box,
 } from '@chakra-ui/react';
 
 import CourseDateCard from '../course_card/course_dates_card_teacher.component';
@@ -49,8 +50,9 @@ import {
 import { Dropdown } from 'primereact/dropdown';
 import PageLoader from '../../../utils/loader.component';
 import { useAppDispatch } from '../../../store';
-import { getCoursesAll } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
+import { getCoursesAll, getCoursesDraft } from '../../../store/features/teacher/teacherCourses/teacherCourses.async';
 import CreateLessonComponent from './create_lesson.component';
+import { getLessonsAll, getLessonsDraft } from '../../../store/features/teacher/teacherLessons/teacherLessons.async';
 
 const sortValues = [
   { name: 'Най-нови', value: 'Newest' },
@@ -197,13 +199,20 @@ const OpenedCourseComponent = ({
 
   const handleDeleteCourse = async () => {
     try {
-      await axiosInstance.get(`lessons/deleteCourse/${course.lessonID}`);
+      await axiosInstance.post(`lessons/deleteCourse/${course.lessonID}`);
       setShowCreateCourse(false);
       setShowCreateLesson(false);
       setAddDateActive(false);
       setIsCourseOpened(false);
       setOpenedTheme(null);
-      dispatch(getCoursesAll());
+
+      if (isPrivateLesson) {
+        dispatch(getLessonsAll());
+        dispatch(getLessonsDraft());
+      } else {
+        dispatch(getCoursesAll());
+        dispatch(getCoursesDraft());
+      }
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -311,7 +320,10 @@ const OpenedCourseComponent = ({
 
           {showSubmissions && (
             <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
-              <BreadcrumbLink textDecoration={'none'}>Задача за домашна работа</BreadcrumbLink>
+              <BreadcrumbLink textDecoration={'none'}>
+                {' '}
+                {isEditHomework ? 'Задача за домашна работа' : 'Добавяне на задание'}а
+              </BreadcrumbLink>
             </BreadcrumbItem>
           )}
 
@@ -645,24 +657,28 @@ const OpenedCourseComponent = ({
                         </Stack>
                         <Stack direction={'column'} spacing={4}>
                           <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                            Описание на курса
+                            Описание на {isPrivateLesson ? 'урока' : 'курса'}
                           </Text>
                           <Text color={'grey.500'} fontSize={18}>
                             {courseInfo?.description}
                           </Text>
                         </Stack>
-                        <Stack direction={'column'} spacing={4}>
-                          <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                            Теми в курса
-                          </Text>
-                          <Stack spacing={4}>
-                            {courseInfo?.themas?.map((el, index) => (
-                              <Text key={index} color={'grey.500'} fontSize={18}>
-                                {el?.title}
-                              </Text>
-                            ))}
+
+                        {!isPrivateLesson && (
+                          <Stack direction={'column'} spacing={4}>
+                            <Text color={'purple.500'} fontWeight={700} fontSize={18}>
+                              Теми в курса
+                            </Text>
+                            <Stack spacing={4}>
+                              {courseInfo?.themas?.map((el, index) => (
+                                <Text key={index} color={'grey.500'} fontSize={18}>
+                                  {el?.title}
+                                </Text>
+                              ))}
+                            </Stack>
                           </Stack>
-                        </Stack>
+                        )}
+
                         <Stack direction={'column'} spacing={4}>
                           <Text color={'purple.500'} fontWeight={700} fontSize={18}>
                             Дължина на урока
@@ -693,7 +709,7 @@ const OpenedCourseComponent = ({
 
                         <Stack direction={'column'} spacing={4}>
                           <Text color={'purple.500'} fontWeight={700} fontSize={18}>
-                            Цена на курса
+                            Цена на {isPrivateLesson ? 'урока' : 'курса'}
                           </Text>
                           <Text color={'grey.500'} fontSize={18}>
                             {courseInfo?.price} лв.
@@ -727,14 +743,31 @@ const OpenedCourseComponent = ({
                             ))}
 
                             {courseInfo?.privateLessonTermins?.map((el, index) => (
-                              <Stack key={index} spacing={4} direction={'row'}>
+                              <Stack key={index} spacing={4}>
                                 <Text color={'grey.500'} fontSize={18}>
-                                  {capitalizeMonth(format(new Date(el?.date), 'dd LLL yyyy', { locale: bg }))}
+                                  {capitalizeMonth(format(new Date(el?.date), 'dd LLLL yyyy', { locale: bg }))}
                                 </Text>
 
-                                <Text color={'grey.500'} fontSize={18}>
-                                  {el?.time}
-                                </Text>
+                                <Stack direction={'row'} flexWrap={'wrap'} spacing={4}>
+                                  {el?.lessonHours.map((el, index) => (
+                                    <Box
+                                      key={index}
+                                      px={'10px'}
+                                      py={2}
+                                      rounded={'md'}
+                                      border={'1px solid'}
+                                      bg={'purple.100'}
+                                      _hover={{ bg: 'purple.100' }}
+                                      borderColor={el?.booked ? 'purple.500' : 'grey.300'}>
+                                      <Text
+                                        fontSize={16}
+                                        fontWeight={500}
+                                        color={el?.booked ? 'purple.500' : 'grey.500'}>
+                                        {el?.fullTime}
+                                      </Text>
+                                    </Box>
+                                  ))}
+                                </Stack>
                               </Stack>
                             ))}
                           </Stack>

@@ -321,7 +321,7 @@ const CreateCourseComponent = ({
       setSelectedGrade(courseInfo?.grade);
       setSelectedSubject({ name: courseInfo?.subject, code: courseInfo?.subject });
       setCourseLength(courseInfo?.length?.toString());
-      setDates(courseInfo?.courseTerminResponses);
+      setDates(courseInfo?.courseTerminRequests);
     }
   }, [courseInfo, availableGrades, availableSubjects]);
 
@@ -485,8 +485,8 @@ const CreateCourseComponent = ({
                 </FormControl>
 
                 <Text fontSize={16} fontWeight={400} color={'grey.400'}>
-                  Моля добавете кратко описание. Използвайте ясни изрази и ключови думи, за да могат учениците по-лесно
-                  да разбират Вашия курс
+                  Моля добавете кратко описание. Учениците ще придобият представа за курса Ви от него. Използвайте ясни
+                  изрази и ключови думи, за да могат учениците по-лесно да разбират Вашия курс
                 </Text>
               </Stack>
 

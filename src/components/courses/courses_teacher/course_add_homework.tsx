@@ -34,6 +34,7 @@ const defultHomeworkValues = {
   date: '',
   time: '',
   files: [],
+  altTime: '',
 };
 
 const CourseAddHomework = ({
@@ -41,11 +42,13 @@ const CourseAddHomework = ({
   openedTheme,
   isEditHomework,
   setIsEditHomework,
+  getOpenedCourse,
 }: {
   setOpenedTheme?: any;
   openedTheme?: any;
   isEditHomework?: any;
   setIsEditHomework?: any;
+  getOpenedCourse?: any;
 }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -53,6 +56,7 @@ const CourseAddHomework = ({
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [homeworkData, setHomeworkData] = useState(defultHomeworkValues);
+  const [fileToShow, setFileToShow] = useState(null);
 
   addLocale('bg', {
     firstDayOfWeek: 1,
@@ -131,15 +135,20 @@ const CourseAddHomework = ({
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
-      const res = await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, data);
-
-      console.log(res.data);
-      if (res.data) {
+      if (!fileToShow && data?.files[0]?.file) {
         const formData = new FormData();
-        formData.append('files', data?.files[0]?.file);
+        formData.append('requestFiles', data?.files[0]?.file);
 
-        await axiosInstance.post(`/uploadAssignmentFiles/${res.data}`, formData);
+        const res = await axiosInstance.post(`/lessons/uploadAssignmentFiles`, formData);
+
+        data.fileNames = res.data;
+      } else {
+        data.fileNames = fileToShow;
       }
+
+      isEditHomework
+        ? await axiosInstance.post(`/lessons/editAssignment/${openedTheme?.assignmentId}`, data)
+        : await axiosInstance.post(`/lessons/addAssignment/${openedTheme?.id}`, data);
 
       toast({
         title: 'Успешно създаване на домашно',
@@ -149,13 +158,13 @@ const CourseAddHomework = ({
         position: 'top-right',
       });
 
+      getOpenedCourse();
       setIsEditHomework(false);
       setDate('');
       setTime('');
       setOpenedTheme(null);
       reset();
     } catch (err) {
-      console.log(err);
       toast({
         title: getResponseMessage(err),
         status: 'error',
@@ -170,6 +179,10 @@ const CourseAddHomework = ({
     try {
       const res = await axiosInstance.get(`/lessons/getAssignment/${openedTheme?.assignmentId}`);
       setHomeworkData(res.data);
+      setFileToShow(res.data?.fileNames);
+      const date = new Date(res.data?.date);
+      setDate(date);
+      setTime(res.data?.altTime);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -199,7 +212,7 @@ const CourseAddHomework = ({
       <form onSubmit={handleSubmit(onSubmit)} onKeyDown={e => checkKeyDown(e)}>
         <Stack spacing={10}>
           <Heading flex={1} textAlign={'left'} fontSize={{ base: 20, lg: 26, xl: 28 }} color={'grey.600'}>
-            Добавяне на задание
+            {isEditHomework ? 'Редактиране на задание' : 'Добавяне на задание'}
           </Heading>
 
           <FormControl isInvalid={!!errors.title}>
@@ -252,12 +265,12 @@ const CourseAddHomework = ({
             </Text>
           </Stack>
 
-          <Stack spacing={8} maxW={'50%'}>
+          <Stack spacing={8} maxW={{ base: '70%', xl: '50%' }}>
             <Heading flex={1} textAlign={'left'} fontSize={{ base: 16, lg: 18 }} color={'grey.600'}>
               Краен срок
             </Heading>
 
-            <Stack direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, lg: 0 }}>
+            <Stack direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, xl: 0 }}>
               <FormControl isInvalid={!!errors.date}>
                 <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
                   Дата{' '}
@@ -296,6 +309,7 @@ const CourseAddHomework = ({
                     if (e.value) {
                       setTime(e.value);
                       setValue('time', format(e.value, 'HH:mm'));
+                      setValue('altTime', e.value);
                     }
                   }}
                   placeholder={'Изберете час'}
@@ -318,10 +332,30 @@ const CourseAddHomework = ({
               </Text>
             </Stack>
 
-            {acceptedFileItems}
+            {isEditHomework && fileToShow ? (
+              <Stack direction={'row'} spacing={2}>
+                <Stack direction={'row'} align={'center'} spacing={2}>
+                  <Img src={fileDownload} alt={'uploaded file'} w={5} h={5} />
+                  <Text fontWeight={600} color={'grey.600'}>
+                    {fileToShow}
+                  </Text>
+                </Stack>
+
+                <Box
+                  as={IconButton}
+                  aria-label={'delete theme'}
+                  size="xs"
+                  bg={'none'}
+                  _hover={{ bg: 'none' }}
+                  icon={<Img src={trash} w={5} onClick={() => setFileToShow(null)} />}
+                />
+              </Stack>
+            ) : (
+              acceptedFileItems
+            )}
 
             <Button
-              isDisabled={fields.length === 1}
+              isDisabled={fields.length === 1 || !!fileToShow}
               color={'purple.500'}
               bg={'transparent'}
               _hover={{ bg: 'transparent' }}
@@ -368,6 +402,7 @@ const CourseAddHomework = ({
               onClick={() => {
                 reset();
                 setOpenedTheme(null);
+                setIsEditHomework(false);
               }}>
               Отказ
             </Button>

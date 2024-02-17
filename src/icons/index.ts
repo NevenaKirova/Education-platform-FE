@@ -42,6 +42,7 @@ import close from './Close.svg';
 import closeRed from './close_red.svg';
 import report from './Report.svg';
 import addPerson from './Add_person.svg';
+import attach from './Attach.svg';
 
 export {
   YouTube,
@@ -87,5 +88,6 @@ export {
   close,
   closeRed,
   report,
-  addPerson
+  addPerson,
+  attach,
 };

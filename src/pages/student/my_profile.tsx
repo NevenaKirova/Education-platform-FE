@@ -111,13 +111,8 @@ const StudentProfilePage = () => {
 
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post(`users/editStudentProfile`, data);
+      await axiosInstance.post(`users/editStudentProfile`, data);
 
-      // setClient(res.data?.clientService);
-      // setMarketing(res.data?.marketingService);
-      // setReminders(res.data?.reminders);
-      // setChat(res.data?.chatNotifications);
-      // setCourses(res.data?.savedCoursesNotifications);
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
@@ -290,6 +285,7 @@ const StudentProfilePage = () => {
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
               <Switch
                 id="client"
+                colorScheme={'purple'}
                 isChecked={client}
                 onChange={e => {
                   setValue('clientService', e.target.checked);
@@ -311,6 +307,7 @@ const StudentProfilePage = () => {
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
               <Switch
                 id="marketing"
+                colorScheme={'purple'}
                 isChecked={marketing}
                 onChange={e => {
                   setValue('marketingService', e.target.checked);
@@ -332,6 +329,7 @@ const StudentProfilePage = () => {
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
               <Switch
                 id="reminders"
+                colorScheme={'purple'}
                 isChecked={reminders}
                 onChange={e => {
                   setValue('reminders', e.target.checked);
@@ -351,6 +349,7 @@ const StudentProfilePage = () => {
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
               <Switch
                 id="chat"
+                colorScheme={'purple'}
                 isChecked={chat}
                 onChange={e => {
                   setValue('chatNotifications', e.target.checked);
@@ -370,6 +369,7 @@ const StudentProfilePage = () => {
             <FormControl as={Stack} direction={'row'} align={'center'} spacing={4}>
               <Switch
                 id="courses"
+                colorScheme={'purple'}
                 isChecked={courses}
                 onChange={e => {
                   setValue('savedCoursesNotifications', e.target.checked);

@@ -54,7 +54,6 @@ type Inputs = {
   studentsUpperBound: number | null;
   price: number | string | null;
   description: string | null;
-  themas: [];
   length: string;
   privateLessonTermins: any[];
   isPrivateLesson: boolean;
@@ -68,13 +67,14 @@ const defaultCourseValues = {
   studentsUpperBound: 1,
   description: null,
   length: '60',
+  grade: '',
+  upperGrade: '',
   privateLessonTermins: [
     {
       date: '',
       lessonHours: [],
     },
   ],
-  themas: [{ title: '' }],
 };
 
 const CreateLessonComponent = ({
@@ -395,11 +395,14 @@ const CreateLessonComponent = ({
   useEffect(() => {
     if (courseInfo) {
       setCourse(courseInfo);
-      setLowerGrade(courseInfo?.lowerGrade);
+      setLowerGrade(courseInfo?.grade);
       setUpperGrade(courseInfo?.upperGrade);
       setSelectedSubject({ name: courseInfo?.subject, code: courseInfo?.subject });
       setCourseLength(courseInfo?.length?.toString());
-      setDates(courseInfo?.courseTerminResponses);
+      setDates(courseInfo?.privateLessonTermins);
+
+      const editIndexes = [courseInfo?.privateLessonTermins?.length - 1];
+      setEditableIndexes(editIndexes);
     }
   }, [courseInfo, availableGrades, availableSubjects]);
 
@@ -450,6 +453,7 @@ const CreateLessonComponent = ({
                     type="text"
                     placeholder="Български език за 8ми клас"
                     maxLength={100}
+                    isDisabled={isEdit && !courseInfo?.draft}
                     {...register('title', { required: 'Полето е задължително' })}
                   />
                   <InputRightElement width="4.5rem" color={'grey.500'}>
@@ -465,7 +469,7 @@ const CreateLessonComponent = ({
               </Text>
             </Stack>
 
-            <Stack spacing={4}>
+            <Stack spacing={4} className={isEdit && !courseInfo?.draft ? 'stack-disabled' : ''}>
               <Text fontSize={18} fontWeight={600}>
                 Предмет{' '}
                 <Text as={'span'} color={'red'}>
@@ -483,6 +487,7 @@ const CreateLessonComponent = ({
                   options={availableSubjects}
                   optionLabel="name"
                   placeholder="Изберете предмет"
+                  disabled={isEdit && !courseInfo?.draft}
                   className={errors.subject ? 'invalid-dropdown w-full' : 'p-invalid w-full'}
                   showClear
                 />
@@ -507,7 +512,7 @@ const CreateLessonComponent = ({
                   value={lowerGrade}
                   onChange={e => {
                     setLowerGrade(e.value);
-                    setValue('lowerGrade', e.value);
+                    setValue('grade', e.value);
                   }}
                   options={availableGrades}
                   optionLabel="grade"
@@ -560,33 +565,9 @@ const CreateLessonComponent = ({
               </FormControl>
 
               <Text fontSize={16} fontWeight={400} color={'grey.400'}>
-                Моля добавете кратко описание. Използвайте ясни изрази и ключови думи, за да могат учениците по-лесно да
-                разбират Вашия курс
+                Моля добавете кратко описание. Учениците ще придобият представа за курса Ви от него. Използвайте ясни
+                изрази и ключови думи, за да могат учениците по-лесно да разбират Вашия курс
               </Text>
-            </Stack>
-
-            <Stack spacing={4}>
-              <Text fontSize={18} fontWeight={600}>
-                Тема{' '}
-                <Text as={'span'} color={'red'}>
-                  *
-                </Text>
-              </Text>
-
-              <FormControl isInvalid={!!errors.themas}>
-                <Input
-                  pr="4.5rem"
-                  type="text"
-                  placeholder="Тема"
-                  maxLength={100}
-                  size={{ base: 'sm', lg: 'md' }}
-                  bg={'grey.100'}
-                  rounded={'md'}
-                  {...register('themas[0].title', { required: 'Полето е задължително' })}
-                />
-
-                <FormErrorMessage>{errors?.themas?.message}</FormErrorMessage>
-              </FormControl>
             </Stack>
 
             <Stack spacing={4}>
@@ -605,32 +586,41 @@ const CreateLessonComponent = ({
                   setCourseLength(e);
                 }}>
                 <Stack spacing={10} direction="row" align={'start'}>
-                  <Radio size="lg" colorScheme="purple" value={'15'} isDisabled={!!dates?.length}>
+                  <Radio size="lg" colorScheme="purple" value={'15'} isDisabled={!!dates?.length && !courseInfo?.draft}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       15 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'30'} isDisabled={!!dates?.length}>
+                  <Radio size="lg" colorScheme="purple" value={'30'} isDisabled={!!dates?.length && !courseInfo?.draft}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       30 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'45'} isDisabled={!!dates?.length}>
+                  <Radio size="lg" colorScheme="purple" value={'45'} isDisabled={!!dates?.length && !courseInfo?.draft}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       45 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'60'} defaultChecked isDisabled={!!dates?.length}>
+                  <Radio
+                    size="lg"
+                    colorScheme="purple"
+                    value={'60'}
+                    defaultChecked
+                    isDisabled={!!dates?.length && !courseInfo?.draft}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       60 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'90'} isDisabled={!!dates?.length}>
+                  <Radio size="lg" colorScheme="purple" value={'90'} isDisabled={!!dates?.length && !courseInfo?.draft}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       90 мин
                     </Text>
                   </Radio>
-                  <Radio size="lg" colorScheme="purple" value={'120'} isDisabled={!!dates?.length}>
+                  <Radio
+                    size="lg"
+                    colorScheme="purple"
+                    value={'120'}
+                    isDisabled={!!dates?.length && !courseInfo?.draft}>
                     <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                       120 мин
                     </Text>
@@ -731,8 +721,8 @@ const CreateLessonComponent = ({
 
             <Button
               isDisabled={
-                getValues('privateLessonTermins')?.filter(el => el.date).length !==
-                getValues('privateLessonTermins').length
+                getValues('privateLessonTermins')?.filter(el => el.date)?.length !==
+                getValues('privateLessonTermins')?.length
               }
               size={{ base: 'md', lg: 'md' }}
               color={'purple.500'}
@@ -764,21 +754,46 @@ const CreateLessonComponent = ({
             </Button>
 
             {isEdit ? (
-              <Button
-                type={'submit'}
-                size={{ base: 'md' }}
-                w={'fit-content'}
-                px={16}
-                py={0}
-                bg={'purple.500'}
-                color={'white'}
-                fontSize={16}
-                fontWeight={700}
-                _hover={{ opacity: '0.95' }}
-                _focus={{ outline: 'none' }}
-                _active={{ bg: 'purple.500' }}>
-                Запази промените
-              </Button>
+              <Stack
+                direction={{ base: 'column', md: 'row' }}
+                justify={{ base: 'center', md: 'space-between' }}
+                mt={12}>
+                <Button
+                  type={'submit'}
+                  size={{ base: 'md' }}
+                  w={'fit-content'}
+                  px={16}
+                  py={0}
+                  bg={'purple.500'}
+                  color={'white'}
+                  fontSize={16}
+                  fontWeight={700}
+                  _hover={{ opacity: '0.95' }}
+                  _focus={{ outline: 'none' }}
+                  _active={{ bg: 'purple.500' }}>
+                  Запази промените
+                </Button>
+
+                <Button
+                  size={{ base: 'md' }}
+                  w={'fit-content'}
+                  py={0}
+                  bg={'transparent'}
+                  color={'purple.500'}
+                  fontSize={16}
+                  fontWeight={700}
+                  _hover={{ opacity: '0.9' }}
+                  _focus={{ outline: 'none' }}
+                  _active={{ bg: 'purple.500' }}
+                  textAlign={'right'}
+                  onClick={() => {
+                    refreshForm();
+                    setEditInfo(false);
+                    setShowCreateCourse(false);
+                  }}>
+                  Отказ
+                </Button>
+              </Stack>
             ) : (
               <Stack
                 direction={{ base: 'column', md: 'row' }}

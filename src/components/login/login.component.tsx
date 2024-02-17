@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { NavLink as ReactRouterLink, useLocation } from 'react-router-dom';
+import { NavLink as ReactRouterLink, useLocation, useNavigate } from 'react-router-dom';
 
 import axios from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
@@ -76,12 +76,14 @@ const LoginModal = ({
   setLoginAs: any;
 }) => {
   const location = useLocation();
-  const { loginUser } = useContext(AuthContext);
-  const { isOpen:isOpenMessage, onOpen:onOpenMessage, onClose:onCloseMessage } = useDisclosure();
+  const { loginUser, userData, isUserLoggedIn } = useContext(AuthContext);
+  const { isOpen: isOpenMessage, onOpen: onOpenMessage, onClose: onCloseMessage } = useDisclosure();
+  const navigate = useNavigate();
 
   const [showLoginPass, setShowLoginPass] = useState(false);
   const [showRegPass, setShowRegPass] = useState(false);
   const [isFormLoading, setIsFormLoading] = useState(false);
+  const [role, setRole] = useState(null);
 
   const toast = useToast();
 
@@ -105,6 +107,7 @@ const LoginModal = ({
 
     reset();
   };
+
   const onSubmitReg: SubmitHandler<InputsRegister> = async data => {
     setIsFormLoading(true);
     try {
@@ -152,6 +155,12 @@ const LoginModal = ({
   useEffect(() => {
     onClose();
   }, [location]);
+
+  useEffect(() => {
+    if (userData) {
+      setRole(userData.role);
+    }
+  }, [userData, isUserLoggedIn]);
 
   return (
     <>

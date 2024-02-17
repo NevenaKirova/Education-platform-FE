@@ -123,12 +123,12 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const { isOpen, onToggle, onClose } = useDisclosure();
   const [navItems, setNavItems] = useState(NAV_ITEMS_DEFAULT);
 
-  const [isHomePage, setIsHomePage] = useState(false);
+  const [whiteMenu, setWhiteMenu] = useState(false);
   const location = useLocation();
   const matchFavourites = useMatch('/favourites');
 
   useEffect(() => {
-    location.pathname === '/' ? setIsHomePage(true) : setIsHomePage(false);
+    location.pathname === '/' || location.pathname === '/help-center' ? setWhiteMenu(true) : setWhiteMenu(false);
   }, [location.pathname]);
 
   const handleModalOpen = (tabIndex: number) => {
@@ -170,7 +170,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                 <HamburgerIcon
                   w={{ base: '8vw', md: 8 }}
                   h={{ base: 6, md: 8 }}
-                  color={isHomePage ? 'white' : 'purple.500'}
+                  color={whiteMenu ? 'white' : 'purple.500'}
                 />
               )
             }
@@ -182,7 +182,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
           <Box as={ReactRouterLink} to={'/'} zIndex={20}>
             <Img
               h={{ base: '8vw', sm: '34px', lg: '34px', xl: '38px' }}
-              src={isOpen || !isHomePage ? logo : logoWhite}
+              src={isOpen || !whiteMenu ? logo : logoWhite}
               alt={'Logo'}
               fill={'white'}
             />
@@ -194,7 +194,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
           display={{ base: 'none', lg: 'flex' }}
           justify={{ base: 'end', lg: 'center' }}
           ml={10}>
-          <DesktopNav isHomePage={isHomePage} navItems={navItems} />
+          <DesktopNav isHomePage={whiteMenu} navItems={navItems} />
         </Flex>
 
         {userData ? (
@@ -207,7 +207,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                   bg="transparent"
                   aria-label="favourites"
                   _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
-                  icon={<Img src={isHomePage ? heartWhite : matchFavourites ? heartFull : heart} h={5} w={'full'} />}
+                  icon={<Img src={whiteMenu ? heartWhite : matchFavourites ? heartFull : heart} h={5} w={'full'} />}
                 />
               )}
 
@@ -217,13 +217,13 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                 bg="transparent"
                 aria-label="messages"
                 _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
-                icon={<Img src={isHomePage ? messageWhite : message} h={5} w={'full'} />}
+                icon={<Img src={whiteMenu ? messageWhite : message} h={5} w={'full'} />}
               />
               <IconButton
                 bg="transparent"
                 aria-label="notifications"
                 _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
-                icon={<Img src={isHomePage ? bellWhite : bell} h={5} w={'full'} />}
+                icon={<Img src={whiteMenu ? bellWhite : bell} h={5} w={'full'} />}
               />
             </Show>
 
@@ -244,7 +244,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                   <IconButton
                     bg="transparent"
                     aria-label="favourites"
-                    icon={<Img src={isHomePage ? bottomWhite : bottom} h={{ base: 3, md: 5 }} w={'full'} />}
+                    icon={<Img src={whiteMenu ? bottomWhite : bottom} h={{ base: 3, md: 5 }} w={'full'} />}
                   />
                 </ButtonGroup>
               </PopoverTrigger>
@@ -370,8 +370,8 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
               fontSize={{ base: '5vw', sm: 24, lg: '1.6vw', xl: 20, '2xl': 24 }}
               fontWeight={700}
               variant={'link'}
-              color={isHomePage ? 'white' : 'purple.500'}
-              _hover={{ color: isHomePage ? 'white' : 'purple.500' }}
+              color={whiteMenu ? 'white' : 'purple.500'}
+              _hover={{ color: whiteMenu ? 'white' : 'purple.500' }}
               onClick={() => handleModalOpen(0)}>
               Вход
             </Button>
@@ -380,14 +380,14 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
               <Button
                 size={{ base: 'lg', lg: 'md', xl: 'md', '2xl': 'lg' }}
                 w={'full'}
-                bg={isHomePage ? 'white' : 'purple.500'}
-                color={isHomePage ? 'purple.500' : 'white'}
+                bg={whiteMenu ? 'white' : 'purple.500'}
+                color={whiteMenu ? 'purple.500' : 'white'}
                 fontSize={{ base: 16, md: 18, lg: '1.6vw', xl: 20, '2xl': 24 }}
                 fontWeight={700}
                 onClick={() => handleModalOpen(1)}
                 _hover={{ opacity: '0.9' }}
                 _focus={{ outline: 'none' }}
-                _active={{ bg: isHomePage ? 'white' : 'purple.500' }}>
+                _active={{ bg: whiteMenu ? 'white' : 'purple.500' }}>
                 Регистрация
               </Button>
             </Show>

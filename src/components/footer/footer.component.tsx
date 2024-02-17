@@ -45,7 +45,7 @@ export default function Footer() {
           </Stack>
           <Stack align={'flex-start'} textAlign={'left'}>
             <ListHeader>Помощ</ListHeader>
-            <Box as="a" href={'#'}>
+            <Box as={ReactRouterLink} to={'/help-center'}>
               Помощен център
             </Box>
             <Box as="a" href={'#'}>

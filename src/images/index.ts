@@ -28,6 +28,7 @@ import avatar4 from './Avatar_04.png';
 import avatar5 from './Avatar_05.png';
 import avatar6 from './Avatar_06.png';
 import account from './account.png';
+import helpBackground from './Background_03.png';
 
 export {
   logo,
@@ -60,4 +61,5 @@ export {
   avatar5,
   avatar6,
   account,
+  helpBackground,
 };

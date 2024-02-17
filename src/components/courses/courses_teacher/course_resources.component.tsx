@@ -88,11 +88,11 @@ const CourseResources = ({
       <GridItem key={index}>
         <Stack direction={'column'} align={'center'} spacing={2}>
           <Avatar size={{ base: 'sm', md: 'lg' }} src={avatar2} />
-          <Stack direction={'row'} align={'center'} spacing={0}>
+          <Stack direction={'row'} align={'center'} spacing={2}>
             <Text fontSize={14} fontWeight={600}>
               Стоян Иванов
             </Text>
-            <Box as={Button} bg={'transparent'} _hover={{ bg: 'transparent' }} p={0}>
+            <Box as={ReactRouterLink} to={`/messages/${el.id}`} bg={'transparent'} _hover={{ bg: 'transparent' }} p={0}>
               <Img src={message} w={5} h={5} />
             </Box>
           </Stack>
@@ -148,10 +148,18 @@ const CourseResources = ({
       resourceData = { linkToRecording: '' };
     }
 
-    if (type === 'file') {
+    if (type === 'presentation') {
+      resourceUrl = 'deleteResource';
+      resourceData = null;
+    }
+
+    if (type == 'assignment') {
+      const assignment = openedCourse?.themas.find(el => el.themaID == themeId)?.assignmentId;
       try {
-        await axiosInstance.get(`lessons/deleteResource/${themeId}`);
-        return getOpenedCourse();
+        await axiosInstance.post(`lessons/deleteAssignmentFile/${assignment}`);
+        await axiosInstance.post(`lessons/deleteAssignment/${assignment}`);
+
+        getOpenedCourse();
       } catch (err) {
         toast({
           title: getResponseMessage(err),
@@ -161,10 +169,15 @@ const CourseResources = ({
           position: 'top-right',
         });
       }
+
+      return;
     }
 
     try {
-      await axiosInstance.post(`lessons/${resourceUrl}/${themeId}`, resourceData);
+      resourceData
+        ? await axiosInstance.post(`lessons/${resourceUrl}/${themeId}`, resourceData)
+        : await axiosInstance.post(`lessons/${resourceUrl}/${themeId}`);
+
       getOpenedCourse();
     } catch (err) {
       toast({
@@ -195,6 +208,7 @@ const CourseResources = ({
             openedTheme={openedTheme}
             isEditHomework={isEditHomework}
             setIsEditHomework={setIsEditHomework}
+            getOpenedCourse={getOpenedCourse}
           />
         </Stack>
       ) : (
@@ -233,9 +247,10 @@ const CourseResources = ({
               <Stack direction={'row'} spacing={4} align={'center'}>
                 <Img src={calendar} alt={'calendar icon'} w={5} h={5} />
                 {isPrivateLesson ? (
-                  <Text color={'grey.500'}>
-                    {capitalizeMonth(format(new Date(date?.date), 'dd LLL yyyy', { locale: bg }))} -{' '}
-                  </Text>
+                  // <Text color={'grey.500'}>
+                  //   {capitalizeMonth(format(new Date(date?.date), 'dd LLL yyyy', { locale: bg }))} -{' '}
+                  // </Text>
+                  <></>
                 ) : (
                   <Text color={'grey.500'}>
                     {capitalizeMonth(format(new Date(date?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
@@ -434,7 +449,7 @@ const CourseResources = ({
                                 _hover={{ bg: 'none' }}
                                 disabled
                                 icon={<Img src={trash} w={5} />}
-                                onClick={ev => handleDeleteResource(ev, 'file', el?.themaID)}
+                                onClick={ev => handleDeleteResource(ev, 'presentation', el?.themaID)}
                               />
                             </Stack>
                           )}
@@ -459,36 +474,31 @@ const CourseResources = ({
                                 <Stack direction={'row'} spacing={4}>
                                   <Box
                                     as={IconButton}
-                                    aria-label={'edit homework'}
+                                    aria-label={'edit assignment'}
                                     size="xs"
                                     bg={'none'}
                                     _hover={{ bg: 'none' }}
-                                    icon={
-                                      <Img
-                                        src={edit}
-                                        w={5}
-                                        onClick={() => {
-                                          setOpenedTheme({
-                                            id: el?.themaID,
-                                            title: el?.title,
-                                            assignmentId: el?.assignmentId,
-                                          }),
-                                            setIsEditHomework(true);
-                                        }}
-                                      />
-                                    }
+                                    onClick={() => {
+                                      setOpenedTheme({
+                                        id: el?.themaID,
+                                        title: el?.title,
+                                        assignmentId: el?.assignmentId,
+                                      }),
+                                        setIsEditHomework(true);
+                                    }}
+                                    icon={<Img src={edit} w={5} />}
                                   />
                                 </Stack>
 
                                 <Box
                                   as={IconButton}
-                                  aria-label={'delete theme'}
+                                  aria-label={'delete assignment'}
                                   size="xs"
                                   bg={'none'}
                                   _hover={{ bg: 'none' }}
                                   disabled
                                   icon={<Img src={trash} w={5} />}
-                                  onClick={ev => handleDeleteResource(ev, 'file', el?.themaID)}
+                                  onClick={ev => handleDeleteResource(ev, 'assignment', el?.themaID)}
                                 />
                               </Stack>
 

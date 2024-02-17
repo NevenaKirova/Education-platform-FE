@@ -1,32 +1,17 @@
-import React, { useContext, useEffect, useState } from 'react';
-import AuthContext from '../../context/AuthContext';
-import { Navigate, NavLink as ReactRouterLink } from 'react-router-dom';
+import React from 'react';
 import {
   Box,
-  Button,
   Heading,
-  Avatar,
-  Img,
   Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Text,
-  ButtonGroup,
-  IconButton,
   Center,
-  Grid,
-  useToast,
-  Show,
   Accordion,
   AccordionItem,
   AccordionButton,
-  AccordionIcon,
   AccordionPanel,
 } from '@chakra-ui/react';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons';
+import { helpBackground } from '../../images';
 
 const faqsStudent = [
   {
@@ -80,109 +65,120 @@ const faqsTeacher = [
 
 const HelpCenterAll = () => {
   return (
-    <Stack
-      spacing={{ base: 8, lg: 10 }}
-      py={{ base: 0, lg: 10 }}
-      px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}
-      mt={{ base: 36, lg: 40 }}
-      align={'start'}
-      justify={'start'}
-      flex={1}
-      w={'full'}>
-      <Center py={{ base: 6, xl: 14 }} pb={20} w={'full'}>
-        <Stack p={4} spacing={8} w={'full'}>
-          <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 36 }} textAlign="center" pb={8}>
-            Често задавани въпроси
-          </Heading>
-
-          <Stack bg={'purple.100'} align={'start'} p={2} rounded={'md'}>
-            <Text color={'purple.500'} fontWeight={700} pl={6}>
-              Ученик/ Родител
-            </Text>
-          </Stack>
-
-          <Accordion allowToggle>
-            <Stack spacing={6}>
-              {faqsStudent.map((faq, index) => (
-                <AccordionItem key={index} border={'none'}>
-                  {({ isExpanded }) => (
-                    <>
-                      <h2>
-                        <AccordionButton>
-                          <Box as="span" flex="1" textAlign="left" fontWeight={600}>
-                            {faq.header}
-                          </Box>
-                          {isExpanded ? <MinusIcon fontSize="12px" /> : <AddIcon fontSize="12px" />}
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={4} textAlign={'left'}>
-                        <Text>{faq.text}</Text>
-                        {faq?.text2 && (
-                          <>
-                            {' '}
-                            <br /> <Text>{faq?.text2}</Text>{' '}
-                          </>
-                        )}
-
-                        {faq?.text3 && (
-                          <>
-                            {' '}
-                            <br /> <Text>{faq?.text3}</Text>{' '}
-                          </>
-                        )}
-                      </AccordionPanel>
-                    </>
-                  )}
-                </AccordionItem>
-              ))}
-            </Stack>
-          </Accordion>
-
-          <Stack bg={'purple.100'} align={'start'} p={2} rounded={'md'}>
-            <Text color={'purple.500'} fontWeight={700} pl={6}>
-              Учител
-            </Text>
-          </Stack>
-
-          <Accordion allowToggle>
-            <Stack spacing={6}>
-              {faqsTeacher.map((faq, index) => (
-                <AccordionItem key={index} border={'none'}>
-                  {({ isExpanded }) => (
-                    <>
-                      <h2>
-                        <AccordionButton>
-                          <Box as="span" flex="1" textAlign="left" fontWeight={600}>
-                            {faq.header}
-                          </Box>
-                          {isExpanded ? <MinusIcon fontSize="12px" /> : <AddIcon fontSize="12px" />}
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={4} textAlign={'left'}>
-                        <Text>{faq.text}</Text>
-                        {faq?.text2 && (
-                          <>
-                            {' '}
-                            <br /> <Text>{faq?.text2}</Text>{' '}
-                          </>
-                        )}
-
-                        {faq?.text3 && (
-                          <>
-                            {' '}
-                            <br /> <Text>{faq?.text3}</Text>{' '}
-                          </>
-                        )}
-                      </AccordionPanel>
-                    </>
-                  )}
-                </AccordionItem>
-              ))}
-            </Stack>
-          </Accordion>
-        </Stack>
+    <>
+      <Center
+        w={'100vw'}
+        h={'30vh'}
+        backgroundImage={helpBackground}
+        backgroundSize={'cover'}
+        backgroundPosition={{ base: 'center center', xl: 'center center' }}>
+        <Heading flex={1} as="h1" fontSize={{ base: 20, lg: 32 }} textAlign="center" pt={16} color={'white'}>
+          Как можем да Ви помогнем?
+        </Heading>
       </Center>
-    </Stack>
+      <Stack
+        spacing={{ base: 8, lg: 10 }}
+        pb={{ base: 0, lg: 10 }}
+        px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}
+        align={'start'}
+        justify={'start'}
+        flex={1}
+        w={'full'}>
+        <Center py={{ base: 6, xl: 14 }} pb={20} w={'full'}>
+          <Stack p={4} spacing={8} w={'full'}>
+            <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 36 }} textAlign="center" pb={8}>
+              Често задавани въпроси
+            </Heading>
+
+            <Stack bg={'purple.100'} align={'start'} p={2} rounded={'md'}>
+              <Text color={'purple.500'} fontWeight={700} pl={6}>
+                Ученик/ Родител
+              </Text>
+            </Stack>
+
+            <Accordion allowToggle>
+              <Stack spacing={6}>
+                {faqsStudent.map((faq, index) => (
+                  <AccordionItem key={index} border={'none'}>
+                    {({ isExpanded }) => (
+                      <>
+                        <h2>
+                          <AccordionButton>
+                            <Box as="span" flex="1" textAlign="left" fontWeight={600}>
+                              {faq.header}
+                            </Box>
+                            {isExpanded ? <MinusIcon fontSize="12px" /> : <AddIcon fontSize="12px" />}
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={4} textAlign={'left'}>
+                          <Text>{faq.text}</Text>
+                          {faq?.text2 && (
+                            <>
+                              {' '}
+                              <br /> <Text>{faq?.text2}</Text>{' '}
+                            </>
+                          )}
+
+                          {faq?.text3 && (
+                            <>
+                              {' '}
+                              <br /> <Text>{faq?.text3}</Text>{' '}
+                            </>
+                          )}
+                        </AccordionPanel>
+                      </>
+                    )}
+                  </AccordionItem>
+                ))}
+              </Stack>
+            </Accordion>
+
+            <Stack bg={'purple.100'} align={'start'} p={2} rounded={'md'}>
+              <Text color={'purple.500'} fontWeight={700} pl={6}>
+                Учител
+              </Text>
+            </Stack>
+
+            <Accordion allowToggle>
+              <Stack spacing={6}>
+                {faqsTeacher.map((faq, index) => (
+                  <AccordionItem key={index} border={'none'}>
+                    {({ isExpanded }) => (
+                      <>
+                        <h2>
+                          <AccordionButton>
+                            <Box as="span" flex="1" textAlign="left" fontWeight={600}>
+                              {faq.header}
+                            </Box>
+                            {isExpanded ? <MinusIcon fontSize="12px" /> : <AddIcon fontSize="12px" />}
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={4} textAlign={'left'}>
+                          <Text>{faq.text}</Text>
+                          {faq?.text2 && (
+                            <>
+                              {' '}
+                              <br /> <Text>{faq?.text2}</Text>{' '}
+                            </>
+                          )}
+
+                          {faq?.text3 && (
+                            <>
+                              {' '}
+                              <br /> <Text>{faq?.text3}</Text>{' '}
+                            </>
+                          )}
+                        </AccordionPanel>
+                      </>
+                    )}
+                  </AccordionItem>
+                ))}
+              </Stack>
+            </Accordion>
+          </Stack>
+        </Center>
+      </Stack>
+    </>
   );
 };
 

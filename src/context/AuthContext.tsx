@@ -79,16 +79,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [authTokens, loading]);
 
-  useEffect(() => {
-    if (userData) {
-      if (userData?.role === 'TEACHER') {
-        navigate('/dashboard');
-      } else {
-        navigate('/');
-      }
-    }
-  }, [userData]);
-
   return (
     <AuthContext.Provider value={contextData}>
       {loading ? <PageLoader isLoading={loading} /> : children}

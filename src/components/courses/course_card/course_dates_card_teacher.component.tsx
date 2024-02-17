@@ -9,9 +9,9 @@ import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
 import { group } from '../../../icons';
 
 export const courseStatuses = [
-  { status: 'STARTED', name: 'Започнал', bg: 'green.status', colorText: 'green.statusText' },
-  { status: 'NOT_STARTED', name: 'Незапочнал', bg: 'orange.status', colorText: 'orange.statusText' },
-  { status: 'FINISHED', name: 'Приключил', bg: 'blue.status', colorText: 'blue.statusText' },
+  { status: 'Active', name: 'Активен', bg: 'green.status', colorText: 'green.statusText' },
+  { status: 'Upcoming', name: 'Предстоящ', bg: 'orange.status', colorText: 'orange.statusText' },
+  { status: 'Inactive', name: 'Неактивен', bg: 'blue.status', colorText: 'blue.statusText' },
 ];
 
 export default function CourseDateCard({
@@ -61,14 +61,14 @@ export default function CourseDateCard({
         <Tag
           size={'sm'}
           variant="solid"
-          bg={courseStatuses.find(el => el.status == course?.lessonStatus)?.bg}
-          color={courseStatuses.find(el => el.status == course?.lessonStatus)?.colorText}
+          bg={courseStatuses.find(el => el.status == course?.status)?.bg}
+          color={courseStatuses.find(el => el.status == course?.status)?.colorText}
           p={2}
           position={'absolute'}
           top={4}
           right={4}>
           <Text fontSize={12} fontWeight={600}>
-            {courseStatuses.find(el => el.status == course?.lessonStatus)?.name}
+            {courseStatuses.find(el => el.status == course?.status)?.name}
           </Text>
         </Tag>
 
@@ -86,16 +86,16 @@ export default function CourseDateCard({
 
             <Stack direction={'row'} align={'center'} w={'full'}>
               <Stack direction={'row'} w={'full'} flexWrap={'wrap'} spacing={4}>
-                {course?.times.map((el, index) => (
+                {course?.lessonHours.map((el, index) => (
                   <Box
                     key={index}
                     as={Button}
-                    p={'5px'}
+                    p={'10px'}
                     rounded={'md'}
                     border={'1px solid'}
                     bg={'white'}
                     _hover={{ bg: 'purple.100' }}
-                    borderColor={el?.booked ? 'purple.500' : 'grey.500'}
+                    borderColor={el?.booked ? 'purple.500' : 'grey.300'}
                     onClick={() => {
                       console.log(el);
                       setShowAddResources(true);

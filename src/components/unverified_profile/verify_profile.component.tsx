@@ -53,6 +53,7 @@ type Inputs = {
   experience: any[];
   hasExperience: string;
   agreeToConditions: boolean;
+  file: File | null;
 };
 export default function VerifyProfileComponent({ setShowForm }: { setShowForm: any }) {
   const toast = useToast();
@@ -146,13 +147,15 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
   const onSubmit: SubmitHandler<any> = async data => {
     await trigger('city');
 
-    const formData = new FormData();
-    formData.append('file', data.file);
+    if (data.file) {
+      const formData = new FormData();
+      formData.append('file', data.file);
+    }
 
     setIsLoading(true);
     try {
       await axiosInstance.post(`/users/verifyTeacher`, data);
-      await axiosInstance.post(`users/uploadImageTeacher`, formData);
+      if (data.file) await axiosInstance.post(`users/uploadImageTeacher`, formData);
       await getUserData();
       setIsLoading(false);
       setShowForm(false);
@@ -178,7 +181,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
 
   useEffect(() => {
     register('city', { required: 'Полето е задължително' });
-    register('file', { required: 'Полето е задължително' });
+    register('gender', { required: 'Полето е задължително' });
   }, [register]);
 
   useEffect(() => {
@@ -273,10 +276,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
               <Stack spacing={4}>
                 <FormControl isInvalid={!!errors.picture}>
                   <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
-                    Профилна снимка{' '}
-                    <Text as={'span'} color={'red'}>
-                      *
-                    </Text>
+                    Профилна снимка
                   </FormLabel>
 
                   <PreviewDropzone onFileAccepted={onFileAccepted} />
