@@ -111,7 +111,7 @@ const MessagesPage = () => {
   const sendMessage = content => {
     const message = {
       senderId: userData?.id,
-      recipientId: userData?.id,
+      recipientId: userId,
       content: content.trim(),
     };
 
@@ -129,7 +129,7 @@ const MessagesPage = () => {
     //   });
     // }
 
-    // stompClient.send('/app/chat', {}, JSON.stringify(message));
+    stompClient.send('/app/chat', {}, JSON.stringify(message));
   };
 
   if (!user) return <Navigate to={'/'} replace />;

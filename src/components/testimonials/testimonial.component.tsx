@@ -40,7 +40,7 @@ export default function TestimonialsSection({ reviews }: { reviews: any }) {
           Отзиви
         </Text>{' '}
         {''}
-        от наши ученици и учители
+        от наши ученици и родители
       </Heading>
 
       <Carousel
