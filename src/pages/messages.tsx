@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, NavLink as ReactRouterLink, useParams } from 'react-router-dom';
 import {
   Button,
   Heading,
@@ -15,7 +15,6 @@ import {
   Img,
   useToast,
 } from '@chakra-ui/react';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 import PageLoader from '../utils/loader.component';
 import { axiosInstance } from '../axios';
@@ -25,6 +24,7 @@ import { noData } from '../images';
 import { attach } from '../icons';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Stomp from 'stompjs';
+import { useErrorHandler } from 'next/dist/client/components/react-dev-overlay/internal/helpers/use-error-handler';
 
 const MessagesPage = () => {
   const { user, userData } = useContext(AuthContext);
@@ -51,9 +51,9 @@ const MessagesPage = () => {
     sendMessage(data.message);
   };
 
-  useEffect(() => {
+  const getChatRooms = async () => {
     try {
-      const res = axiosInstance.get(`users/getMessages`);
+      const res = await axiosInstance.get(`users/getMessages`);
 
       setChatRooms(res.data);
       res.data?.length ? setHasMessages(true) : setHasMessages(false);
@@ -66,47 +66,56 @@ const MessagesPage = () => {
         position: 'top-right',
       });
     }
+  };
+
+  useEffect(() => {
+    getChatRooms();
   }, []);
 
   // useEffect(() => {
-  //   try {
-  //     const res = axiosInstance.get(`users/getMessage/${userId}`);
+  //   if (userId) {
+  //     try {
+  //       const res = axiosInstance.get(`users/getMessage/${userId}`);
   //
-  //     console.log(res.data);
-  //   } catch (err) {
-  //     toast({
-  //       title: getResponseMessage(err),
-  //       status: 'error',
-  //       duration: 3000,
-  //       isClosable: true,
-  //       position: 'top-right',
-  //     });
+  //       console.log(res.data);
+  //     } catch (err) {
+  //       toast({
+  //         title: getResponseMessage(err),
+  //         status: 'error',
+  //         duration: 3000,
+  //         isClosable: true,
+  //         position: 'top-right',
+  //       });
+  //     }
   //   }
   // }, [userId]);
 
-  useEffect(() => {
-    console.log(chatRooms);
-  }, [chatRooms]);
+  // useEffect(() => {
+  //   console.log(chatRooms);
+  // }, [chatRooms]);
+  //
+  // useEffect(() => {
+  //   console.log(messages);
+  // }, [messages]);
 
   useEffect(() => {
-    console.log(messages);
-  }, [messages]);
+    if (userData) {
+      const socket = new WebSocket('ws://localhost:8080/ws');
+      const stomp = Stomp.over(socket);
+      stomp.connect({}, () => {
+        setStompClient(stomp);
+        stomp.subscribe(`/user/${userData?.id}/queue/messages`, message => {
+          const newMessage = JSON.parse(message.body);
 
-  useEffect(() => {
-    const socket = new WebSocket('ws://localhost:8080/ws');
-    const stomp = Stomp.over(socket);
-    stomp.connect({}, () => {
-      setStompClient(stomp);
-      stomp.subscribe(`/user/${userData?.id}/queue/messages`, message => {
-        const newMessage = JSON.parse(message.body);
-        setMessages(prevMessages => [...prevMessages, newMessage]);
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        });
       });
-    });
 
-    return () => {
-      if (stomp) stomp.disconnect();
-    };
-  }, []);
+      return () => {
+        if (stomp) stomp.disconnect();
+      };
+    }
+  }, [userData]);
 
   const sendMessage = content => {
     const message = {
@@ -115,21 +124,13 @@ const MessagesPage = () => {
       content: content.trim(),
     };
 
-    // try {
-    //   const res = axiosInstance.get(`/sendMessage/${userData?.id}&&${userData?.id}&&${content.trim()}`);
-    //
-    //   console.log(res);
-    // } catch (err) {
-    //   toast({
-    //     title: getResponseMessage(err),
-    //     status: 'error',
-    //     duration: 3000,
-    //     isClosable: true,
-    //     position: 'top-right',
-    //   });
-    // }
-
-    stompClient.send('/app/chat', {}, JSON.stringify(message));
+    if (stompClient && stompClient.connected) {
+      stompClient.send('/app/chat', {}, JSON.stringify(message));
+      setMessages(prevMessages => [...prevMessages, message]);
+      reset();
+    } else {
+      console.error('WebSocket connection not established.');
+    }
   };
 
   if (!user) return <Navigate to={'/'} replace />;
@@ -140,6 +141,7 @@ const MessagesPage = () => {
     <Stack
       spacing={{ base: 8, lg: 10 }}
       py={{ base: 0, lg: 10 }}
+      px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}
       mt={{ base: 36, lg: 40 }}
       align={'center'}
       justify={'center'}
@@ -148,19 +150,18 @@ const MessagesPage = () => {
       minH={'85vh'}>
       <Stack
         direction={'row'}
-        maxW={'82vw'}
         w={'full'}
         flex={1}
         rounded={'md'}
         bg={'purple.100'}
         py={{ base: 0, lg: 10 }}
         px={{ base: 10 }}>
-        <Stack w={'40%'} spacing={8}>
+        <Stack maxW={{ base: '40%', lg: '35%' }} w={'full'} spacing={8}>
           <Heading textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 34 }} color={'grey.600'}>
             Съобщения
           </Heading>
 
-          <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'white'} border="white" rounded={'md'} maxW={'90%'}>
+          <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'white'} border="white" rounded={'md'} maxW={'95%'}>
             <Input pr="4.5rem" type="text" placeholder="Търси по име" />
             <InputRightElement width="4.5rem">
               <Button
@@ -176,6 +177,62 @@ const MessagesPage = () => {
               </Button>
             </InputRightElement>
           </InputGroup>
+
+          <Stack overflow={'hidden'} w={'full'}>
+            {chatRooms?.map((el, index) => (
+              <Stack
+                as={ReactRouterLink}
+                to={`/messages/${el?.contactId}`}
+                bg={userId == el?.contactId ? 'white' : 'inherit'}
+                py={4}
+                rounded={'md'}
+                key={index}
+                direction={'row'}
+                align={'center'}
+                justify={'space-between'}
+                w={'95%'}
+                overflow={'hidden'}
+                px={4}>
+                <Stack
+                  flex={1}
+                  direction={'row'}
+                  align={'center'}
+                  justify={'start'}
+                  maxW={{ base: '90%', lg: '82%' }}
+                  w={'full'}
+                  spacing={4}>
+                  <Avatar
+                    size={{ base: 'sm', md: 'md' }}
+                    src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
+                  />
+
+                  <Stack maxW={{ base: '55%', xl: '82%' }} align={'start'} spacing={0}>
+                    <Text color={'grey.600'} fontSize={18} fontWeight={500}>
+                      {el.name}
+                    </Text>
+
+                    <Text
+                      color={'grey.500'}
+                      fontSize={16}
+                      fontWeight={400}
+                      noOfLines={1}
+                      overflow={'hidden'}
+                      textOverflow={'ellipsis'}
+                      maxW={{ base: 'full' }}>
+                      {el?.messages[el.messages?.length - 1]?.senderId == userData.id ? 'Вие: ' : ''}{' '}
+                      {el?.messages[el.messages?.length - 1]?.content}
+                    </Text>
+                  </Stack>
+                </Stack>
+
+                <Stack align={'start'} justify="start" h="full" w={'fit'}>
+                  <Text color={'grey.500'} fontSize={14} fontWeight={500}>
+                    {el?.messages[el.messages?.length - 1]?.time}
+                  </Text>
+                </Stack>
+              </Stack>
+            ))}
+          </Stack>
         </Stack>
 
         <Stack flex={1} bg={'white'} align={'center'} justify={'center'} rounded={'md'}>
@@ -195,14 +252,22 @@ const MessagesPage = () => {
                   </Text>
                 </Stack>
               </Stack>
-              <Stack flex={1} w={'full'}>
-                <Text>Messages:</Text>
+              <Stack flex={1} w={'full'} spacing={4}>
                 {messages.map((msg, index) => (
-                  <Text key={index}>{`From: ${msg.senderId}, Content: ${msg.content}`}</Text>
-                ))}
-
-                {messages.map((message, index) => (
-                  <li key={index}>{message.content}</li>
+                  <Stack
+                    w={'50%'}
+                    key={'index'}
+                    bg={msg.senderId === userData?.id ? 'purple.200' : 'white'}
+                    boxShadow={'custom'}
+                    alignSelf={msg.senderId === userData?.id ? 'flex-end' : 'flex-start'}
+                    p={3}
+                    px={4}
+                    rounded={'xl'}
+                    align={'start'}>
+                    <Text key={index} textAlign={'left'}>
+                      {msg.content}
+                    </Text>
+                  </Stack>
                 ))}
               </Stack>
 

@@ -52,6 +52,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import bgLocale from '@fullcalendar/core/locales/bg';
 import { axiosInstance } from '../../axios';
+import { format } from 'date-fns';
+import CalendarDayViewModal from "../calendar/calendar_day_view";
 
 const courseTypes = [
   { label: 'Всички', type: 'all' },
@@ -67,7 +69,7 @@ const sortValues = [
 ];
 
 export default function MyDashboardPage() {
-  const { user } = useContext(AuthContext);
+  const { user,userData } = useContext(AuthContext);
   const dispatch = useAppDispatch();
   const toast = useToast();
 
@@ -76,6 +78,8 @@ export default function MyDashboardPage() {
   const [sort, setSort] = useState(sortValues[0]);
   const [openModalWithCourse, setOpenModalWithCourse] = useState(null);
   const [events, setEvents] = useState([]);
+  const [date, setDate] = useState(null);
+  const [dateEvents, setDateEvents] = useState([]);
 
   const { all, courses, lessons, isLoading } = useSelector(getStudentCoursesTypes);
 
@@ -140,6 +144,35 @@ export default function MyDashboardPage() {
     }
   };
 
+  const openDayModal = async (info, isEvent) => {
+    let date;
+    if (isEvent) {
+      const dateTemp = info?.event?.start;
+      date = format(dateTemp, 'yyyy-MM-dd');
+    } else {
+      date = info?.dateStr;
+    }
+
+    setDate(date);
+
+    if (user && date) {
+      try {
+        const res: any[] = await axiosInstance.get(`/lessons/getStudentCalendarEvents/${date}`);
+
+        setDateEvents(res.data);
+        onOpen();
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    }
+  };
+
   const getEvents = async () => {
     try {
       const res = await axiosInstance.get(`/users/getStudentCalendar`);
@@ -182,12 +215,12 @@ export default function MyDashboardPage() {
         w={'full'}>
         <Stack
           align={'start'}
-          spacing={{ base: 8, md: 10 }}
+          spacing={{ base: 8, lg: 10 }}
           py={{ base: 20, md: 28 }}
-          direction={{ base: 'column', md: 'row' }}
+          direction={{ base: 'column', lg: 'row' }}
           flex={1}
           w={'full'}>
-          <Stack flex={1} spacing={{ base: 5, md: 10 }}>
+          <Stack flex={1} spacing={{ base: 5, md: 10 }} w={'full'}>
             <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 34 }} color={'grey.600'}>
               Моите уроци
             </Heading>
@@ -339,6 +372,7 @@ export default function MyDashboardPage() {
               </Tabs>
             </Stack>
           </Stack>
+
           <Flex flex={1} justify={'center'} align={'center'} position={'relative'} w={'full'}>
             <Stack
               spacing={20}
@@ -348,7 +382,7 @@ export default function MyDashboardPage() {
               mt={{ base: 28, md: 36 }}
               mb={12}
               justify={'start'}
-              w={'70%'}
+              w={{base:'full', xl:'70%'}}
               rounded={'md'}
               boxShadow={'custom'}
               className={'dashboard-calendar'}>
@@ -360,20 +394,21 @@ export default function MyDashboardPage() {
                 locale={bgLocale}
                 events={events}
                 eventClassNames={'eventClass'}
-                dateClick={info => console.log(info)}
+                dateClick={info => openDayModal(info, false)}
+                fixedWeekCount={false}
                 headerToolbar={{
-                  start: '', // will normally be on the left. if RTL, will be on the right
+                  start: '',
                   center: 'prev title next',
-                  end: '', // will normally be on the right. if RTL, will be on the left
+                  end: '',
                 }}
-                height={'60vh'}
+                height={'45vh'}
               />
             </Stack>
           </Flex>
         </Stack>
       </Stack>
-      S
-      <RateClassModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} course={openModalWithCourse} />
+
+      <CalendarDayViewModal isOpen={isOpen} onClose={onClose} date={date} events={dateEvents} role={userData?.role} />
     </>
   );
 }

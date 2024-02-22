@@ -12,20 +12,34 @@ import style from './courses_landing.module.scss';
 export const responsive = {
   superLargeDesktop: {
     // the naming can be any, depends on you.
-    breakpoint: { max: 4000, min: 1500 },
+    breakpoint: { max: 4000, min: 1350 },
     items: 4,
+    partialVisibilityGutter: 0,
   },
   desktop: {
-    breakpoint: { max: 1500, min: 1024 },
+    breakpoint: { max: 1350, min: 1000 },
     items: 3,
+    partialVisibilityGutter: 0,
   },
   tablet: {
-    breakpoint: { max: 1024, min: 700 },
+    breakpoint: { max: 1000, min: 700 },
     items: 2,
+    partialVisibilityGutter: 0,
+  },
+  miniTablet: {
+    breakpoint: { max: 700, min: 600 },
+    items: 1,
+    partialVisibilityGutter: 100,
+  },
+  largeMobile: {
+    breakpoint: { max: 600, min: 500 },
+    items: 1,
+    partialVisibilityGutter: 80,
   },
   mobile: {
-    breakpoint: { max: 700, min: 0 },
+    breakpoint: { max: 500, min: 0 },
     items: 1,
+    partialVisibilityGutter: 0,
   },
 };
 
@@ -39,7 +53,7 @@ export default function CourseSection({
   setModalTabIndex: any;
 }) {
   return (
-    <Stack spacing={32} px={{ base: 12, lg: 28, '2xl': 32 }}>
+    <Stack spacing={32} px={{ base: 12, lg: 20,'2xl': 32 }}>
       <Stack spacing={{ base: 6, lg: 8 }}>
         <Grid
           w={'full'}
@@ -75,7 +89,7 @@ export default function CourseSection({
         </Grid>
 
         <Carousel
-          autoPlay={true}
+          autoPlay={false}
           autoPlaySpeed={5000}
           responsive={responsive}
           partialVisible={true}

@@ -568,6 +568,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
 
         <Stack align={'center'} w={{ base: 'full', lg: 'fit-content' }}>
           <EnrollCourseCard elRef={DatesRef} course={course} dateValue={dateValue} />
+
         </Stack>
       </Stack>
 

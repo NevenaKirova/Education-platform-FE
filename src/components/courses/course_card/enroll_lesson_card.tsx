@@ -3,6 +3,7 @@ import { NavLink as ReactRouterLink } from 'react-router-dom';
 import { Box, Center, Heading, Text, Stack, Avatar, Image, useColorModeValue, Button, Img } from '@chakra-ui/react';
 import { getDate } from '../../../pages/lessons/[id]';
 import { calendar } from '../../../icons';
+import { daysArr } from '../courses_teacher/create_course.component';
 
 type Termin = {
   startDate: string;
@@ -18,7 +19,7 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
   const [termin, setTermin] = useState<Termin | null>(null);
 
   useEffect(() => {
-    setTermin(course?.courseTerminResponses?.[dateValue]);
+    setTermin(course?.courseTerminRequests?.[dateValue]);
   }, [course, dateValue]);
 
   const handleScroll = () => {
@@ -81,7 +82,7 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
                 Дни на провеждане:
               </Text>
               <Text color={'grey.500'} fontSize={{ base: 14, md: 16 }}>
-                {termin?.courseDays}
+                {termin?.courseDaysNumbers?.map(el => daysArr[el - 1].short).join(',')}
               </Text>
             </Stack>
             <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>

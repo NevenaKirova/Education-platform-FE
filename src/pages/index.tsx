@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import axios, { axiosInstance } from '../axios';
 
 import Header from '../components/header/header.component';
@@ -19,7 +20,7 @@ import { getLikedCourses } from '../store/features/student/studentFavourites/stu
 import AuthContext from '../context/AuthContext';
 
 import '../styles/styles.scss';
-import { Navigate } from 'react-router-dom';
+
 
 export type CourseType = {
   lessonID: number;

@@ -269,7 +269,7 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
         </Heading>
         {contentToShow?.length ? (
           <Grid
-            templateColumns={{ base: 'repeat(auto-fill, minmax(200px, 1fr))', lg: 'repeat(3, 1fr)' }}
+            templateColumns={{ base: 'repeat(auto-fill, minmax(200px, 1fr))', lg: 'repeat(4, 1fr)' }}
             gap={{ base: 8, lg: 6 }}
             w={'full'}>
             {contentToShow}

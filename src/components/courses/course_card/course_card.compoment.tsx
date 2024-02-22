@@ -115,12 +115,12 @@ export default function CourseCard({
       <Box
         as={ReactRouterLink}
         to={course?.privateLesson ? `/lessons/${course?.lessonID}` : `/courses/${course?.lessonID}`}
-        maxW={{ base: 'full', md: '360px', lg: '250px',xl: '350px' }}
+        maxW={{ base: 'full', sm:'58vw', md: '37vw', lg: '26vw', '2xl': '19vw' }}
         h={'full'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.900')}
         rounded={'md'}
-        p={6}
+        p={{ base: 6, sm: 4, md: 6 }}
         boxShadow="custom"
         overflow={'hidden'}
         className={'cardBox'}>

@@ -393,6 +393,10 @@ form {
   borderradius: '24px';
 }
 
+.dashboard-calendar .eventClass {
+  display: none;
+}
+
 @media (max-width: 1000px) {
   .fc .fc-toolbar.fc-header-toolbar {
     margin-bottom: 1.5rem;
