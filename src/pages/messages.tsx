@@ -27,7 +27,7 @@ import Stomp from 'stompjs';
 import { useErrorHandler } from 'next/dist/client/components/react-dev-overlay/internal/helpers/use-error-handler';
 
 const MessagesPage = () => {
-  const { user, userData } = useContext(AuthContext);
+  const { user, userData, authTokens } = useContext(AuthContext);
   const toast = useToast();
   const { userId } = useParams();
 
@@ -102,11 +102,11 @@ const MessagesPage = () => {
     if (userData) {
       const socket = new WebSocket('ws://localhost:8080/ws');
       const stomp = Stomp.over(socket);
+
       stomp.connect({}, () => {
         setStompClient(stomp);
         stomp.subscribe(`/user/${userData?.id}/queue/messages`, message => {
           const newMessage = JSON.parse(message.body);
-
           setMessages(prevMessages => [...prevMessages, newMessage]);
         });
       });
@@ -119,7 +119,7 @@ const MessagesPage = () => {
 
   const sendMessage = content => {
     const message = {
-      senderId: userData?.id,
+      senderId: authTokens?.access_token,
       recipientId: userId,
       content: content.trim(),
     };
@@ -219,7 +219,7 @@ const MessagesPage = () => {
                       overflow={'hidden'}
                       textOverflow={'ellipsis'}
                       maxW={{ base: 'full' }}>
-                      {el?.messages[el.messages?.length - 1]?.senderId == userData.id ? 'Вие: ' : ''}{' '}
+                      {el?.messages[el.messages?.length - 1]?.senderId == userData?.id ? 'Вие: ' : ''}{' '}
                       {el?.messages[el.messages?.length - 1]?.content}
                     </Text>
                   </Stack>
@@ -256,10 +256,10 @@ const MessagesPage = () => {
                 {messages.map((msg, index) => (
                   <Stack
                     w={'50%'}
-                    key={'index'}
-                    bg={msg.senderId === userData?.id ? 'purple.200' : 'white'}
+                    key={index}
+                    bg={msg.senderId === authTokens?.access_token ? 'purple.200' : 'white'}
                     boxShadow={'custom'}
-                    alignSelf={msg.senderId === userData?.id ? 'flex-end' : 'flex-start'}
+                    alignSelf={msg.senderId === authTokens?.access_token ? 'flex-end' : 'flex-start'}
                     p={3}
                     px={4}
                     rounded={'xl'}
