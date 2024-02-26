@@ -61,9 +61,7 @@ export default function DashboardLessonCard({
             objectFit={'cover'}
             maxH={'190px'}
             boxSize={isGrid ? '300px' : '440px'}
-            src={
-              'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-            }
+            src={course?.urlToImage}
             alt="Course image"
             rounded={'lg'}
             p={0}

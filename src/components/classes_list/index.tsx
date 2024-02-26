@@ -244,6 +244,10 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
   }, [currentPage, sort]);
 
   useEffect(() => {
+    console.log(classes, classesTotal);
+  }, [classes]);
+
+  useEffect(() => {
     const getFiltersUrl = isPrivateLesson ? '/lessons/getLessonFilters' : '/lessons/getCourseFilters';
     setIsLoading(true);
     axios
@@ -547,7 +551,6 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
               '2xl': 'repeat(4, 1fr)',
             }}
             gap={12}>
-            {classes?.map((el, index) => <CourseCard key={index} course={el} />)}
             {classes?.map((el, index) => <CourseCard key={index} course={el} />)}
           </Grid>
 

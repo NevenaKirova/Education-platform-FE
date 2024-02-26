@@ -115,7 +115,7 @@ export default function CourseCard({
       <Box
         as={ReactRouterLink}
         to={course?.privateLesson ? `/lessons/${course?.lessonID}` : `/courses/${course?.lessonID}`}
-        maxW={{ base: 'full', sm:'58vw', md: '37vw', lg: '26vw', '2xl': '19vw' }}
+        maxW={{ base: 'full', sm: '58vw', md: '37vw', lg: '26vw', '2xl': '19vw' }}
         h={'full'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.900')}
@@ -127,14 +127,7 @@ export default function CourseCard({
         <Stack h={'full'} justify={'space-between'}>
           <Stack>
             <Box bg={'white'} mt={-6} mx={-6} pos={'relative'} rounded="lg">
-              <Image
-                src={
-                  'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-                }
-                alt="Course image"
-                borderRadius={20}
-                p={4}
-              />
+              <Image src={`${course?.urlToImage}`} alt="Course image" borderRadius={20} p={4} />
             </Box>
             <Stack
               direction={{ base: 'column' }}

@@ -64,8 +64,6 @@ export default function PreviewDropzone({ onFileAccepted }: { onFileAccepted: an
           </>
         )}
       </Stack>
-
-      {/*<aside style={thumbsContainer}>{thumbs}</aside>*/}
     </Center>
   );
 }

@@ -74,6 +74,7 @@ export default function MyDashboardPage() {
   const toast = useToast();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenDate, onOpen:onOpenDate, onClose:onCloseDate } = useDisclosure();
 
   const [sort, setSort] = useState(sortValues[0]);
   const [openModalWithCourse, setOpenModalWithCourse] = useState(null);
@@ -160,7 +161,7 @@ export default function MyDashboardPage() {
         const res: any[] = await axiosInstance.get(`/lessons/getStudentCalendarEvents/${date}`);
 
         setDateEvents(res.data);
-        onOpen();
+        onOpenDate();
       } catch (err) {
         toast({
           title: getResponseMessage(err),
@@ -408,7 +409,8 @@ export default function MyDashboardPage() {
         </Stack>
       </Stack>
 
-      <CalendarDayViewModal isOpen={isOpen} onClose={onClose} date={date} events={dateEvents} role={userData?.role} />
+      <RateClassModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} course={openModalWithCourse} />
+      <CalendarDayViewModal isOpen={isOpenDate} onClose={onCloseDate} date={date} events={dateEvents} role={userData?.role} />
     </>
   );
 }

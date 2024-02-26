@@ -61,9 +61,7 @@ export default function DashboardCourseCard({
             objectFit={'cover'}
             maxH={'190px'}
             boxSize={isGrid ? '300px' : '440px'}
-            src={
-              'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-            }
+            src={"http://localhost:8080/api/v1/users/images/Assignment_301947782_0_number of mesoscopic papers.PNG"}
             alt="Course image"
             rounded={'lg'}
             p={0}

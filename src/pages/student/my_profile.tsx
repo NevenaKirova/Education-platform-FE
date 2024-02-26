@@ -26,6 +26,8 @@ import { axiosInstance } from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
 import { account, avatar3, avatar4, avatar5, avatar6, studentAvatar, teacherAvatar } from '../../images';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import PreviewDropzone from '../../utils/preview_dropzone';
+import AvatarDropzone from '../../utils/avatar_dropzone';
 
 const StudentProfilePage = () => {
   const toast = useToast();
@@ -47,6 +49,7 @@ const StudentProfilePage = () => {
     try {
       setIsLoading(true);
       const res = await axiosInstance.get(`users/getStudentProfile`);
+      setGender(res.data?.gender);
       setProfile(res.data);
       setClient(res.data?.clientService);
       setMarketing(res.data?.marketingService);
@@ -106,9 +109,10 @@ const StudentProfilePage = () => {
     },
   });
 
+  const onFileAccepted = file => {
+    setSelectedAvatar(file);
+  };
   const onSubmit: SubmitHandler<any> = async data => {
-    console.log(data);
-
     try {
       setIsLoading(true);
       await axiosInstance.post(`users/editStudentProfile`, data);
@@ -166,7 +170,8 @@ const StudentProfilePage = () => {
                   <Box
                     as={'button'}
                     role="group"
-                    onClick={() => {
+                    onClick={ev => {
+                      ev.preventDefault();
                       setSelectedAvatar(index);
                     }}
                     borderRadius="full"
@@ -185,8 +190,19 @@ const StudentProfilePage = () => {
                   </Box>
                 </WrapItem>
               ))}
+
               <WrapItem>
-                <Stack direction="row" as={'button'} align={'center'} spacing={4}>
+                <AvatarDropzone onFileAccepted={onFileAccepted} avatars={avatars} />
+
+                <Stack
+                  direction="row"
+                  as={'button'}
+                  align={'center'}
+                  spacing={4}
+                  onClick={ev => {
+                    ev.preventDefault();
+                    // setSelectedAvatar(index);
+                  }}>
                   <Box
                     role="group"
                     bg={'purple.500'}

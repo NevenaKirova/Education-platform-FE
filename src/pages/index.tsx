@@ -21,8 +21,8 @@ import AuthContext from '../context/AuthContext';
 
 import '../styles/styles.scss';
 
-
 export type CourseType = {
+  urlToImage: string;
   lessonID: number;
   title: string;
   description: string;
