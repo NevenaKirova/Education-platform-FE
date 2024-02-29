@@ -8,7 +8,7 @@ import TestimonialCard from './testimonial_card.component';
 import style from '../courses/courses_landing/courses_landing.module.scss';
 import 'react-multi-carousel/lib/styles.css';
 
-const responsive = {
+export const responsive = {
   superLargeDesktop: {
     // the naming can be any, depends on you.
     breakpoint: { max: 4000, min: 3000 },

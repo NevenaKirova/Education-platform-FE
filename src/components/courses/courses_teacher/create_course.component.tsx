@@ -28,6 +28,9 @@ import {
   FormControl,
   Box,
   useToast,
+  Wrap,
+  WrapItem,
+  Image,
 } from '@chakra-ui/react';
 
 import { getResponseMessage } from '../../../helpers/response.util';
@@ -133,6 +136,7 @@ const CreateCourseComponent = ({
   const [courseLength, setCourseLength] = useState<string>('60');
   const [showThemasError, setShowThemasError] = useState(false);
   const [course, setCourse] = useState(defaultCourseValues);
+  const [pictures, setPictures] = useState([]);
 
   const {
     register,
@@ -193,6 +197,21 @@ const CreateCourseComponent = ({
 
     setAvailableSubjects(subjectObj);
     setAvailableGrades(gradesObj);
+  };
+
+  const getPictures = async subject => {
+    try {
+      const res = await axiosInstance.get(`lessons/getCourseImages/${subject}`);
+      setPictures(res.data);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
   };
 
   const submitAsDraft = async () => {
@@ -325,6 +344,12 @@ const CreateCourseComponent = ({
     }
   }, [courseInfo, availableGrades, availableSubjects]);
 
+  useEffect(() => {
+    if (subject) {
+      console.log(subject)
+      getPictures(subject.name);
+    }
+  }, [subject]);
   return (
     <>
       <Stack w={{ base: 'full', xl: '40vw' }} spacing={10}>
@@ -677,6 +702,50 @@ const CreateCourseComponent = ({
                     (Максимален брой - 20 ученици)
                   </Text>
                 </Stack>
+              </Stack>
+
+              <Stack spacing={4}>
+                <Text fontSize={18} fontWeight={600}>
+                  Снимка{' '}
+                  <Text as={'span'} color={'red'}>
+                    {courseInfo?.draft ? '' : '*'}
+                  </Text>
+                </Text>
+
+                <Wrap spacing={8}>
+                  {pictures.map((el, index) => (
+                    <WrapItem key={index}>
+                      <Box
+                        as={'button'}
+                        role="group"
+                        onClick={ev => {
+                          ev.preventDefault();
+                          // setSelectedAvatar(index);
+                        }}
+                        borderRadius="full"
+                        _hover={{
+                          transition: 'transform .2s',
+                          transform: 'scale(1.05)',
+                        }}>
+                        <Image
+                          borderRadius="full"
+                          border={selectedAvatar === index ? '5px solid' : ''}
+                          borderColor={selectedAvatar === index ? 'purple.500' : ''}
+                          boxSize={20}
+                          src={'http://localhost:8080/api/v1/users/images/Avatar_02.png'}
+                          alt={`avatar${index}`}
+                          onLoad={() => {
+                            URL.revokeObjectURL(el);
+                          }}
+                        />
+                      </Box>
+                    </WrapItem>
+                  ))}
+                </Wrap>
+
+                <Text fontSize={16} fontWeight={400} color={'grey.400'}>
+                  Моля изберете снимка,отговаряща на съдържанието на Вашия курс.
+                </Text>
               </Stack>
 
               <Stack spacing={4}>

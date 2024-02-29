@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
+import Stomp from 'stompjs';
 
 import { NavLink as ReactRouterLink, useLocation, useMatch } from 'react-router-dom';
-import { Avatar, ButtonGroup, Link as ChakraLink } from '@chakra-ui/react';
+import { Avatar, ButtonGroup, Center, Link as ChakraLink, PopoverHeader } from '@chakra-ui/react';
 
 import {
   Box,
@@ -119,9 +120,11 @@ const NAV_ITEMS_DEFAULT: Array<NavItem> = [
 ];
 
 export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
-  const { userData, logoutUser } = useContext(AuthContext);
+  const { userData, logoutUser, authTokens } = useContext(AuthContext);
   const { isOpen, onToggle, onClose } = useDisclosure();
   const [navItems, setNavItems] = useState(NAV_ITEMS_DEFAULT);
+  const [stompClient, setStompClient] = useState(null);
+  const [notifications, setNotifications] = useState(null);
 
   const [whiteMenu, setWhiteMenu] = useState(false);
   const location = useLocation();
@@ -152,6 +155,29 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
         setNavItems(NAV_ITEMS_DEFAULT);
     }
   }, [userData]);
+
+  useEffect(() => {
+    if (userData) {
+      const socket = new WebSocket('ws://localhost:8080/ws');
+      const stomp = Stomp.over(socket);
+
+      stomp.connect({}, () => {
+        setStompClient(stomp);
+        stomp.subscribe(`/user/${authTokens?.access_token}/queue/messages`, message => {
+          console.log(message)
+          const newNotification = JSON.parse(message.body);
+          // setNotifications(prevMessages => [...prevMessages, newNotification]);
+          console.log(newNotification)
+        });
+      });
+
+      return () => {
+        if (stomp) stomp.disconnect();
+      };
+    }
+  }, [userData]);
+
+  useEffect(()=> console.log(notifications),[notifications])
 
   return (
     <Box
@@ -219,12 +245,47 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                 _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
                 icon={<Img src={whiteMenu ? messageWhite : message} h={5} w={'full'} />}
               />
-              <IconButton
-                bg="transparent"
-                aria-label="notifications"
-                _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
-                icon={<Img src={whiteMenu ? bellWhite : bell} h={5} w={'full'} />}
-              />
+
+              <Popover isLazy>
+                <PopoverTrigger>
+                  <IconButton
+                    bg="transparent"
+                    aria-label="notifications"
+                    _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
+                    icon={<Img src={whiteMenu ? bellWhite : bell} h={5} w={'full'} />}
+                  />
+                </PopoverTrigger>
+                <PopoverContent>
+                  <PopoverHeader fontSize={18} fontWeight="500" color={'grey.600'} textAlign={'left'} border={'none'}>
+                    Известия
+                  </PopoverHeader>
+                  <PopoverArrow />
+                  <PopoverCloseButton />
+                  <PopoverBody
+                    minH={'150px'}
+                    maxH={'300px'}
+                    overflow-y={'auto'}
+                    css={{
+                      '&::-webkit-scrollbar': {
+                        width: '6px',
+                      },
+                      '&::-webkit-scrollbar-track': {
+                        width: '6px',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        background: '#5431D6',
+                        borderRadius: '24px',
+                      },
+                    }}>
+                    <Center minH={'100px'}>
+                      <Text color={'grey.400'} fontSize={16}>
+                        {' '}
+                        Нямате налични известия
+                      </Text>
+                    </Center>
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
             </Show>
 
             <Popover placement="bottom-start">

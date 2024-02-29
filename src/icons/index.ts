@@ -43,6 +43,9 @@ import closeRed from './close_red.svg';
 import report from './Report.svg';
 import addPerson from './Add_person.svg';
 import attach from './Attach.svg';
+import capWhite from './CapWhite.svg';
+import arrowRight from './Arrow_right.svg';
+import groupWhite from './GroupWhite.svg';
 
 export {
   YouTube,
@@ -90,4 +93,7 @@ export {
   report,
   addPerson,
   attach,
+  capWhite,
+  arrowRight,
+  groupWhite,
 };

@@ -4,7 +4,7 @@ import { Center, Img, Stack, Text, Image, Box } from '@chakra-ui/react';
 import { fileUpload } from '../icons';
 import { account } from '../images';
 
-export default function AvatarDropzone({ onFileAccepted, avatars }: { onFileAccepted: any; avatars: any }) {
+export default function AvatarDropzone({ onFileAccepted }: { onFileAccepted: any }) {
   const [file, setFile] = useState(null);
 
   const onDrop = useCallback(
@@ -48,7 +48,6 @@ export default function AvatarDropzone({ onFileAccepted, avatars }: { onFileAcce
         spacing={4}
         onClick={ev => {
           ev.preventDefault();
-          // setSelectedAvatar(index);
         }}>
         <Box
           role="group"
@@ -65,30 +64,6 @@ export default function AvatarDropzone({ onFileAccepted, avatars }: { onFileAcce
           Добави снимка
         </Text>
       </Stack>
-
-      {/*<Stack direction={'column'} align={'center'} spacing={2} w={'full'}>*/}
-      {/*  {file ? (*/}
-      {/*    <Image*/}
-      {/*      w={'full'}*/}
-      {/*      h={'full'}*/}
-      {/*      maxH={'full'}*/}
-      {/*      objectFit="cover"*/}
-      {/*      src={file?.preview}*/}
-      {/*      alt="Teacher picture"*/}
-      {/*      onLoad={() => {*/}
-      {/*        URL.revokeObjectURL(file.preview);*/}
-      {/*      }}*/}
-      {/*    />*/}
-      {/*  ) : (*/}
-      {/*    <>*/}
-      {/*      {' '}*/}
-      {/*      <Img src={fileUpload} alt={'upload file'} w={7} h={7} />*/}
-      {/*      <Text fontWeight={600} fontSize={16} color={'purple.500'}>*/}
-      {/*        Качете изображение*/}
-      {/*      </Text>{' '}*/}
-      {/*    </>*/}
-      {/*  )}*/}
-      {/*</Stack>*/}
     </Stack>
   );
 }

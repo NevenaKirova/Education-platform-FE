@@ -51,37 +51,41 @@ const MessagesPage = () => {
   };
 
   const getChatRooms = async () => {
-    try {
-      const res = await axiosInstance.get(`users/getMessages`);
+    if (user) {
+      try {
+        const res = await axiosInstance.get(`users/getMessages`);
 
-      setChatRooms(res.data);
-      res.data?.length ? setHasMessages(true) : setHasMessages(false);
-
-    } catch (err) {
-      toast({
-        title: getResponseMessage(err),
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
+        setChatRooms(res.data);
+        res.data?.length ? setHasMessages(true) : setHasMessages(false);
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
     }
   };
 
   const getMessageHistory = async () => {
-    try {
-      const res = await axiosInstance.get(`users/getMessage/${userId}`);
+    if (user) {
+      try {
+        const res = await axiosInstance.get(`users/getMessage/${userId}`);
 
-      setMessageHistory(res.data);
-      setIsLoading(false);
-    } catch (err) {
-      toast({
-        title: getResponseMessage(err),
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
+        setMessageHistory(res.data);
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
     }
   };
 
@@ -124,6 +128,7 @@ const MessagesPage = () => {
         setStompClient(stomp);
         stomp.subscribe(`/user/${userData?.id}/queue/messages`, message => {
           const newMessage = JSON.parse(message.body);
+          console.log(newMessage)
           setMessageHistory(prevMessages => [...prevMessages, newMessage]);
         });
       });
@@ -135,20 +140,19 @@ const MessagesPage = () => {
   }, [userData]);
 
   useEffect(() => {
-    if (scrollRef) {
-      scrollRef.current.addEventListener('DOMNodeInserted', event => {
+    if (userId && scrollRef) {
+      scrollRef?.current?.addEventListener('DOMNodeInserted', event => {
         const { currentTarget: target } = event;
         target.scroll({ top: target.scrollHeight, behavior: 'auto' });
       });
     }
   }, [userId]);
 
-
-  useEffect(()=>{
-    if(!hasMessages && !messageHistory.length){
+  useEffect(() => {
+    if (!hasMessages && !messageHistory.length) {
       setIsLoading(false);
     }
-  },[hasMessages]);
+  }, [hasMessages]);
 
   if (!user) return <Navigate to={'/'} replace />;
   if (!userId && hasMessages) return <Navigate to={`/messages/${chatRooms[0]?.recipientId}`} replace />;
@@ -238,7 +242,7 @@ const MessagesPage = () => {
                     maxW={{ base: '90%', lg: '82%' }}
                     w={'full'}
                     spacing={4}>
-                    <Avatar size={{ base: 'sm', md: 'md' }} src={"http://localhost:8080/api/v1/users/images/Resource_838652031_0_IMG_1078.JPG"} />
+                    <Avatar size={{ base: 'sm', md: 'md' }} src={el?.picture} />
 
                     <Stack maxW={{ base: '55%', xl: '82%' }} align={'start'} spacing={0}>
                       <Text color={'grey.600'} fontSize={18} fontWeight={500}>
@@ -281,7 +285,7 @@ const MessagesPage = () => {
                     <Avatar
                       size="md"
                       name={chatRooms.find(el => el?.recipientId == userId)?.name}
-                      src={`${chatRooms.find(el => el?.recipientId == userId)?.picture}`}
+                      src={chatRooms.find(el => el?.recipientId == userId)?.picture}
                     />
                     <Text color={'grey.600'} fontSize={20}>
                       {chatRooms.find(el => el?.recipientId == userId)?.name}

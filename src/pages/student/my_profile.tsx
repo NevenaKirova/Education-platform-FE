@@ -43,7 +43,8 @@ const StudentProfilePage = () => {
   const [courses, setCourses] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const avatars = [teacherAvatar, studentAvatar, avatar3, avatar4, avatar5, avatar6];
+  const [avatars, setAvatars] = useState([]);
+  // const avatars = [teacherAvatar, studentAvatar, avatar3, avatar4, avatar5, avatar6];
 
   const getStudentProfile = async () => {
     try {
@@ -56,6 +57,7 @@ const StudentProfilePage = () => {
       setReminders(res.data?.reminders);
       setChat(res.data?.chatNotifications);
       setCourses(res.data?.savedCoursesNotifications);
+      setAvatars(res.data?.pictures);
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
@@ -109,8 +111,24 @@ const StudentProfilePage = () => {
     },
   });
 
-  const onFileAccepted = file => {
-    setSelectedAvatar(file);
+  const onFileAccepted = async file => {
+    setSelectedAvatar('custom');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await axiosInstance.post(`users/uploadImageStudent/-1`, formData);
+
+      // setAvatars(res.data?.pictures);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
   };
   const onSubmit: SubmitHandler<any> = async data => {
     try {
@@ -133,6 +151,15 @@ const StudentProfilePage = () => {
   const onSubmitEmail: SubmitHandler<any> = async data => {
     console.log(data);
   };
+
+  useEffect(() => {
+    console.log(avatars);
+  }, [avatars]);
+
+  // useEffect(() => {
+  //   // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
+  //   return () => URL.revokeObjectURL(file?.preview);
+  // }, []);
 
   if (!user) return <Navigate to={'/'} replace />;
   if (userData && userData?.role !== 'STUDENT') return <Navigate to={'/'} replace />;
@@ -184,40 +211,43 @@ const StudentProfilePage = () => {
                       border={selectedAvatar === index ? '5px solid' : ''}
                       borderColor={selectedAvatar === index ? 'purple.500' : ''}
                       boxSize={20}
-                      src={el}
-                      alt={el}
+                      src={'http://localhost:8080/api/v1/users/images/Avatar_02.png'}
+                      alt={`avatar${index}`}
+                      onLoad={() => {
+                        URL.revokeObjectURL(el);
+                      }}
                     />
                   </Box>
                 </WrapItem>
               ))}
 
               <WrapItem>
-                <AvatarDropzone onFileAccepted={onFileAccepted} avatars={avatars} />
+                <AvatarDropzone onFileAccepted={onFileAccepted} />
 
-                <Stack
-                  direction="row"
-                  as={'button'}
-                  align={'center'}
-                  spacing={4}
-                  onClick={ev => {
-                    ev.preventDefault();
-                    // setSelectedAvatar(index);
-                  }}>
-                  <Box
-                    role="group"
-                    bg={'purple.500'}
-                    borderRadius="full"
-                    _hover={{
-                      transition: 'transform .2s',
-                      transform: 'scale(1.05)',
-                    }}>
-                    <Image borderRadius="full" boxSize={20} src={account} alt={'add picture'} />
-                  </Box>
+                {/*<Stack*/}
+                {/*  direction="row"*/}
+                {/*  as={'button'}*/}
+                {/*  align={'center'}*/}
+                {/*  spacing={4}*/}
+                {/*  onClick={ev => {*/}
+                {/*    ev.preventDefault();*/}
+                {/*    // setSelectedAvatar(index);*/}
+                {/*  }}>*/}
+                {/*  <Box*/}
+                {/*    role="group"*/}
+                {/*    bg={'purple.500'}*/}
+                {/*    borderRadius="full"*/}
+                {/*    _hover={{*/}
+                {/*      transition: 'transform .2s',*/}
+                {/*      transform: 'scale(1.05)',*/}
+                {/*    }}>*/}
+                {/*    <Image borderRadius="full" boxSize={20} src={account} alt={'add picture'} />*/}
+                {/*  </Box>*/}
 
-                  <Text textAlign={'left'} fontSize={{ base: 16 }} fontWeight={700} color={'purple.500'}>
-                    Добави снимка
-                  </Text>
-                </Stack>
+                {/*  <Text textAlign={'left'} fontSize={{ base: 16 }} fontWeight={700} color={'purple.500'}>*/}
+                {/*    Добави снимка*/}
+                {/*  </Text>*/}
+                {/*</Stack>*/}
               </WrapItem>
             </Wrap>
           </Stack>
