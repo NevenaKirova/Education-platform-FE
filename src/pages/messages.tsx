@@ -38,6 +38,7 @@ const MessagesPage = () => {
   const [hasMessages, setHasMessages] = useState(false);
 
   const [stompClient, setStompClient] = useState(null);
+  const [isWebSocketReady, setIsWebSocketReady] = useState(false);
 
   const {
     register,
@@ -98,7 +99,7 @@ const MessagesPage = () => {
       time: format(new Date().getTime(), 'HH:mm'),
     };
 
-    if (stompClient && stompClient.connected) {
+    if (isWebSocketReady && stompClient && stompClient.connected) {
       stompClient.send('/app/chat', {}, JSON.stringify(message));
       setMessageHistory(prevMessages => [...prevMessages, message]);
       reset();
@@ -108,7 +109,7 @@ const MessagesPage = () => {
   };
 
   useEffect(() => {
-    getChatRooms();
+    setTimeout(getChatRooms, 300);
   }, [messageHistory]);
 
   useEffect(() => {
@@ -126,9 +127,10 @@ const MessagesPage = () => {
 
       stomp.connect({}, () => {
         setStompClient(stomp);
+        setIsWebSocketReady(true);
         stomp.subscribe(`/user/${userData?.id}/queue/messages`, message => {
           const newMessage = JSON.parse(message.body);
-          console.log(newMessage)
+
           setMessageHistory(prevMessages => [...prevMessages, newMessage]);
         });
       });

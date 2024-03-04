@@ -244,10 +244,6 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
   }, [currentPage, sort]);
 
   useEffect(() => {
-    console.log(classes, classesTotal);
-  }, [classes]);
-
-  useEffect(() => {
     const getFiltersUrl = isPrivateLesson ? '/lessons/getLessonFilters' : '/lessons/getCourseFilters';
     setIsLoading(true);
     axios
@@ -547,8 +543,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
             w={'full'}
             templateColumns={{
               base: 'repeat(auto-fill, minmax(260px, 1fr))',
-              lg: 'repeat(4, 1fr)',
-              '2xl': 'repeat(4, 1fr)',
+              xl: 'repeat(4, 1fr)',
             }}
             gap={12}>
             {classes?.map((el, index) => <CourseCard key={index} course={el} />)}

@@ -53,7 +53,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import bgLocale from '@fullcalendar/core/locales/bg';
 import { axiosInstance } from '../../axios';
 import { format } from 'date-fns';
-import CalendarDayViewModal from "../calendar/calendar_day_view";
+import CalendarDayViewModal from '../calendar/calendar_day_view';
 
 const courseTypes = [
   { label: 'Всички', type: 'all' },
@@ -69,12 +69,12 @@ const sortValues = [
 ];
 
 export default function MyDashboardPage() {
-  const { user,userData } = useContext(AuthContext);
+  const { user, userData } = useContext(AuthContext);
   const dispatch = useAppDispatch();
   const toast = useToast();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isOpenDate, onOpen:onOpenDate, onClose:onCloseDate } = useDisclosure();
+  const { isOpen: isOpenDate, onOpen: onOpenDate, onClose: onCloseDate } = useDisclosure();
 
   const [sort, setSort] = useState(sortValues[0]);
   const [openModalWithCourse, setOpenModalWithCourse] = useState(null);
@@ -131,9 +131,9 @@ export default function MyDashboardPage() {
     try {
       dispatch(getStudentAll({ sort: sort?.type, page: currentPage }));
 
-      // dispatch(getStudentCourses({ sort: sort.type, page: currentPage }));
-      //
-      // dispatch(getStudentLessons({ sort: sort.type, page: currentPage }));
+      dispatch(getStudentCourses({ sort: sort.type, page: currentPage }));
+
+      dispatch(getStudentLessons({ sort: sort.type, page: currentPage }));
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -217,7 +217,6 @@ export default function MyDashboardPage() {
         <Stack
           align={'start'}
           spacing={{ base: 8, lg: 10 }}
-          py={{ base: 20, md: 28 }}
           direction={{ base: 'column', lg: 'row' }}
           flex={1}
           w={'full'}>
@@ -228,7 +227,12 @@ export default function MyDashboardPage() {
 
             <Stack flex={1} spacing={{ base: 5, md: 10 }} w={'full'}>
               <Tabs variant="unstyled" w={'full'}>
-                <Stack spacing={{ base: 10, md: 6 }} direction={'row'} flexWrap={'wrap'} justify={'space-between'}>
+                <Stack
+                  spacing={{ base: 10, md: 6 }}
+                  direction={'row'}
+                  flexWrap={'wrap'}
+                  w={'full'}
+                  justify={'space-between'}>
                   <TabList gap={{ base: 10, md: 8 }}>
                     {courseTypes.map((type, index) => (
                       <Tab
@@ -383,7 +387,7 @@ export default function MyDashboardPage() {
               mt={{ base: 28, md: 36 }}
               mb={12}
               justify={'start'}
-              w={{base:'full', xl:'70%'}}
+              w={{ base: 'full', xl: '70%' }}
               rounded={'md'}
               boxShadow={'custom'}
               className={'dashboard-calendar'}>
@@ -410,7 +414,13 @@ export default function MyDashboardPage() {
       </Stack>
 
       <RateClassModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} course={openModalWithCourse} />
-      <CalendarDayViewModal isOpen={isOpenDate} onClose={onCloseDate} date={date} events={dateEvents} role={userData?.role} />
+      <CalendarDayViewModal
+        isOpen={isOpenDate}
+        onClose={onCloseDate}
+        date={date}
+        events={dateEvents}
+        role={userData?.role}
+      />
     </>
   );
 }

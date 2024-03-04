@@ -156,28 +156,28 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
     }
   }, [userData]);
 
-  useEffect(() => {
-    if (userData) {
-      const socket = new WebSocket('ws://localhost:8080/ws');
-      const stomp = Stomp.over(socket);
-
-      stomp.connect({}, () => {
-        setStompClient(stomp);
-        stomp.subscribe(`/user/${authTokens?.access_token}/queue/messages`, message => {
-          console.log(message)
-          const newNotification = JSON.parse(message.body);
-          // setNotifications(prevMessages => [...prevMessages, newNotification]);
-          console.log(newNotification)
-        });
-      });
-
-      return () => {
-        if (stomp) stomp.disconnect();
-      };
-    }
-  }, [userData]);
-
-  useEffect(()=> console.log(notifications),[notifications])
+  // useEffect(() => {
+  //   if (userData) {
+  //     const socket = new WebSocket('ws://localhost:8080/ws');
+  //     const stomp = Stomp.over(socket);
+  //
+  //     stomp.connect({}, () => {
+  //       setStompClient(stomp);
+  //       stomp.subscribe(`/user/${authTokens?.access_token}/queue/messages`, message => {
+  //         console.log(message)
+  //         const newNotification = JSON.parse(message.body);
+  //         // setNotifications(prevMessages => [...prevMessages, newNotification]);
+  //         console.log(newNotification)
+  //       });
+  //     });
+  //
+  //     return () => {
+  //       if (stomp) stomp.disconnect();
+  //     };
+  //   }
+  // }, [userData]);
+  //
+  // useEffect(()=> console.log(notifications),[notifications])
 
   return (
     <Box

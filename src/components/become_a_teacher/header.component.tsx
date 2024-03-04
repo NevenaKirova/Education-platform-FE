@@ -35,8 +35,8 @@ export default function HeaderSection({
           mt={{ base: '18vh', lg: 0 }}
           justify={{ base: 'start', lg: 'center' }}
           align={{ base: 'center', lg: 'flex-start' }}>
-          <Stack align={'center'} justify={'center'} spacing={{ base: '6vh', lg: 14 }}>
-            <Stack spacing={{ base: '6vh', lg: 10 }}>
+          <Stack align={'center'} justify={'center'} spacing={{ base: 12, md: 16, lg: 10 }}>
+            <Stack spacing={{ base: 12, md: 14, lg: 10 }}>
               <Text
                 color={'grey.600'}
                 fontWeight={700}
@@ -60,7 +60,7 @@ export default function HeaderSection({
                 fontWeight={400}
                 lineHeight={1.35}
                 textAlign={{ base: 'center', lg: 'left' }}
-                fontSize={useBreakpointValue({ base: 14, md: 20, lg: '1.9vw', xl: '1.2vw' })}>
+                fontSize={{ base: 14, md: 18, xl: 20 }}>
                 Създай своята кариера при нас. Преподавай онлайн отвсякъде по всяко време.
               </Text>
             </Stack>

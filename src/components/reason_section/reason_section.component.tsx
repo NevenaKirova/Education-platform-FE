@@ -3,12 +3,12 @@ import { ReactElement } from 'react';
 import { SimpleGrid, Text, Stack, Flex, Heading, Img } from '@chakra-ui/react';
 import { YouTube, profile, book } from '../../icons';
 
-interface FeatureProps {
+export interface FeatureProps {
   title: string;
   text: string;
   number: string;
   numberColor: string;
-  icon: ReactElement;
+  icon?: ReactElement;
   shadow?: boolean;
 }
 
@@ -59,12 +59,7 @@ const Feature = ({ title, text, icon, number, numberColor, shadow = false }: Fea
 export default function ReasonsSection() {
   return (
     <Stack py={4} px={{ base: 8, md: 20, lg: 20, '2xl': '15vw' }} spacing={8} align={'center'}>
-      <Heading
-        flex={1}
-        as="h1"
-        fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', xl: '2vw' }}
-        textAlign="center"
-        pb={8}>
+      <Heading flex={1} fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', xl: '2vw' }} textAlign="center" pb={8}>
         Защо{' '}
         <Text as="span" color={'purple.500'}>
           да изберете
@@ -75,8 +70,9 @@ export default function ReasonsSection() {
         columns={{ base: 1, md: 2, lg: 3 }}
         alignItems="center"
         justifyContent={'center'}
-        spacing={{ base: 24, '2xl': 24 }}
-        px={{ base: 2, lg: 0 }}>
+        spacing={{ base: 24, md: 12, '2xl': 24 }}
+        px={{ base: 2, lg: 0 }}
+        w={'full'}>
         <Feature
           icon={<Img src={YouTube} w={'full'} />}
           title={'Учи от всякъде'}

@@ -10,7 +10,7 @@ import BenefitsSection from '../components/benefits/benefits_section.component';
 
 import { gradientDivider } from '../images';
 
-import { Stack, Img, Heading, Text, Button, useBreakpointValue } from '@chakra-ui/react';
+import { Stack, Img, Heading, Text, Button } from '@chakra-ui/react';
 
 import '../styles/styles.scss';
 const BecomeATeacherPage = ({
@@ -50,13 +50,13 @@ const BecomeATeacherPage = ({
             <Heading
               flex={1}
               as="h1"
-              fontSize={useBreakpointValue({
-                base: '5.8vw',
+              fontSize={{
+                base: '2.4vh',
                 sm: 'xl',
-                md: '3.5vw',
-                lg: '3vh',
-                xl: '2.2vw',
-              })}
+                md: 30,
+                lg: 36,
+                '2xl': '2.3vw',
+              }}
               textAlign="center"
               color={'grey.600'}>
               Бърза, лесна и безплатна

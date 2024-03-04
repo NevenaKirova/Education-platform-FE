@@ -36,7 +36,7 @@ export default function Footer() {
         <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={16}>
           <Stack align={'flex-start'} textAlign={'left'}>
             <ListHeader>За нас</ListHeader>
-            <Box as="a" href={'#'}>
+            <Box as={ReactRouterLink} to={'/about-us'}>
               Нашата история
             </Box>
             <Box as={ReactRouterLink} to={'/terms-of-use'}>

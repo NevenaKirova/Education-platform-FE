@@ -76,7 +76,7 @@ const LoginModal = ({
   setLoginAs: any;
 }) => {
   const location = useLocation();
-  const { loginUser, userData, isUserLoggedIn } = useContext(AuthContext);
+  const { loginUser, userData } = useContext(AuthContext);
   const { isOpen: isOpenMessage, onOpen: onOpenMessage, onClose: onCloseMessage } = useDisclosure();
   const navigate = useNavigate();
 
@@ -104,7 +104,6 @@ const LoginModal = ({
 
   const onSubmit: SubmitHandler<InputsLogin> = async data => {
     await loginUser(data);
-
     reset();
   };
 
@@ -160,7 +159,7 @@ const LoginModal = ({
     if (userData) {
       setRole(userData.role);
     }
-  }, [userData, isUserLoggedIn]);
+  }, [userData]);
 
   return (
     <>

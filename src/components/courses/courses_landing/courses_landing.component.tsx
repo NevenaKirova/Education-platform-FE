@@ -18,8 +18,8 @@ export const responsive = {
   },
   desktop: {
     breakpoint: { max: 1350, min: 1000 },
-    items: 3,
-    partialVisibilityGutter: 0,
+    items: 2,
+    partialVisibilityGutter: 80,
   },
   tablet: {
     breakpoint: { max: 1000, min: 700 },
@@ -53,7 +53,7 @@ export default function CourseSection({
   setModalTabIndex: any;
 }) {
   return (
-    <Stack spacing={32} px={{ base: 12, lg: 20,'2xl': 32 }}>
+    <Stack spacing={{ base: 32, md: 40 }} px={{ base: 12, lg: 20, '2xl': 32 }}>
       <Stack spacing={{ base: 6, lg: 8 }}>
         <Grid
           w={'full'}
@@ -62,11 +62,7 @@ export default function CourseSection({
           pr={{ base: 0, lg: 8 }}
           alignItems={'baseline'}>
           <GridItem colSpan={{ base: 1, lg: 4, xl: 3 }} colStart={{ base: 1, xl: 2 }}>
-            <Heading
-              flex={1}
-              as="h1"
-              fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', lg: '2.5vw', xl: '2vw' }}
-              textAlign="center">
+            <Heading flex={1} as="h1" fontSize={{ base: 24, md: 32, lg:40}} textAlign="center">
               <Text as="span" color={'purple.500'}>
                 Най-популярни
               </Text>{' '}
@@ -78,7 +74,7 @@ export default function CourseSection({
             <Button
               as={ReactRouterLink}
               to={'/courses'}
-              fontSize={{ base: '4.7vw', md: ' 2.5vw', lg: '1.8vw', xl: '1.4vw' }}
+              fontSize={{ base: 18, md: 20, lg: 22, xl: 24 }}
               fontWeight={700}
               variant={'link'}
               color={'purple.500'}
@@ -114,7 +110,7 @@ export default function CourseSection({
             <Heading
               flex={1}
               as="h1"
-              fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', lg: '2.5vw', xl: '2vw' }}
+              fontSize={{ base: 24, md: 32, lg:40}}
               textAlign="center">
               <Text as="span" color={'purple.500'}>
                 Най-популярни
@@ -127,7 +123,7 @@ export default function CourseSection({
             <Button
               as={ReactRouterLink}
               to={'/lessons'}
-              fontSize={{ base: '4.7vw', md: ' 2.5vw', lg: '1.8vw', xl: '1.4vw' }}
+              fontSize={{ base: 18, md: 20, lg: 22, xl: 24 }}
               fontWeight={700}
               variant={'link'}
               color={'purple.500'}

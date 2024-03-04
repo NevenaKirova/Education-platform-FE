@@ -33,7 +33,7 @@ export default function TestimonialsSection({ reviews }: { reviews: any }) {
       <Heading
         flex={1}
         as="h1"
-        fontSize={{ base: '5.8vw', sm: '4.5vw', md: '3.8vw', xl: '2vw' }}
+        fontSize={{ base: 24, md: 32, lg:40}}
         textAlign="center"
         pb={8}>
         <Text as="span" color={'purple.500'}>

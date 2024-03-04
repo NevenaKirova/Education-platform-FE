@@ -36,19 +36,19 @@ export const Header = ({
       h={'100vh'}
       backgroundImage={{ base: headerImageMobile, lg: headerImage, xl: headerImageDesktop }}
       backgroundSize={'cover'}
-      backgroundPosition={{ base: 'center center', xl: 'center center' }}>
+      backgroundPosition={{ base: 'center center', lg: '75%', xl: 'center center' }}>
       <VStack
         w={'full'}
-        mt={{ base: '18vh', lg: 0 }}
-        justify={{ base: 'start', lg: 'center' }}
+        mt={{ base: '18vh', lg: '20vh', xl: 0 }}
+        justify={{ base: 'start', xl: 'center' }}
         align={{ base: 'center', lg: 'flex-start' }}
         px={useBreakpointValue({ base: 8, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 })}>
         <Stack
-          maxW={{ base: 'full', lg: '40vw', xl: '30vw' }}
+          maxW={{ base: 'full', lg: '48vw', xl: '37vw', '2xl': '30vw' }}
           align={'center'}
           justify={'center'}
-          spacing={{ base: '6vh', lg: 14 }}>
-          <Stack spacing={{ base: '6vh', lg: 10 }}>
+          spacing={{ base: 12, md: 16, lg: 14 }}>
+          <Stack spacing={{ base: 12, md: 14, lg: 10 }}>
             <Text
               color={'white'}
               fontWeight={700}
@@ -57,9 +57,9 @@ export const Header = ({
               fontSize={useBreakpointValue({
                 base: '2.4vh',
                 sm: 'xl',
-                md: '3.5vw',
-                lg: '3vh',
-                xl: '2.2vw',
+                md: 30,
+                lg: 36,
+                '2xl': '2.3vw',
               })}>
               Стани отличник от вкъщи! <br /> Започни да учиш онлайн по-лесно и удобно с {''}
               <Text as="span" color={'blue.100'}>
@@ -72,7 +72,7 @@ export const Header = ({
               fontWeight={400}
               lineHeight={1.35}
               textAlign={{ base: 'center', lg: 'left' }}
-              fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
+              fontSize={{ base: 14, md: 18, xl: 20 }}>
               Голямо разнообразие от онлайн частни уроци и курсове за ученици и студенти. Избери най – подходящия за
               теб!
             </Text>

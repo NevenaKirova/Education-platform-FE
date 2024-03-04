@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { format } from 'date-fns';
 
 import {
   Box,
-  Center,
   Heading,
   Text,
   Stack,
@@ -21,11 +21,11 @@ import {
 import { heart, heartFull, user } from '../../../icons';
 import { FaStar } from 'react-icons/fa';
 
-import pages, { CourseType } from '../../../pages';
+import { CourseType } from '../../../pages';
 import AuthContext from '../../../context/AuthContext';
 import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
-import { useSelector } from 'react-redux';
+
 import { getStudentLiked } from '../../../store/selectors';
 import { getLikedCourses } from '../../../store/features/student/studentFavourites/studentFavourites.async';
 import { useAppDispatch } from '../../../store';
@@ -115,7 +115,7 @@ export default function CourseCard({
       <Box
         as={ReactRouterLink}
         to={course?.privateLesson ? `/lessons/${course?.lessonID}` : `/courses/${course?.lessonID}`}
-        maxW={{ base: 'full', sm: '58vw', md: '37vw', lg: '26vw', '2xl': '19vw' }}
+        maxW={{ base: 'full', sm: '58vw', md: '37vw', lg: '28vw', '2xl': '19vw' }}
         h={'full'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.900')}
@@ -185,8 +185,10 @@ export default function CourseCard({
                   </Stack>
 
                   <Stack direction={'row'} align={'center'}>
-                    <Text color={'grey.500'}>Начална дата:</Text>
-                    <Text color={'grey.500'}>
+                    <Text color={'grey.500'} textAlign={'start'}>
+                      Начална дата:
+                    </Text>
+                    <Text color={'grey.500'} textAlign={'end'}>
                       {course?.firstDate &&
                         course?.time &&
                         `${format(new Date(course?.firstDate), ' dd/MM/yyyy')} ${course?.time}ч`}

@@ -211,7 +211,7 @@ const StudentProfilePage = () => {
                       border={selectedAvatar === index ? '5px solid' : ''}
                       borderColor={selectedAvatar === index ? 'purple.500' : ''}
                       boxSize={20}
-                      src={'http://localhost:8080/api/v1/users/images/Avatar_02.png'}
+                      src={"http://localhost:8080/api/v1/users/images/Student_Image_dcbb9abd-f326-4118-ba70-066e9d2e28b1_IMG_1078.JPG"}
                       alt={`avatar${index}`}
                       onLoad={() => {
                         URL.revokeObjectURL(el);

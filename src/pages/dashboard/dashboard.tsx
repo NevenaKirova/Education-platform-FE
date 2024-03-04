@@ -192,8 +192,9 @@ export default function DashboardPage() {
             setOpenedCourse(null);
             setActiveTab(index);
           }}>
-          <TabList flexWrap={'wrap'}>
+          <TabList flexWrap={'wrap'} gap={4}>
             <Tab
+              p={0}
               fontSize={{ base: 16, md: 18, lg: 20 }}
               fontWeight={600}
               color={'grey.500'}
@@ -209,6 +210,7 @@ export default function DashboardPage() {
               <Text>Начало</Text>
             </Tab>
             <Tab
+              p={0}
               fontSize={{ base: 16, md: 18, lg: 20 }}
               fontWeight={600}
               color={'grey.500'}
@@ -223,6 +225,7 @@ export default function DashboardPage() {
               <Text>Моите курсове</Text>
             </Tab>
             <Tab
+              p={0}
               fontSize={{ base: 16, md: 18, lg: 20 }}
               fontWeight={600}
               color={'grey.500'}
@@ -238,6 +241,7 @@ export default function DashboardPage() {
             </Tab>
 
             <Tab
+              p={0}
               fontSize={{ base: 16, md: 18, lg: 20 }}
               fontWeight={600}
               color={'grey.500'}
@@ -256,8 +260,8 @@ export default function DashboardPage() {
           {isLoading && activeTab == 0 ? (
             <PageLoader isLoading={isLoading} />
           ) : (
-            <TabPanels pt={4} px={2}>
-              <TabPanel p={{ base: 2 }}>
+            <TabPanels pt={4} px={{ base: 0, lg: 2 }}>
+              <TabPanel p={{ base: 0, lg: 2 }}>
                 <Stack spacing={10}>
                   {userData?.verified === false ? (
                     <UnverifiedComponent />
@@ -272,7 +276,12 @@ export default function DashboardPage() {
                     />
                   ) : (
                     <Stack>
-                      <Stack direction={'row'} align={'center'} justify={'space-between'}>
+                      <Stack
+                        direction={{ base: 'column', lg: 'row' }}
+                        align={{ base: 'start', lg: 'center' }}
+                        justify={'space-between'}
+                        spacing={{ base: 6, lg: 10 }}
+                        mt={4}>
                         <Heading
                           flex={1}
                           as="h1"
@@ -283,12 +292,12 @@ export default function DashboardPage() {
                         </Heading>
 
                         <Button
-                          size={{ base: 'md', lg: 'md' }}
                           color={'purple.500'}
                           bg={'transparent'}
                           fontSize={{ base: 16, '2xl': 20 }}
                           fontWeight={700}
-                          _hover={{ bg: 'transparent' }}>
+                          _hover={{ bg: 'transparent' }}
+                          p={0}>
                           <Stack as={ReactRouterLink} to={'/calendar'} direction={'row'} align={'center'}>
                             <Img src={calendar} alt={'calendar icon'} />
                             <Text> Отвори календара </Text>
@@ -313,7 +322,7 @@ export default function DashboardPage() {
                 </Stack>
               </TabPanel>
 
-              <TabPanel p={{ base: 2 }}>
+              <TabPanel p={{ base: 0, lg: 2 }}>
                 {userData?.verified === false ? (
                   <UnverifiedComponent />
                 ) : userData?.beingVerified === false ? (
@@ -331,7 +340,7 @@ export default function DashboardPage() {
                     course={openedCourse}
                   />
                 ) : !showCreateCourse && !addDateActive ? (
-                  <Stack spacing={10} mt={4}>
+                  <Stack spacing={{ base: 6, lg: 10 }} mt={4}>
                     <Heading
                       flex={1}
                       as="h1"
@@ -342,8 +351,16 @@ export default function DashboardPage() {
                     </Heading>
 
                     <Tabs variant="unstyled" w={'full'}>
-                      <Stack direction={'row'} justify={'space-between'} align={'center'}>
-                        <TabList gap={8}>
+                      <Stack
+                        direction={{ base: 'column', md: 'row' }}
+                        justify={'space-between'}
+                        w={'full'}
+                        align={'center'}>
+                        <TabList
+                          gap={{ base: 4, lg: 8 }}
+                          flexWrap={'wrap'}
+                          w={'full'}
+                          justifyContent={{ base: 'space-between', md: 'flex-start' }}>
                           {courseTypes.map((type, index) => (
                             <Tab
                               key={index}
@@ -351,7 +368,10 @@ export default function DashboardPage() {
                               rounded={'md'}
                               color={'purple.500'}
                               border={'dashed 2px'}
-                              borderColor={'purple.500'}>
+                              borderColor={'purple.500'}
+                              fontSize={{ base: 14, md: 16 }}
+                              px={{ base: '6px', lg: 4 }}
+                              py={{ base: 1, lg: 2 }}>
                               {type?.label}
                             </Tab>
                           ))}
@@ -359,16 +379,25 @@ export default function DashboardPage() {
 
                         {allCourses && allCourses.length && (
                           <Button
-                            size={{ base: 'md', lg: 'md' }}
                             color={'white'}
                             bg={'purple.500'}
-                            fontSize={{ base: 16, '2xl': 20 }}
-                            fontWeight={700}
+                            fontSize={{ base: 14, md: 16, lg: 18, '2xl': 20 }}
+                            fontWeight={{ base: 500, lg: 700 }}
                             _hover={{ bg: 'purple.500', opacity: 0.9 }}
-                            w={'20%'}
+                            w={{ base: 'fit-content', md: 'fit-content', lg: '20%' }}
+                            minW={'fit-content'}
+                            py={{ base: 2, lg: 2 }}
+                            mt={{ base: 3, md: 0 }}
+                            alignSelf={{ base: 'end', md: 'inherit' }}
+                            h={{ base: 'fit-content', lg: 'full' }}
                             onClick={showCourseForm}>
                             <Stack direction={'row'} align={'center'} spacing={2}>
-                              <Img src={addWhite} alt={'add course'} />
+                              <Img
+                                src={addWhite}
+                                alt={'add course'}
+                                w={{ base: 4, md: 'inherit' }}
+                                h={{ base: 4, md: 'inherit' }}
+                              />
                               <Text> Създай курс </Text>
                             </Stack>
                           </Button>
@@ -461,7 +490,7 @@ export default function DashboardPage() {
                 )}
               </TabPanel>
 
-              <TabPanel p={{ base: 2 }}>
+              <TabPanel p={{ base: 0, lg: 2 }}>
                 {userData?.verified === false ? (
                   <UnverifiedComponent />
                 ) : userData?.beingVerified === false ? (
@@ -490,7 +519,12 @@ export default function DashboardPage() {
                     </Heading>
 
                     <Tabs variant="unstyled" w={'full'}>
-                      <Stack direction={'row'} justify={'space-between'} align={'center'}>
+                      <Stack
+                        d
+                        direction={{ base: 'column', md: 'row' }}
+                        justify={'space-between'}
+                        w={'full'}
+                        align={'center'}>
                         <TabList gap={8}>
                           {courseTypes.map((type, index) => (
                             <Tab
@@ -499,7 +533,10 @@ export default function DashboardPage() {
                               rounded={'md'}
                               color={'purple.500'}
                               border={'dashed 2px'}
-                              borderColor={'purple.500'}>
+                              borderColor={'purple.500'}
+                              fontSize={{ base: 14, md: 16 }}
+                              px={{ base: '6px', lg: 4 }}
+                              py={{ base: 1, lg: 2 }}>
                               {type?.label}
                             </Tab>
                           ))}
@@ -507,16 +544,25 @@ export default function DashboardPage() {
 
                         {allLessons && allLessons.length && (
                           <Button
-                            size={{ base: 'md', lg: 'md' }}
                             color={'white'}
                             bg={'purple.500'}
-                            fontSize={{ base: 16, '2xl': 20 }}
-                            fontWeight={700}
+                            fontSize={{ base: 14, md: 16, lg: 18, '2xl': 20 }}
+                            fontWeight={{ base: 500, lg: 700 }}
                             _hover={{ bg: 'purple.500', opacity: 0.9 }}
-                            w={'20%'}
+                            w={{ base: 'fit-content', md: 'fit-content', lg: '20%' }}
+                            minW={'fit-content'}
+                            py={{ base: 2, lg: 2 }}
+                            mt={{ base: 3, md: 0 }}
+                            alignSelf={{ base: 'end', md: 'inherit' }}
+                            h={{ base: 'fit-content', lg: 'full' }}
                             onClick={showLessonForm}>
                             <Stack direction={'row'} align={'center'} spacing={2}>
-                              <Img src={addWhite} alt={'add course'} />
+                              <Img
+                                src={addWhite}
+                                alt={'add lesson'}
+                                w={{ base: 4, md: 'inherit' }}
+                                h={{ base: 4, md: 'inherit' }}
+                              />
                               <Text> Създай урок </Text>
                             </Stack>
                           </Button>
@@ -608,7 +654,7 @@ export default function DashboardPage() {
                 )}
               </TabPanel>
 
-              <TabPanel p={{ base: 2 }}>
+              <TabPanel p={{ base: 0, lg: 2 }}>
                 <Stack spacing={10}>
                   {userData?.verified === false ? (
                     <UnverifiedComponent />

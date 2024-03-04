@@ -46,8 +46,8 @@ export default function DashboardCourseCard({
       bg={'transparent'}
       onClick={() => handleOpenCourse()}>
       <Stack
-        direction={'row'}
-        maxH={'230px'}
+        direction={{ base: 'column', md: 'row' }}
+        maxH={{base:'fit-content',lg:'230px'}}
         w={'full'}
         bg={'white'}
         rounded={'md'}
@@ -61,7 +61,7 @@ export default function DashboardCourseCard({
             objectFit={'cover'}
             maxH={'190px'}
             boxSize={isGrid ? '300px' : '440px'}
-            src={"http://localhost:8080/api/v1/users/images/Assignment_301947782_0_number of mesoscopic papers.PNG"}
+            src={'https://bit.ly/dan-abramov'}
             alt="Course image"
             rounded={'lg'}
             p={0}

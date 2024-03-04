@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import Carousel from 'react-multi-carousel';
-import { Box, Heading, Text, Button, Stack, Flex, Image, Grid, GridItem, Icon } from '@chakra-ui/react';
+import { Box, Heading, Text, Button, Stack, Flex, Image, Grid, GridItem, Show, Hide } from '@chakra-ui/react';
 
 import { YoutubeEmbed } from '../components/testimonials/testimonial_demo.component';
 import TestimonialCard from '../components/testimonials/testimonial_card.component';
-import { responsive } from '../components/testimonials/testimonial.component';
+import { FeatureProps } from '../components/reason_section/reason_section.component';
 
 import axios from '../axios';
 
@@ -14,6 +14,64 @@ import { arrowRight, capWhite, groupWhite } from '../icons';
 
 import style from '../components/courses/courses_landing/courses_landing.module.scss';
 
+export const responsive = {
+  superLargeDesktop: {
+    // the naming can be any, depends on you.
+    breakpoint: { max: 4000, min: 1350 },
+    items: 5,
+    partialVisibilityGutter: 0,
+  },
+  desktop: {
+    breakpoint: { max: 1350, min: 1000 },
+    items: 2,
+    partialVisibilityGutter: 80,
+  },
+  tablet: {
+    breakpoint: { max: 1000, min: 700 },
+    items: 2,
+    partialVisibilityGutter: 0,
+  },
+  miniTablet: {
+    breakpoint: { max: 700, min: 600 },
+    items: 1,
+    partialVisibilityGutter: 100,
+  },
+  largeMobile: {
+    breakpoint: { max: 600, min: 500 },
+    items: 1,
+    partialVisibilityGutter: 80,
+  },
+  mobile: {
+    breakpoint: { max: 500, min: 0 },
+    items: 1,
+    partialVisibilityGutter: 0,
+  },
+};
+const Feature = ({ title, text, number, numberColor, shadow = false }: FeatureProps) => {
+  return (
+    <Stack
+      spacing={{ base: 2 }}
+      textAlign={'center'}
+      boxShadow={shadow ? 'custom' : ''}
+      px={{ base: 6, lg: 10 }}
+      py={{ base: 8, lg: 6 }}
+      rounded={'lg'}
+      mb={4}>
+      <Text color={numberColor} left={'2.8rem'} fontSize={{ base: 68, lg: '5.5vw' }} fontWeight={700}>
+        {number}
+      </Text>
+
+      <Stack spacing={6}>
+        <Text fontWeight={700} fontSize={{ base: 20, lg: '1.3vw' }}>
+          {title}
+        </Text>
+        <Text fontSize={{ base: 14, lg: 16 }} color={'gray.600'}>
+          {text}
+        </Text>
+      </Stack>
+    </Stack>
+  );
+};
 export default function AboutUsPage() {
   const [reviews, setReviews] = useState([]);
 
@@ -32,17 +90,19 @@ export default function AboutUsPage() {
     <Stack
       spacing={{ base: 16, md: 24 }}
       py={{ base: 0, lg: 10 }}
+      pb={{ base: 20, lg: 40 }}
       mt={{ base: 36, lg: 40 }}
       align={'start'}
       justify={'start'}
-      flex={1}
-      w={'full'}>
+      w={'full'}
+      h={'full'}>
       <Stack
         as={Box}
         px={{ base: 8, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }}
-        textAlign={'start'}
+        textAlign={{ base: 'center', lg: 'start' }}
+        align={{ base: 'center', lg: 'start' }}
         spacing={5}
-        fontSize={{ base: 'md', lg: 'lg' }}>
+        fontSize={{ base: 14, lg: 16 }}>
         <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }}>
           <Text as={'span'} color={'purple.500'}>
             За нас{' '}
@@ -80,15 +140,21 @@ export default function AboutUsPage() {
       </Stack>
 
       <Stack
-        h={'70vh'}
+        h={{ base: 'full', lg: '50vh', xl: '70vh' }}
         px={{ base: 8, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }}
+        py={{ base: '10', lg: 0 }}
         bg={'purple.100'}
         w={'full'}
-        fontSize={{ base: 'md', lg: 'lg' }}
+        fontSize={{ base: 14, lg: 16 }}
         alignItems={'center'}
-        direction={'row'}>
-        <Flex flex={1} align={'start'} justify={'start'} gap={8}>
-          <Stack spacing={6} w={'full'} maxW={'xl'} align={'start'} textAlign={'start'}>
+        direction={{ base: 'column', lg: 'row' }}>
+        <Flex flex={1} align={{ base: 'center', lg: 'start' }} justify={{ base: 'center', lg: 'start' }} gap={8}>
+          <Stack
+            spacing={6}
+            w={'full'}
+            maxW={'xl'}
+            align={{ base: 'center', lg: 'start' }}
+            textAlign={{ base: 'center', lg: 'start' }}>
             <Stack spacing={2}>
               <Heading fontWeight={600} color={'purple.500'} fontSize={{ base: 24, lg: 32, xl: 40 }}>
                 Кои сме ние?
@@ -99,7 +165,7 @@ export default function AboutUsPage() {
               </Heading>
             </Stack>
 
-            <Text fontSize={{ base: 'md', lg: 'lg' }}>
+            <Text fontSize={{ base: 14, lg: 16 }}>
               Ние сме амбициозни и млади хора, обединени около една обща идеа, да подобрим образованието в страната.
               Създадохме платформата за да осъществим връзката между ученици и студенти, нуждаещи се от допълнителна
               помощ в обучението си и преподаватели, предлагащи такава. Бихме искали да наложим една нова тенденция и да
@@ -109,20 +175,21 @@ export default function AboutUsPage() {
             </Text>
           </Stack>
         </Flex>
+
         <Flex flex={1} maxH={{ base: 'inherit' }}>
           <Image rounded={'lg'} alt={'Group Image'} objectFit={'cover'} src={aboutUsBackground} />
         </Flex>
       </Stack>
 
       <Stack px={{ base: 8, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }} spacing={{ base: 16, md: 24 }}>
-        <Stack as={Box} textAlign={'start'} spacing={10} fontSize={{ base: 'md', lg: 'lg' }}>
+        <Stack as={Box} textAlign={{ base: 'center', lg: 'start' }} spacing={10} fontSize={{ base: 14, lg: 16 }}>
           <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }} lineHeight={'150%'}>
             <Text as={'span'} color={'purple.500'}>
               Какви уроци{' '}
             </Text>{' '}
             предлага платформата?
           </Heading>
-          <Text fontSize={{ base: 'md', lg: 'lg' }}>
+          <Text fontSize={{ base: 14, lg: 16 }}>
             MyClassroom предлага групови курсове и частни уроци, които се провеждат онлайн, в реално време от нашите
             учители. Уроците на платформата обхващат една голяма част от учебните предвети, включително математика,
             чужди езици, химия,биология и много други. Независимо дали сте склонни към колективно обучение или
@@ -130,16 +197,27 @@ export default function AboutUsPage() {
             експерти и педагози.
           </Text>
 
-          <Stack w={'full'} direction={'row'} justify={'space-between'} mt={6}>
-            <Stack maxW={'35vw'} w={'full'} bg={'purple.100'} p={12} spacing={6}>
-              <Stack>
+          <Stack
+            w={'full'}
+            direction={{ base: 'column', lg: 'row' }}
+            justify={'space-between'}
+            mt={6}
+            spacing={{ base: 10, lg: 0 }}>
+            <Stack
+              maxW={{ base: 'full', lg: '35vw' }}
+              w={'full'}
+              bg={'purple.100'}
+              p={12}
+              spacing={6}
+              align={{ base: 'center', lg: 'start' }}>
+              <Stack align={{ base: 'center', lg: 'start' }}>
                 <Text fontSize={24} fontWeight={700} color={'purple.500'}>
                   Групови курсове
                 </Text>
                 <Box w={'70px'} h={'3px'} bg={'purple.500'}></Box>
               </Stack>
 
-              <Text fontSize={{ base: 'md', lg: 'lg' }} color={'grey.500'}>
+              <Text fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                 Груповите курсове предоставят уникална възможност за учащите да се включат в динамична образователна
                 среда, споделяйки знания и опит с другите учащи от групата. Чрез взаимодействието и комуникацията с
                 групата, ученикът започва да учи по-активно с повече внимание върху учебния материал.
@@ -160,15 +238,21 @@ export default function AboutUsPage() {
               </Button>
             </Stack>
 
-            <Stack maxW={'35vw'} w={'full'} bg={'purple.100'} p={12} spacing={6}>
-              <Stack>
+            <Stack
+              maxW={{ base: 'full', lg: '35vw' }}
+              w={'full'}
+              bg={'purple.100'}
+              p={12}
+              spacing={6}
+              align={{ base: 'center', lg: 'start' }}>
+              <Stack align={{ base: 'center', lg: 'start' }}>
                 <Text fontSize={24} fontWeight={700} color={'purple.500'}>
                   Частни уроци
                 </Text>
                 <Box w={'70px'} h={'3px'} bg={'purple.500'}></Box>
               </Stack>
 
-              <Text fontSize={{ base: 'md', lg: 'lg' }} color={'grey.500'}>
+              <Text fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                 Уроците осигуряват персонализиран подход и възможност за фокусирано внимание върху конкретните нужди на
                 учащия. Предоставят възможност за индивидуален напредък на ученика в даден предмет, позволявайки му да
                 работи в свой собствен темп и да се съсредоточи върху конкретни затруднения или интереси.
@@ -191,9 +275,14 @@ export default function AboutUsPage() {
           </Stack>
         </Stack>
 
-        <Stack as={Box} textAlign={'center'} justify={'space-evenly'} fontSize={{ base: 'md', lg: 'lg' }} h={'75vh'}>
+        <Stack
+          as={Box}
+          textAlign={{ base: 'center' }}
+          justify={'space-evenly'}
+          fontSize={{ base: 14, lg: 16 }}
+          h={{ base: 'full', lg: '50vh', xl: '75vh' }}>
           <Stack>
-            <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }} lineHeight={'90%'}>
+            <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }} lineHeight={{ base: '130%', lg: '90%' }}>
               Защо да изберете точно нас?
             </Heading>
 
@@ -202,17 +291,77 @@ export default function AboutUsPage() {
             </Heading>
           </Stack>
 
-          <Image src={reasons} w={'full'} />
+          <Hide below={'lg'}>
+            <Image src={reasons} w={'full'} />
+          </Hide>
+
+          <Show below={'lg'}>
+            <Box w={'full'} maxW={{ base: '80vw', md: '70vw' }}>
+              <Carousel
+                autoPlay={false}
+                autoPlaySpeed={5000}
+                responsive={responsive}
+                partialVisible={true}
+                showDots={true}
+                infinite={true}
+                arrows={false}>
+                <Feature
+                  title={'Многообразие'}
+                  text={'Стотици курсове и частни уроци, водени от най-добрите професионалисти.'}
+                  number={'01'}
+                  numberColor={'#9BB1FF'}
+                />
+
+                <Feature
+                  title={'Достъпност'}
+                  text={'Напълно безплатна регистрация и достъп до курсове и уроци.'}
+                  number={'02'}
+                  numberColor={'#7694FF'}
+                />
+
+                <Feature
+                  title={'Гъекавост'}
+                  text={'Въможност за включване от всяка точка на странта в удобно за Вас време.'}
+                  number={'03'}
+                  numberColor={'#5C6CFF'}
+                />
+
+                <Feature
+                  title={'Сигурност'}
+                  text={'Без притеснение за скрити такси и изненадващи клаузи.'}
+                  number={'04'}
+                  numberColor={'#5E50F1'}
+                />
+
+                <Feature
+                  title={'Прозрачност'}
+                  text={'Прозрачни условия, пълна яснота и бързо клиентско обслужване.'}
+                  number={'05'}
+                  numberColor={'#4033D6'}
+                />
+              </Carousel>
+            </Box>
+          </Show>
         </Stack>
 
         <Stack
           direction={{ base: 'column', lg: 'row' }}
           w={'full'}
-          fontSize={{ base: 'md', lg: 'lg' }}
+          fontSize={{ base: 14, lg: 16 }}
           justify={'space-between'}
           spacing={{ base: 12, md: 16, lg: 12 }}>
-          <Flex flex={1} w="full" align={'start'} justify={'start'} gap={6}>
-            <Stack spacing={6} w={'full'} maxW={{ base: 'full', lg: 'xl' }} align={'start'} textAlign={'start'}>
+          <Flex
+            flex={1}
+            w="full"
+            align={{ base: 'center', lg: 'start' }}
+            justify={{ base: 'center', lg: 'start' }}
+            gap={6}>
+            <Stack
+              spacing={6}
+              w={'full'}
+              maxW={{ base: 'full', lg: 'xl' }}
+              align={{ base: 'center', lg: 'start' }}
+              textAlign={{ base: 'center', lg: 'start' }}>
               <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }} lineHeight={'150%'}>
                 Учителите на
                 <Text as={'span'} color={'purple.500'}>
@@ -228,6 +377,8 @@ export default function AboutUsPage() {
               <Text color={'gray.600'}>Искаш да станеш част от нашия екип?</Text>
 
               <Button
+                as={ReactRouterLink}
+                to={'/become-a-teacher'}
                 mt={{ base: 4, lg: 6 }}
                 size={{ base: 'sm', md: 'md', '2xl': 'md' }}
                 w={{ base: 'full', lg: 'fit-content', xl: '250px' }}
@@ -267,7 +418,7 @@ export default function AboutUsPage() {
             gap={20}
             w={'full'}
             justifyItems={'center'}>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((el, index) => (
+            {[1, 2, 3].map((el, index) => (
               <GridItem key={index}>
                 <Stack role="group" position={'relative'} w={{ base: '250px', md: '300px' }}>
                   <Image
@@ -314,9 +465,9 @@ export default function AboutUsPage() {
           as={Box}
           textAlign={{ base: 'center' }}
           spacing={6}
-          fontSize={{ base: 'md', lg: 'lg' }}
+          fontSize={{ base: 14, lg: 16 }}
           w={'full'}
-          mb={20}>
+          mb={{ base: 0, lg: 20 }}>
           <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }} lineHeight={'150%'}>
             <Text as={'span'} color={'purple.500'}>
               Отзиви{' '}
@@ -348,21 +499,32 @@ export default function AboutUsPage() {
           <Stack
             as={ReactRouterLink}
             to={'/courses'}
-            minW={'35vw'}
-            maxW={'45%'}
+            minW={{ base: 'inherit', lg: '35vw' }}
+            maxW={{ base: 'full', lg: '45%' }}
             w={'full'}
             bg={'purple.100'}
             align={'center'}
             justify={'space-between'}
             p={6}
-            spacing={6}
-            direction={'row'}>
-            <Stack spacing={6} direction={'row'}>
-              <Box bg={'purple.500'} w={'fit-content'} h={'fit-content'} p={4} rounded={'md'}>
-                <Image boxSize="45px" objectFit="contain" src={capWhite} alt="Cap" />
+            spacing={{ base: 6, md: 4, lg: 6 }}
+            direction={{ base: 'column', md: 'row' }}
+            flexWrap={{ base: 'wrap', md: 'nowrap' }}>
+            <Stack spacing={6} direction={{ base: 'column', md: 'row' }} w={'full'} align={'center'}>
+              <Box
+                bg={'purple.500'}
+                w={{ base: '60px', md: '70px', lg: 'fit-content' }}
+                h={{ base: 'fit-content', lg: 'fit-content' }}
+                p={4}
+                rounded={'md'}>
+                <Image
+                  boxSize={{ base: 'inherit', lg: '45px' }}
+                  objectFit={{ base: 'contain', lg: 'contain' }}
+                  src={capWhite}
+                  alt="Cap"
+                />
               </Box>
 
-              <Stack maxW={'70%'}>
+              <Stack maxW={{ base: 'full', md: '70%' }} align={{ base: 'center', md: 'start' }}>
                 <Stack direction={'row'}>
                   <Text fontSize={18} fontWeight={700}>
                     Станете наш
@@ -372,7 +534,7 @@ export default function AboutUsPage() {
                   </Text>
                 </Stack>
 
-                <Text fontSize={16} color={'grey.500'} textAlign={'start'}>
+                <Text fontSize={16} color={'grey.500'} textAlign={{ base: 'center', md: 'start' }}>
                   Разгледайте нашата селекция от курсове и частни уроци на най-разнообразни теми.
                 </Text>
               </Stack>
@@ -384,21 +546,32 @@ export default function AboutUsPage() {
           <Stack
             as={ReactRouterLink}
             to={'/become-a-teacher'}
-            minW={'35vw'}
-            maxW={'45%'}
+            minW={{ base: 'inherit', lg: '35vw' }}
+            maxW={{ base: 'full', lg: '45%' }}
             w={'full'}
             bg={'purple.100'}
             align={'center'}
+            justify={'space-between'}
             p={6}
-            spacing={6}
-            direction={'row'}
-            justify={'space-between'}>
-            <Stack spacing={6} direction={'row'}>
-              <Box bg={'purple.500'} w={'fit-content'} h={'fit-content'} p={4} rounded={'md'}>
-                <Image boxSize="45px" objectFit="contain" src={groupWhite} alt="Cap" />
+            spacing={{ base: 6, md: 4, lg: 6 }}
+            direction={{ base: 'column', md: 'row' }}
+            flexWrap={{ base: 'wrap', md: 'nowrap' }}>
+            <Stack spacing={6} direction={{ base: 'column', md: 'row' }} w={'full'} align={'center'}>
+              <Box
+                bg={'purple.500'}
+                w={{ base: '60px', md: '70px', lg: 'fit-content' }}
+                h={{ base: 'fit-content', lg: 'fit-content' }}
+                p={4}
+                rounded={'md'}>
+                <Image
+                  boxSize={{ base: 'inherit', lg: '45px' }}
+                  objectFit={{ base: 'contain', lg: 'contain' }}
+                  src={groupWhite}
+                  alt="Group"
+                />
               </Box>
 
-              <Stack maxW={'70%'}>
+              <Stack maxW={{ base: 'full', md: '70%' }} align={{ base: 'center', md: 'start' }}>
                 <Stack direction={'row'}>
                   <Text fontSize={18} fontWeight={700}>
                     Станете наш
@@ -408,7 +581,7 @@ export default function AboutUsPage() {
                   </Text>
                 </Stack>
 
-                <Text fontSize={16} color={'grey.500'} textAlign={'start'}>
+                <Text fontSize={16} color={'grey.500'} textAlign={{ base: 'center', md: 'start' }}>
                   Присъединете се към професионален екип на MyClassroom и станете един от нашите учители.
                 </Text>
               </Stack>

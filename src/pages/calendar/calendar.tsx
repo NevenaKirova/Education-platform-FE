@@ -14,7 +14,6 @@ import { Navigate } from 'react-router-dom';
 import CalendarDayViewModal from './calendar_day_view';
 import PageLoader from '../../utils/loader.component';
 import { format } from 'date-fns';
-import eventsS from './events';
 
 function Calendar() {
   const { user, userData } = useContext(AuthContext);
@@ -102,7 +101,7 @@ function Calendar() {
           <Fullcalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView={'dayGridMonth'}
-            events={eventsS}
+            events={events}
             displayEventTime={false}
             weekNumberCalculation={'ISO'}
             fixedWeekCount={false}

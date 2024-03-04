@@ -40,7 +40,8 @@ export const AuthProvider = ({ children }) => {
 
       await localStorage.setItem('authTokens', JSON.stringify(response.data));
       await setAuthTokens({ ...response.data });
-      navigate(0);
+
+      window.location.replace('/');
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -57,6 +58,7 @@ export const AuthProvider = ({ children }) => {
     setUser({});
     setUserData(null);
     localStorage.removeItem('authTokens');
+
     navigate('/');
   };
 
