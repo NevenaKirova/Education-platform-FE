@@ -611,6 +611,7 @@ const OpenedCourseComponent = ({
                         setEditInfo={setEditInfo}
                         isEdit={true}
                         getCourseInformation={getCourseInformation}
+                        getCourseDates={getCourseDates}
                       />
                     ) : (
                       <CreateCourseComponent

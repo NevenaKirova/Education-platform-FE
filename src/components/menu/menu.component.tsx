@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Stomp from 'stompjs';
 
 import { NavLink as ReactRouterLink, useLocation, useMatch } from 'react-router-dom';
-import { Avatar, ButtonGroup, Center, Link as ChakraLink, PopoverHeader } from '@chakra-ui/react';
+import { Avatar, ButtonGroup, Center, Hide, Link as ChakraLink, PopoverHeader } from '@chakra-ui/react';
 
 import {
   Box,
@@ -43,6 +43,7 @@ import {
   money,
   heartFull,
 } from '../../icons';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 interface NavItem {
   key: string;
@@ -120,11 +121,17 @@ const NAV_ITEMS_DEFAULT: Array<NavItem> = [
 ];
 
 export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
+  const { getItem } = useLocalStorage();
+
   const { userData, logoutUser, authTokens } = useContext(AuthContext);
   const { isOpen, onToggle, onClose } = useDisclosure();
   const [navItems, setNavItems] = useState(NAV_ITEMS_DEFAULT);
   const [stompClient, setStompClient] = useState(null);
   const [notifications, setNotifications] = useState(null);
+  const [notigicationType, setNotificationType] = useState(null);
+  const [hasMessageNotification, setHasMessageNotification] = useState(
+    () => getItem('hasMessageNotification') || false,
+  );
 
   const [whiteMenu, setWhiteMenu] = useState(false);
   const location = useLocation();
@@ -133,6 +140,10 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   useEffect(() => {
     location.pathname === '/' || location.pathname === '/help-center' ? setWhiteMenu(true) : setWhiteMenu(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    location.pathname.includes('/messages') && setHasMessageNotification(false);
+  }, [location.pathname, hasMessageNotification]);
 
   const handleModalOpen = (tabIndex: number) => {
     setModalTabIndex(tabIndex);
@@ -156,28 +167,29 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
     }
   }, [userData]);
 
-  // useEffect(() => {
-  //   if (userData) {
-  //     const socket = new WebSocket('ws://localhost:8080/ws');
-  //     const stomp = Stomp.over(socket);
-  //
-  //     stomp.connect({}, () => {
-  //       setStompClient(stomp);
-  //       stomp.subscribe(`/user/${authTokens?.access_token}/queue/messages`, message => {
-  //         console.log(message)
-  //         const newNotification = JSON.parse(message.body);
-  //         // setNotifications(prevMessages => [...prevMessages, newNotification]);
-  //         console.log(newNotification)
-  //       });
-  //     });
-  //
-  //     return () => {
-  //       if (stomp) stomp.disconnect();
-  //     };
-  //   }
-  // }, [userData]);
-  //
-  // useEffect(()=> console.log(notifications),[notifications])
+  useEffect(() => {
+    if (userData) {
+      const socket = new WebSocket('ws://localhost:8080/ws');
+      const stomp = Stomp.over(socket);
+
+      stomp.connect({}, () => {
+        setStompClient(stomp);
+        stomp.subscribe(`/user/${authTokens?.access_token}/queue/messages`, message => {
+          const newNotification = JSON.parse(message.body);
+          setNotificationType(newNotification.body);
+
+          setTimeout(() => {
+            setHasMessageNotification(newNotification?.chat);
+            localStorage.setItem('hasMessageNotification', JSON.stringify(newNotification?.chat));
+          }, 500);
+        });
+      });
+
+      return () => {
+        if (stomp) stomp.disconnect();
+      };
+    }
+  }, [userData]);
 
   return (
     <Box
@@ -237,14 +249,34 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                 />
               )}
 
-              <IconButton
+              <ButtonGroup
                 as={ReactRouterLink}
                 to={'/messages'}
-                bg="transparent"
-                aria-label="messages"
-                _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
-                icon={<Img src={whiteMenu ? messageWhite : message} h={5} w={'full'} />}
-              />
+                size="sm"
+                isAttached
+                variant="link"
+                _hover={{ textDecoration: 'none', bg: 'transparent', transform: 'scale(1.1)' }}
+                transition={'transform .2s'}
+                position={'relative'}>
+                <IconButton
+                  bg="transparent"
+                  aria-label="messages"
+                  _hover={{ bg: 'transparent' }}
+                  icon={<Img src={whiteMenu ? messageWhite : message} h={5} w={'full'} />}
+                />
+
+                {hasMessageNotification && (
+                  <Box
+                    position={'absolute'}
+                    right={'3px'}
+                    top={'-2px'}
+                    rounded={'lg'}
+                    h={'10px'}
+                    w={'10px'}
+                    bg={'red'}
+                    zIndex={20}></Box>
+                )}
+              </ButtonGroup>
 
               <Popover isLazy>
                 <PopoverTrigger>
@@ -297,16 +329,19 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                   _hover={{ textDecoration: 'none', bg: 'transparent', transform: 'scale(1.05)' }}
                   transition={'transform .2s'}>
                   <Avatar
-                    size={{ base: 'sm', md: 'md' }}
+                    size={{ base: 'md', md: 'md' }}
+                    p={{ base: 1, md: 0 }}
                     name={`${userData?.name} ${userData?.studentsSurname}`}
                     src="https://bit.ly/dan-abramov"
                   />
 
-                  <IconButton
-                    bg="transparent"
-                    aria-label="favourites"
-                    icon={<Img src={whiteMenu ? bottomWhite : bottom} h={{ base: 3, md: 5 }} w={'full'} />}
-                  />
+                  <Hide below={'md'}>
+                    <IconButton
+                      bg="transparent"
+                      aria-label="favourites"
+                      icon={<Img src={whiteMenu ? bottomWhite : bottom} h={{ base: 3, md: 5 }} w={'full'} />}
+                    />
+                  </Hide>
                 </ButtonGroup>
               </PopoverTrigger>
               <PopoverContent w={'fit-content'} p={0}>

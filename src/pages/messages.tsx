@@ -15,7 +15,9 @@ import {
   Avatar,
   IconButton,
   Img,
+  Box,
   useToast,
+  Hide,
 } from '@chakra-ui/react';
 
 import PageLoader from '../utils/loader.component';
@@ -117,6 +119,7 @@ const MessagesPage = () => {
       setIsLoading(true);
       setMessageHistory([]);
       getMessageHistory();
+      localStorage.setItem('hasMessageNotification', JSON.stringify(false));
     }
   }, [userId]);
 
@@ -150,12 +153,6 @@ const MessagesPage = () => {
     }
   }, [userId]);
 
-  useEffect(() => {
-    if (!hasMessages && !messageHistory.length) {
-      setIsLoading(false);
-    }
-  }, [hasMessages]);
-
   if (!user) return <Navigate to={'/'} replace />;
   if (!userId && hasMessages) return <Navigate to={`/messages/${chatRooms[0]?.recipientId}`} replace />;
 
@@ -166,41 +163,68 @@ const MessagesPage = () => {
         spacing={{ base: 8, lg: 10 }}
         pb={{ base: 0, lg: 10 }}
         px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}
-        mt={{ base: 36, lg: 40 }}
+        mt={{ base: 28, lg: 40 }}
         align={'center'}
         justify={'center'}
         flex={1}
         w={'full'}
         minH={'85vh'}>
+        <Hide above={'lg'}>
+          <Heading textAlign={'left'} w={'full'} fontSize={{ base: 20, lg: 32, xl: 34 }} color={'grey.600'}>
+            Съобщения
+          </Heading>
+          <InputGroup size={{ base: 'md' }} bg={'grey.100'} border="white" rounded={'md'} maxW={'100%'}>
+            <Input pr="4.5rem" type="text" placeholder="Търси по име" />
+            <InputRightElement width="4.5rem">
+              <Button
+                bg={'transparent'}
+                color={'purple.500'}
+                fontSize={14}
+                fontWeight={700}
+                w={'fit'}
+                h={'fit'}
+                mr={4}
+                p={2}>
+                Търси
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+        </Hide>
+
         <Stack
           direction={'row'}
           w={'full'}
           flex={1}
           rounded={'md'}
           bg={'purple.100'}
-          py={{ base: 0, lg: 10 }}
-          px={{ base: 10 }}>
-          <Stack maxW={{ base: '40%', lg: '35%' }} w={'full'} spacing={8}>
-            <Heading textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 34 }} color={'grey.600'}>
-              Съобщения
-            </Heading>
+          py={{ base: 6, lg: 10 }}
+          px={{ base: 4, lg: 10 }}
+          mb={8}>
+          <Stack maxW={{ base: '15%', lg: '35%' }} w={'full'} spacing={8}>
+            <Hide below={'lg'}>
+              <Heading textAlign={'left'} fontSize={{ base: 18, lg: 32, xl: 34 }} color={'grey.600'}>
+                Съобщения
+              </Heading>
+            </Hide>
 
-            <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'white'} border="white" rounded={'md'} maxW={'95%'}>
-              <Input pr="4.5rem" type="text" placeholder="Търси по име" />
-              <InputRightElement width="4.5rem">
-                <Button
-                  bg={'transparent'}
-                  color={'purple.500'}
-                  fontSize={14}
-                  fontWeight={700}
-                  w={'fit'}
-                  h={'fit'}
-                  mr={4}
-                  p={2}>
-                  Търси
-                </Button>
-              </InputRightElement>
-            </InputGroup>
+            <Hide below={'lg'}>
+              <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'white'} border="white" rounded={'md'} maxW={'95%'}>
+                <Input pr="4.5rem" type="text" placeholder="Търси по име" />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    bg={'transparent'}
+                    color={'purple.500'}
+                    fontSize={14}
+                    fontWeight={700}
+                    w={'fit'}
+                    h={'fit'}
+                    mr={4}
+                    p={2}>
+                    Търси
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+            </Hide>
 
             <Stack
               overflowY={'auto'}
@@ -226,48 +250,59 @@ const MessagesPage = () => {
                   as={ReactRouterLink}
                   to={`/messages/${el?.recipientId}`}
                   bg={userId == el?.recipientId ? 'white' : 'inherit'}
-                  py={4}
+                  py={{ base: 0, lg: 4 }}
                   rounded={'md'}
                   key={index}
                   direction={'row'}
                   align={'center'}
-                  justify={'space-between'}
-                  w={'95%'}
+                  justify={{ base: 'start', md: 'space-between' }}
+                  w={{ base: 'full', lg: '95%' }}
                   overflow={'hidden'}
                   minH={'55px'}
-                  px={4}>
+                  px={{ base: 0, lg: 4 }}>
                   <Stack
                     flex={1}
                     direction={'row'}
                     align={'center'}
                     justify={'start'}
-                    maxW={{ base: '90%', lg: '82%' }}
+                    maxW={{ base: '40%', md: '90%', lg: '82%' }}
                     w={'full'}
-                    spacing={4}>
-                    <Avatar size={{ base: 'sm', md: 'md' }} src={el?.picture} />
+                    spacing={{ base: 2, lg: 4 }}>
+                    <Avatar size={{ base: 'xs', md: 'md' }} src={el?.picture} />
 
-                    <Stack maxW={{ base: '55%', xl: '82%' }} align={'start'} spacing={0}>
-                      <Text color={'grey.600'} fontSize={18} fontWeight={500}>
-                        {el.name}
-                      </Text>
+                    <Hide below={'lg'}>
+                      <Stack maxW={{ base: '55%', xl: '82%' }} align={'start'} spacing={0}>
+                        <Text color={'grey.600'} fontSize={18} fontWeight={500} textAlign={'start'}>
+                          {el.name}
+                        </Text>
 
-                      <Text
-                        color={'grey.500'}
-                        fontSize={16}
-                        fontWeight={400}
-                        noOfLines={1}
-                        overflow={'hidden'}
-                        textOverflow={'ellipsis'}
-                        maxW={{ base: 'full' }}>
-                        {el?.senderId == userData?.id ? 'Вие: ' : ''} {el?.content}
-                      </Text>
-                    </Stack>
+                        <Text
+                          w={'full'}
+                          color={'grey.500'}
+                          fontSize={16}
+                          fontWeight={400}
+                          noOfLines={1}
+                          overflow={'hidden'}
+                          textAlign={'start'}
+                          textOverflow={'ellipsis'}
+                          maxW={{ base: 'full' }}>
+                          {el?.senderId == userData?.id ? 'Вие: ' : ''} {el?.content}
+                        </Text>
+                      </Stack>
+                    </Hide>
                   </Stack>
 
-                  <Stack align={'start'} justify="start" h="full" w={'fit'}>
-                    <Text color={'grey.500'} fontSize={14} fontWeight={500}>
-                      {el?.time}
-                    </Text>
+                  <Stack
+                    align={{ base: 'center', lg: 'end' }}
+                    justify={{ base: 'center', lg: 'start' }}
+                    h="full"
+                    w={'fit'}>
+                    <Hide below={'lg'}>
+                      <Text color={'grey.500'} fontSize={14} fontWeight={500}>
+                        {el?.time}
+                      </Text>
+                    </Hide>
+                    {!el.read && <Box rounded={'lg'} w={3} h={3} bg={'purple.500'}></Box>}
                   </Stack>
                 </Stack>
               ))}
@@ -281,15 +316,23 @@ const MessagesPage = () => {
                 <Text color={'grey.400'}>Нямате проведени разговори </Text>
               </Stack>
             ) : (
-              <Stack justify={'start'} align={'center'} spacing={6} h={'full'} w={'full'} pl={10} py={10} pr={6}>
+              <Stack
+                justify={{ base: 'space-between', lg: 'start' }}
+                align={'center'}
+                spacing={6}
+                h={'full'}
+                w={'full'}
+                pl={{ base: 4, md: 10 }}
+                py={{ base: 3, lg: 10 }}
+                pr={{ base: 2, md: 6 }}>
                 <Stack flex={0} w={'full'} overflow-y={'auto'} maxH={'60vh'} h={'full'}>
                   <Stack direction={'row'} spacing={4} align={'center'} justify={'start'}>
                     <Avatar
-                      size="md"
+                      size={{ base: 'sm', lg: 'md' }}
                       name={chatRooms.find(el => el?.recipientId == userId)?.name}
                       src={chatRooms.find(el => el?.recipientId == userId)?.picture}
                     />
-                    <Text color={'grey.600'} fontSize={20}>
+                    <Text color={'grey.600'} fontSize={{ base: 18, lg: 20 }}>
                       {chatRooms.find(el => el?.recipientId == userId)?.name}
                     </Text>
                   </Stack>
@@ -301,7 +344,7 @@ const MessagesPage = () => {
                   overflow={'auto'}
                   maxH={'45vh'}
                   h={'full'}
-                  pr={6}
+                  pr={{ base: 2, md: 6 }}
                   pb={6}
                   css={{
                     '&::-webkit-scrollbar': {
@@ -327,31 +370,33 @@ const MessagesPage = () => {
                         justify={msg.senderId !== userId ? 'flex-end' : 'flex-start'}>
                         {msg.senderId === userId ? (
                           <Avatar
-                            size="sm"
+                            size={{ base: 'xs', md: 'sm' }}
                             name={chatRooms.find(el => el?.recipientId == userId)?.name}
                             src={chatRooms.find(el => el?.recipientId == userId)?.picture}
                           />
                         ) : null}
 
                         <Stack
-                          maxW={'50%'}
+                          maxW={{ base: 'full', md: '50%' }}
                           bg={msg.senderId !== userId ? 'purple.200' : 'white'}
                           boxShadow={'custom'}
-                          p={3}
+                          p={{ base: 2, md: 3 }}
                           px={4}
                           rounded={'xl'}
                           align={'start'}>
-                          <Text textAlign={'left'}>{msg.content}</Text>
+                          <Text textAlign={'left'} fontSize={{ base: 14, md: 16 }}>
+                            {msg.content}
+                          </Text>
                         </Stack>
                       </Stack>
 
                       <Stack
                         direction={'row'}
                         spacing={2}
-                        fontSize={14}
+                        fontSize={{ base: 12, md: 14 }}
                         fontWeight={400}
                         color={'grey.400'}
-                        maxW={'58%'}
+                        maxW={{ base: 'full', md: '58%' }}
                         justify={'end'}>
                         <Text>{msg.date}</Text>
                         <Text>{msg.time}</Text>
@@ -361,8 +406,13 @@ const MessagesPage = () => {
                 </Stack>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <Stack flex={0} w={'full'} direction={'row'} spacing={4}>
-                    <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'white'} border="white" rounded={'md'} maxW={'90%'}>
+                  <Stack flex={0} w={'full'} direction={{ base: 'column', md: 'row' }} spacing={4}>
+                    <InputGroup
+                      size={{ base: 'sm', lg: 'md' }}
+                      bg={'white'}
+                      border="white"
+                      rounded={'md'}
+                      maxW={{ base: 'full', md: '90%' }}>
                       <Input
                         pr="4.5rem"
                         type="text"
@@ -383,8 +433,8 @@ const MessagesPage = () => {
 
                     <Button
                       type={'submit'}
-                      size={{ base: 'md' }}
-                      w={'fit-content'}
+                      size={{ base: 'sm', md: 'md' }}
+                      w={{ base: 'full', md: 'fit-content' }}
                       px={16}
                       py={0}
                       bg={'purple.500'}

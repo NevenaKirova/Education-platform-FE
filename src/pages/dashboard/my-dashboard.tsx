@@ -216,7 +216,7 @@ export default function MyDashboardPage() {
         w={'full'}>
         <Stack
           align={'start'}
-          spacing={{ base: 8, lg: 10 }}
+          spacing={{ base: 6, lg: 10 }}
           direction={{ base: 'column', lg: 'row' }}
           flex={1}
           w={'full'}>
@@ -380,14 +380,13 @@ export default function MyDashboardPage() {
 
           <Flex flex={1} justify={'center'} align={'center'} position={'relative'} w={'full'}>
             <Stack
-              spacing={20}
               py={{ base: 8 }}
               px={{ base: 10 }}
               mx={2}
-              mt={{ base: 28, md: 36 }}
+              mt={{ base: 0, lg: 36 }}
               mb={12}
               justify={'start'}
-              w={{ base: 'full', xl: '70%' }}
+              w={{ base: 'full', xl: '80%', '2xl': '70%' }}
               rounded={'md'}
               boxShadow={'custom'}
               className={'dashboard-calendar'}>

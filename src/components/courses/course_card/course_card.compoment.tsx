@@ -127,7 +127,7 @@ export default function CourseCard({
         <Stack h={'full'} justify={'space-between'}>
           <Stack>
             <Box bg={'white'} mt={-6} mx={-6} pos={'relative'} rounded="lg">
-              <Image src={`${course?.urlToImage}`} alt="Course image" borderRadius={20} p={4} />
+              <Image src={course?.urlToImage} alt="Course image" borderRadius={20} p={4} />
             </Box>
             <Stack
               direction={{ base: 'column' }}

@@ -86,6 +86,8 @@ const CreateLessonComponent = ({
   editInfo,
   isEdit = false,
   setEditInfo,
+  getCourseInformation,
+  getCourseDates,
 }: {
   setShowCreateCourse: any;
   showCreateCourse: boolean;
@@ -96,6 +98,7 @@ const CreateLessonComponent = ({
   editInfo?: boolean;
   setEditInfo?: any;
   getCourseInformation?: any;
+  getCourseDates?: any;
 }) => {
   const toast = useToast();
   const dispatch = useAppDispatch();
@@ -348,8 +351,8 @@ const CreateLessonComponent = ({
             await axiosInstance.post(`/lessons/editPrivateLesson/${courseId}`, data);
           }
           setEditInfo(false);
-          // getCourseInformation(data.lessonID);
-          // getCourseDates(data.lessonID);
+          getCourseInformation(data.lessonID);
+          getCourseDates(data.lessonID);
         } else {
           await axiosInstance.post('/lessons/createPrivateLesson', data);
           dispatch(getLessonsAll());

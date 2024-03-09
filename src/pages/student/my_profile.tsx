@@ -33,9 +33,9 @@ const StudentProfilePage = () => {
   const toast = useToast();
   const { user, userData } = useContext(AuthContext);
 
-  const [selectedAvatar, setSelectedAvatar] = useState(5);
-  const [gender, setGender] = useState('');
   const [profile, setProfile] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [gender, setGender] = useState('');
   const [client, setClient] = useState(false);
   const [marketing, setMarketing] = useState(false);
   const [reminders, setReminders] = useState(false);
@@ -44,7 +44,6 @@ const StudentProfilePage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [avatars, setAvatars] = useState([]);
-  // const avatars = [teacherAvatar, studentAvatar, avatar3, avatar4, avatar5, avatar6];
 
   const getStudentProfile = async () => {
     try {
@@ -58,6 +57,7 @@ const StudentProfilePage = () => {
       setChat(res.data?.chatNotifications);
       setCourses(res.data?.savedCoursesNotifications);
       setAvatars(res.data?.pictures);
+      setSelectedAvatar(profile?.imageLocation);
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
@@ -91,6 +91,7 @@ const StudentProfilePage = () => {
       reminders: false,
       chatNotifications: false,
       savedCoursesNotifications: false,
+      imageLocation: '',
     },
     values: {
       id: profile?.id,
@@ -102,6 +103,7 @@ const StudentProfilePage = () => {
       reminders: profile?.reminders,
       chatNotifications: profile?.chatNotifications,
       savedCoursesNotifications: profile?.savedCoursesNotifications,
+      imageLocation: profile?.imageLocation,
     },
   });
 
@@ -116,10 +118,10 @@ const StudentProfilePage = () => {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      const res = await axiosInstance.post(`users/uploadImageStudent/-1`, formData);
+      formData.append('imageLocation', file);
+      const res = await axiosInstance.post(`users/uploadImageStudent`, formData);
 
-      // setAvatars(res.data?.pictures);
+      setAvatars(res.data?.pictures);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -152,15 +154,6 @@ const StudentProfilePage = () => {
     console.log(data);
   };
 
-  useEffect(() => {
-    console.log(avatars);
-  }, [avatars]);
-
-  // useEffect(() => {
-  //   // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-  //   return () => URL.revokeObjectURL(file?.preview);
-  // }, []);
-
   if (!user) return <Navigate to={'/'} replace />;
   if (userData && userData?.role !== 'STUDENT') return <Navigate to={'/'} replace />;
 
@@ -169,7 +162,7 @@ const StudentProfilePage = () => {
   ) : (
     <Stack
       spacing={{ base: 10, lg: 12 }}
-      py={{ base: 0, lg: 10 }}
+      py={{ base: 10, lg: 10 }}
       px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}
       mt={{ base: 36, lg: 40 }}
       align={'start'}
@@ -199,7 +192,8 @@ const StudentProfilePage = () => {
                     role="group"
                     onClick={ev => {
                       ev.preventDefault();
-                      setSelectedAvatar(index);
+                      setSelectedAvatar(el);
+                      setValue('imageLocation',el);
                     }}
                     borderRadius="full"
                     _hover={{
@@ -208,10 +202,10 @@ const StudentProfilePage = () => {
                     }}>
                     <Image
                       borderRadius="full"
-                      border={selectedAvatar === index ? '5px solid' : ''}
-                      borderColor={selectedAvatar === index ? 'purple.500' : ''}
+                      border={selectedAvatar === el ? '5px solid' : ''}
+                      borderColor={selectedAvatar === el ? 'purple.500' : ''}
                       boxSize={20}
-                      src={"http://localhost:8080/api/v1/users/images/Student_Image_dcbb9abd-f326-4118-ba70-066e9d2e28b1_IMG_1078.JPG"}
+                      src={el}
                       alt={`avatar${index}`}
                       onLoad={() => {
                         URL.revokeObjectURL(el);
@@ -257,7 +251,7 @@ const StudentProfilePage = () => {
               Лична информация
             </Text>
 
-            <Stack direction={'row'} spacing={6} maxW={'50%'}>
+            <Stack direction={'row'} spacing={6} maxW={{ base: 'full', lg: '50%' }}>
               <FormControl isInvalid={!!errors.name}>
                 <FormLabel fontWeight={700} color={'purple.500'} pb={2}>
                   Име
@@ -339,7 +333,7 @@ const StudentProfilePage = () => {
                 }}
               />
               <FormLabel htmlFor="client">
-                <Stack spacing={0}>
+                <Stack spacing={0} fontSize={{ base: 14, lg: 16 }}>
                   <Text fontWeight={700} color={'grey.600'}>
                     Обслужване на клиенти
                   </Text>
@@ -361,7 +355,7 @@ const StudentProfilePage = () => {
                 }}
               />
               <FormLabel htmlFor="marketing">
-                <Stack spacing={0}>
+                <Stack spacing={0} fontSize={{ base: 14, lg: 16 }}>
                   <Text fontWeight={700} color={'grey.600'}>
                     Маркетинг
                   </Text>
@@ -383,7 +377,7 @@ const StudentProfilePage = () => {
                 }}
               />
               <FormLabel htmlFor="reminders">
-                <Stack spacing={0}>
+                <Stack spacing={0} fontSize={{ base: 14, lg: 16 }}>
                   <Text fontWeight={700} color={'grey.600'}>
                     Напомянния
                   </Text>
@@ -403,7 +397,7 @@ const StudentProfilePage = () => {
                 }}
               />
               <FormLabel htmlFor="chat">
-                <Stack spacing={0}>
+                <Stack spacing={0} fontSize={{ base: 14, lg: 16 }}>
                   <Text fontWeight={700} color={'grey.600'}>
                     Чат известия
                   </Text>
@@ -423,7 +417,7 @@ const StudentProfilePage = () => {
                 }}
               />
               <FormLabel htmlFor="courses">
-                <Stack spacing={0}>
+                <Stack spacing={0} fontSize={{ base: 14, lg: 16 }}>
                   <Text fontWeight={700} color={'grey.600'}>
                     Известия за запазени курсове
                   </Text>
@@ -439,11 +433,11 @@ const StudentProfilePage = () => {
             type={'submit'}
             size={{ base: 'md' }}
             w={'fit-content'}
-            px={16}
+            px={{ base: 10, lg: 16 }}
             py={0}
             bg={'purple.500'}
             color={'white'}
-            fontSize={16}
+            fontSize={{ base: 14, md: 16 }}
             fontWeight={700}
             _hover={{ opacity: '0.95' }}
             _focus={{ outline: 'none' }}
@@ -476,11 +470,11 @@ const StudentProfilePage = () => {
             type={'submit'}
             size={{ base: 'md' }}
             w={'fit-content'}
-            px={16}
+            px={{ base: 10, lg: 16 }}
             py={0}
             bg={'purple.500'}
             color={'white'}
-            fontSize={16}
+            fontSize={{ base: 14, md: 16 }}
             fontWeight={700}
             _hover={{ opacity: '0.95' }}
             _focus={{ outline: 'none' }}

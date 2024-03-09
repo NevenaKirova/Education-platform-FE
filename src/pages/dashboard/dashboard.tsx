@@ -520,7 +520,6 @@ export default function DashboardPage() {
 
                     <Tabs variant="unstyled" w={'full'}>
                       <Stack
-                        d
                         direction={{ base: 'column', md: 'row' }}
                         justify={'space-between'}
                         w={'full'}

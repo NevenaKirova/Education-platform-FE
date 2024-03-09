@@ -33,6 +33,7 @@ import AddResourcesModal from '../modals/course_add_resources';
 import CourseAddHomework from './course_add_homework';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import SubmissionsComponent from './course_submissions.component';
+import PageLoader from '../../../utils/loader.component';
 
 const CourseResources = ({
   date,
@@ -75,6 +76,7 @@ const CourseResources = ({
   const [themeToEdit, setThemeToEdit] = useState(null);
   const [showSelected, setShowSelected] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const studentsToShow = useMemo(() => {
     if (!students.length) {
@@ -123,11 +125,14 @@ const CourseResources = ({
 
   const getOpenedCourse = async () => {
     try {
+      setIsLoading(true);
       const id = isPrivateLesson ? date?.lessonTerminId : date?.courseTerminId;
       const res = await axiosInstance.get(`lessons/getCourseClassroomPage/${id}`);
       setOpenedCourse(res.data);
       setStudents(res.data?.students);
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       toast({
         title: getResponseMessage(err),
         status: 'error',
@@ -194,7 +199,9 @@ const CourseResources = ({
     getOpenedCourse();
   }, []);
 
-  return (
+  return isLoading ? (
+    <PageLoader isLoading={isLoading} />
+  ) : (
     <>
       {showSubmissions ? (
         <SubmissionsComponent course={course} />
