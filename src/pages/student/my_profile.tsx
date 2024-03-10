@@ -118,7 +118,7 @@ const StudentProfilePage = () => {
 
     try {
       const formData = new FormData();
-      formData.append('imageLocation', file);
+      formData.append('file', file);
       const res = await axiosInstance.post(`users/uploadImageStudent`, formData);
 
       setAvatars(res.data?.pictures);
