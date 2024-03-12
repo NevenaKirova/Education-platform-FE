@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 
 import { Calendar } from 'primereact/calendar';
-import { format } from 'date-fns';
+import { format, addYears } from 'date-fns';
 import { MultiSelect } from 'primereact/multiselect';
 import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -199,6 +199,7 @@ const CourseAddDate = ({
               clampValueOnBlur={false}
               w={{ base: 'full', md: '30%' }}
               min={1}
+              max={30}
               keepWithinRange={true}
               onChange={e => {
                 setValueDate('weekLength', e);
@@ -238,6 +239,7 @@ const CourseAddDate = ({
                 setDateStartValue(e.value);
               }}
               minDate={new Date()}
+              maxDate={addYears(new Date(), 1)}
               dateFormat="dd M yy"
               locale={'bg'}
               showIcon

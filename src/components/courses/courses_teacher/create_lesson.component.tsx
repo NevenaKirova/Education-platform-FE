@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { SubmitHandler, useForm, useFieldArray } from 'react-hook-form';
 import { Dropdown } from 'primereact/dropdown';
-import { format } from 'date-fns';
+import {addYears, format} from 'date-fns';
 
 import {
   Stack,
@@ -244,7 +244,11 @@ const CreateLessonComponent = ({
               _focus={{ outline: 'none' }}
               _active={{ bg: 'purple.500' }}
               _disabled={{ opacity: '0.3', cursor: 'not-allowed' }}
-              onClick={() => appendTime({ time: format(time, 'HH:mm') })}>
+              onClick={ev => {
+                ev.preventDefault();
+                !timeFields.some(el => el.time === format(time, 'HH:mm')) &&
+                  appendTime({ time: format(time, 'HH:mm') });
+              }}>
               Запази
             </Button>
           </Stack>
@@ -690,6 +694,7 @@ const CreateLessonComponent = ({
                         }}
                         placeholder={'Изберете дата'}
                         minDate={new Date()}
+                        maxDate={addYears(new Date(), 1)}
                         dateFormat="dd M yy"
                         locale={'bg'}
                         showIcon

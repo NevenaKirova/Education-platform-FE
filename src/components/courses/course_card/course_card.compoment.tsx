@@ -18,7 +18,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
-import { heart, heartFull, user } from '../../../icons';
+import { heart, heartFull } from '../../../icons';
 import { FaStar } from 'react-icons/fa';
 
 import { CourseType } from '../../../pages';
@@ -50,13 +50,9 @@ export default function CourseCard({
   const [heartIcon, setHeartIcon] = useState(heart);
   const [isLiked, setIsLiked] = useState(false);
 
-  const { likedCourses } = useSelector(getStudentLiked);
-
   useEffect(() => {
-    const findCourse = likedCourses?.lessonResponses?.find(el => el?.lessonID === course?.lessonID);
-
-    if (findCourse?.lessonID) setIsLiked(true);
-  }, [likedCourses]);
+    if (course?.likedByStudent) setIsLiked(true);
+  }, []);
 
   const addToFavourites = async ev => {
     ev.preventDefault();
@@ -175,10 +171,7 @@ export default function CourseCard({
                 </Heading>
                 <Stack direction={'column'} spacing={4} align={'start'} flexWrap={'wrap'} w={'full'}>
                   <Stack direction={'row'} align={'center'}>
-                    <Avatar
-                      size={{ base: 'xs', md: 'sm' }}
-                      src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
-                    />
+                    <Avatar size={{ base: 'xs', md: 'sm' }} src={course?.teacherResponse?.picture} />
                     <Text color={'grey.500'}>
                       {course.teacherName} {course.teacherSurname}
                     </Text>

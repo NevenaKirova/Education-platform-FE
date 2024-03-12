@@ -47,7 +47,7 @@ export default function DashboardCourseCard({
       onClick={() => handleOpenCourse()}>
       <Stack
         direction={{ base: 'column', md: 'row' }}
-        maxH={{base:'fit-content',lg:'230px'}}
+        maxH={{ base: 'fit-content', lg: '230px' }}
         w={'full'}
         bg={'white'}
         rounded={'md'}
@@ -115,15 +115,6 @@ export default function DashboardCourseCard({
                     <Text color={'purple.500'} fontSize={10} fontWeight={600}>
                       {course?.length} мин
                     </Text>
-                  </Tag>
-                )}
-
-                {course?.privateLesson === false && course?.numberOfStudents && (
-                  <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-                    <Text as="span" color={'purple.500'} fontSize={10} fontWeight={600}>
-                      {course?.numberOfStudents + '/' + course.studentsUpperBound}
-                    </Text>
-                    <Img aria-label={'students'} w={4} h={3} bg={'none'} p={0} _hover={{ bg: 'none' }} src={user} />
                   </Tag>
                 )}
               </HStack>

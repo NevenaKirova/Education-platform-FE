@@ -45,10 +45,12 @@ export const responsive = {
 
 export default function CourseSection({
   popularCourses,
+  popularLessons,
   onLoginOpen,
   setModalTabIndex,
 }: {
   popularCourses: any;
+  popularLessons: any;
   onLoginOpen: any;
   setModalTabIndex: any;
 }) {
@@ -62,7 +64,7 @@ export default function CourseSection({
           pr={{ base: 0, lg: 8 }}
           alignItems={'baseline'}>
           <GridItem colSpan={{ base: 1, lg: 4, xl: 3 }} colStart={{ base: 1, xl: 2 }}>
-            <Heading flex={1} as="h1" fontSize={{ base: 24, md: 32, lg:40}} textAlign="center">
+            <Heading flex={1} as="h1" fontSize={{ base: 24, md: 32, lg: 40 }} textAlign="center">
               <Text as="span" color={'purple.500'}>
                 Най-популярни
               </Text>{' '}
@@ -107,11 +109,7 @@ export default function CourseSection({
           pr={{ base: 0, lg: 8 }}
           alignItems={'baseline'}>
           <GridItem colSpan={{ base: 1, lg: 4, xl: 3 }} colStart={{ base: 1, xl: 2 }}>
-            <Heading
-              flex={1}
-              as="h1"
-              fontSize={{ base: 24, md: 32, lg:40}}
-              textAlign="center">
+            <Heading flex={1} as="h1" fontSize={{ base: 24, md: 32, lg: 40 }} textAlign="center">
               <Text as="span" color={'purple.500'}>
                 Най-популярни
               </Text>{' '}
@@ -142,7 +140,7 @@ export default function CourseSection({
           showDots={true}
           infinite={true}
           containerClass={style.containerClass}>
-          {popularCourses?.map((course, index) => (
+          {popularLessons?.map((course, index) => (
             <CourseCard key={index} course={course} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
           ))}
         </Carousel>

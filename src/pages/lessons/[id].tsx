@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo, useEffect, useContext } from 'react';
-import { NavLink as ReactRouterLink, useParams } from 'react-router-dom';
+import { NavLink as ReactRouterLink, useNavigate, useParams } from 'react-router-dom';
 import { format, getYear } from 'date-fns';
 import Carousel from 'react-multi-carousel';
 import { Dropdown } from 'primereact/dropdown';
@@ -70,6 +70,7 @@ export const getDate = date => {
 const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setModalTabIndex: any }) => {
   const { lessonId } = useParams();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const { userData } = useContext(AuthContext);
 
@@ -124,7 +125,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
     ev.preventDefault();
     if (userData && userData.id) {
       try {
-        console.log('open chat');
+        navigate(`/messages/${teacherInfo.id}`);
       } catch (err) {
         toast({
           title: getResponseMessage(err),
@@ -210,6 +211,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
         setContent(res.data[0].themas);
         setTeacherInfo(res.data[0].teacherResponse);
         setSimilarCourses(res.data.slice(1, res.data?.length));
+        setIsLiked(res.data[0].likedByStudent);
         setIsLoading(false);
       })
       .catch(function (error) {
@@ -325,7 +327,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                       to={`/teacher/${teacherInfo?.id}`}
                       size="sm"
                       name={`${teacherInfo?.firstName} ${teacherInfo?.secondName}`}
-                      src="https://bit.ly/dan-abramov"
+                      src={teacherInfo?.picture}
                     />
                     <Text color={'grey.400'}>
                       {teacherInfo?.firstName} {teacherInfo?.secondName}
@@ -358,9 +360,11 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                   {course?.subject}
                 </Tag>
 
-                <Tag size="md" color={'purple.500'} bg={'purple.200'} fontWeight={600} p={2}>
-                  {course?.grade}
-                </Tag>
+                {course.grade && (
+                  <Tag size="md" color={'purple.500'} bg={'purple.200'} fontWeight={600} p={2}>
+                    {course?.grade}
+                  </Tag>
+                )}
 
                 <Tag size="md" color={'purple.500'} bg={'purple.200'} fontWeight={600} p={2}>
                   {course?.privateLesson ? 'Частен урок' : 'Групов курс'}
@@ -376,7 +380,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
 
             <Stack spacing={{ base: 6, lg: 8 }} w={'full'}>
               <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 36 }} color={'grey.600'}>
-                За курса
+                {course?.privateLesson ? 'За урока' : 'За курса'}
               </Heading>
 
               <Text textAlign={'start'} fontSize={{ base: 14, lg: 16 }} maxW={{ base: '100%', lg: '100%' }}>
@@ -394,7 +398,9 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                   {contentToShow?.length ? (
                     contentToShow
                   ) : (
-                    <Text fontSize={{ base: 18, lg: 20 }}>Няма налично съдържание</Text>
+                    <Text fontSize={{ base: 18, lg: 20 }} color={'grey.400'} textAlign={'start'}>
+                      Няма налично съдържание
+                    </Text>
                   )}
                 </Stack>
               </Accordion>
@@ -410,7 +416,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                   onClick={contentToShow.length < content.length ? showAll : showLessContent}>
                   {content.length <= contentToShow.length
                     ? ''
-                    : reviewsToShow.length < reviews.length
+                    : contentToShow.length < content.length
                       ? 'Виж всички '
                       : 'Виж по-малко'}
                 </Button>
@@ -444,50 +450,93 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                         rounded: 'md',
                       },
                     }}>
-                    {course?.courseTerminResponses?.map((el, index) => (
-                      <Box
-                        maxH={'350px'}
-                        h={'100%'}
-                        bg={index === parseInt(dateValue) ? 'grey.100' : 'white'}
-                        key={index}
-                        rounded={'md'}
-                        p={6}>
-                        <Stack spacing={6} direction="row" w={'full'}>
-                          <Radio
-                            value={`${index}`}
-                            colorScheme={'purple'}
-                            size={'lg'}
-                            bg={index != parseInt(dateValue) ? 'grey.100' : 'white'}
-                            w={'full'}>
-                            <Stack ml={{ base: 6, md: 12 }} spacing={8}>
-                              <Stack
-                                direction={{ base: 'column', md: 'row' }}
-                                spacing={{ base: 4, md: 6 }}
-                                align={{ base: 'start', lg: 'center' }}>
-                                <Text fontWeight={'600'} fontSize={{ base: 18, md: 20, lg: 24 }} textAlign={'left'}>
-                                  {el && `${getDate(new Date(el?.startDate))} - ${getDate(new Date(el?.endDate))}`}
-                                </Text>
-                                <Text color={'grey.500'} fontSize={14}>
-                                  ({el.weekLength} седмици)
-                                </Text>
-                              </Stack>
+                    {!course?.privateLesson
+                      ? course?.courseTerminRequests?.map((el, index) => (
+                          <Box
+                            maxH={'350px'}
+                            h={'100%'}
+                            bg={index === parseInt(dateValue) ? 'grey.100' : 'white'}
+                            key={index}
+                            rounded={'md'}
+                            p={6}>
+                            <Stack spacing={6} direction="row" w={'full'}>
+                              <Radio
+                                value={`${index}`}
+                                colorScheme={'purple'}
+                                size={'lg'}
+                                bg={index != parseInt(dateValue) ? 'grey.100' : 'white'}
+                                w={'full'}>
+                                <Stack ml={{ base: 6, md: 12 }} spacing={8}>
+                                  <Stack
+                                    direction={{ base: 'column', md: 'row' }}
+                                    spacing={{ base: 4, md: 6 }}
+                                    align={{ base: 'start', lg: 'center' }}>
+                                    <Text fontWeight={'600'} fontSize={{ base: 18, md: 20, lg: 24 }} textAlign={'left'}>
+                                      {el && `${getDate(new Date(el?.startDate))} - ${getDate(new Date(el?.endDate))}`}
+                                    </Text>
+                                    <Text color={'grey.500'} fontSize={14}>
+                                      ({el.weekLength} седмици)
+                                    </Text>
+                                  </Stack>
 
-                              <Stack spacing={4} align={'start'}>
-                                <Text fontWeight={600} fontSize={14}>
-                                  {el?.time}
-                                </Text>
-                                <Text fontWeight={600} fontSize={14}>
-                                  {el.courseDaysNumbers.map(day => daysArr[day - 1].name).toString()}
-                                </Text>
-                                <Text fontWeight={600} fontSize={14}>
-                                  до {el.studentsUpperBound} {el.studentsUpperBound > 1 ? 'ученици' : 'ученик'}
-                                </Text>
-                              </Stack>
+                                  <Stack spacing={4} align={'start'}>
+                                    <Text fontWeight={600} fontSize={14}>
+                                      {el?.time}
+                                    </Text>
+                                    <Text fontWeight={600} fontSize={14}>
+                                      {el.courseDaysNumbers.map(day => daysArr[day - 1].name).toString()}
+                                    </Text>
+                                    <Text fontWeight={600} fontSize={14}>
+                                      до {el.studentsUpperBound} {el.studentsUpperBound > 1 ? 'ученици' : 'ученик'}
+                                    </Text>
+                                  </Stack>
+                                </Stack>
+                              </Radio>
                             </Stack>
-                          </Radio>
-                        </Stack>
-                      </Box>
-                    ))}
+                          </Box>
+                        ))
+                      : course?.privateLessonTermins?.map((el, index) => (
+                          <Box
+                            maxH={'350px'}
+                            h={'100%'}
+                            bg={index === parseInt(dateValue) ? 'grey.100' : 'white'}
+                            key={index}
+                            rounded={'md'}
+                            p={6}>
+                            <Stack spacing={6} direction="row" w={'full'}>
+                              <Radio
+                                value={`${index}`}
+                                colorScheme={'purple'}
+                                size={'lg'}
+                                bg={index != parseInt(dateValue) ? 'grey.100' : 'white'}
+                                w={'full'}>
+                                <Stack ml={{ base: 6, md: 12 }} spacing={8}>
+                                  <Stack
+                                    direction={{ base: 'column', md: 'row' }}
+                                    spacing={{ base: 4, md: 6 }}
+                                    align={{ base: 'start', lg: 'center' }}>
+                                    <Text fontWeight={'600'} fontSize={{ base: 18, md: 20, lg: 24 }} textAlign={'left'}>
+                                      {el && `${getDate(new Date(el?.date))} `}
+                                    </Text>
+                                    <Text color={'grey.500'} fontSize={14}>
+                                      ({el.length} минути)
+                                    </Text>
+                                  </Stack>
+
+                                  <Stack spacing={4} align={'start'}>
+                                    <Text fontWeight={600} fontSize={14}>
+                                      {el?.time} ч.
+                                    </Text>
+
+                                    <Text fontWeight={600} fontSize={14}>
+                                      индивидуален урок
+                                    </Text>
+                                  </Stack>
+                                </Stack>
+                              </Radio>
+                            </Stack>
+                          </Box>
+                        ))}
                   </Stack>
                 </RadioGroup>
                 <Stack direction={{ base: 'column', lg: 'row' }} align={'center'}>
@@ -522,7 +571,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                     to={`/teacher/${teacherInfo?.id}`}
                     size={{ base: 'xl', lg: '2xl' }}
                     name={`${teacherInfo.firstName} ${teacherInfo.secondName}`}
-                    src="https://bit.ly/dan-abramov"
+                    src={teacherInfo?.picture}
                   />
                   <Stack align={'start'} justify={'center'}>
                     <Text fontSize={22}>
@@ -567,8 +616,13 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
         </Stack>
 
         <Stack align={'center'} w={{ base: 'full', lg: 'fit-content' }}>
-          <EnrollCourseCard elRef={DatesRef} course={course} dateValue={dateValue} />
-
+          <EnrollCourseCard
+            elRef={DatesRef}
+            course={course}
+            dateValue={dateValue}
+            onLoginOpen={onLoginOpen}
+            setModalTabIndex={setModalTabIndex}
+          />
         </Stack>
       </Stack>
 
@@ -618,7 +672,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                           <Avatar
                             size="sm"
                             name={`${el.studentsName} ${el.studentsSurname}`}
-                            src="https://bit.ly/dan-abramov"
+                            src={teacherInfo?.picture}
                           />
                           <Text color={'grey.600'}>
                             {el.studentName} {el.studentSurname}
@@ -638,7 +692,9 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                   </Stack>
                 ))
               ) : (
-                <Text fontSize={{ base: 18, lg: 20 }}>Няма налични мнения на ученици</Text>
+                <Text fontSize={{ base: 18, lg: 20 }} color={'grey.400'}>
+                  Няма налични мнения на ученици
+                </Text>
               )}
             </Stack>
           </Stack>
@@ -687,7 +743,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
           </Pagination>
         </Stack>
         {similarCourses.length && (
-          <Stack spacing={{ base: 4, lg: 8 }} py={{ base: 10, lg: 0 }} px={{ base: 0, xl: '5vw' }}>
+          <Stack spacing={{ base: 4, lg: 8 }} py={{ base: 10, lg: 0 }}>
             <Grid
               w={'full'}
               templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(5, 1fr)' }}

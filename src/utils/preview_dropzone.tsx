@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Center, Img, Stack, Text, Image } from '@chakra-ui/react';
 import { fileUpload } from '../icons';
 
-export default function PreviewDropzone({ onFileAccepted }: { onFileAccepted: any }) {
+export default function PreviewDropzone({ onFileAccepted, pictureUrl }: { onFileAccepted: any; pictureUrl?: string }) {
   const [file, setFile] = useState(null);
 
   const onDrop = useCallback(
@@ -42,7 +42,7 @@ export default function PreviewDropzone({ onFileAccepted }: { onFileAccepted: an
       {...getRootProps()}>
       <input {...getInputProps()} />
       <Stack direction={'column'} align={'center'} spacing={2} w={'full'}>
-        {file ? (
+        {file || pictureUrl ? (
           <Image
             w={'full'}
             h={'full'}

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { NavLink as ReactRouterLink, useLocation } from 'react-router-dom';
+import { NavLink as ReactRouterLink, useLocation, useParams } from 'react-router-dom';
 
 import {
   Stack,
@@ -27,9 +27,14 @@ import {
 
 import { getResponseMessage } from '../../helpers/response.util';
 import { PageLoader } from '../../utils/loader.component';
-import axios from '../../axios';
+import axios, { axiosInstance } from '../../axios';
 
 import { payment } from '../../images';
+import AuthContext from '../../context/AuthContext';
+import { capitalizeMonth } from '../../helpers/capitalizeMonth.util';
+import { format } from 'date-fns';
+import { bg } from 'date-fns/locale';
+import { daysArr } from '../../components/courses/courses_teacher/create_course.component';
 
 const ENROLL_URL = '/auth/register';
 
@@ -43,6 +48,10 @@ type Inputs = {
 const EnrollLessonPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [payTypeValue, setPayTypeValue] = useState<string>('');
+  const [course, setCourse] = useState(null);
+
+  const { lessonId } = useParams();
+  const { userData, user } = useContext(AuthContext);
 
   const toast = useToast();
 
@@ -53,14 +62,45 @@ const EnrollLessonPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Inputs>();
+  } = useForm<Inputs>({
+    defaultValues: {
+      name: '',
+      surname: '',
+      email: '',
+      agreeToConditions: false,
+    },
+    values: {
+      name: userData?.name,
+      surname: userData?.surname,
+      email: userData?.email,
+      agreeToConditions: false,
+    },
+  });
+
+  const getCourse = async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await axiosInstance.get(`lessons/getCourseByTermin/${lessonId}`);
+
+      setCourse(res.data);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        title: getResponseMessage(error),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
 
   const onSubmit: SubmitHandler<Inputs> = async data => {
     setIsLoading(true);
     try {
       const response = await axios.post(ENROLL_URL, data);
-
-      console.log(response.data);
 
       setIsLoading(false);
     } catch (err) {
@@ -77,11 +117,16 @@ const EnrollLessonPage = () => {
   };
 
   useEffect(() => {
+    if (!user) navigate('/');
     setPayTypeValue(payType);
+    getCourse();
   }, []);
-  return (
+
+  return isLoading ? (
+    <PageLoader isLoading={isLoading} />
+  ) : (
     <>
-      <Stack py={{ base: 0, lg: 10 }} px={{ base: 10, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }}>
+      <Stack py={{ base: 0, lg: 10 }} px={{ base: 8, md: 16, xl: 20, '2xl': 40 }}>
         <Stack
           direction={{ base: 'column', xl: 'row' }}
           spacing={30}
@@ -96,14 +141,14 @@ const EnrollLessonPage = () => {
               <Stack spacing={{ base: 6, lg: 8 }}>
                 <Breadcrumb fontSize={{ base: 14, lg: 18 }}>
                   <BreadcrumbItem>
-                    <BreadcrumbLink as={ReactRouterLink} to={'/lessons'}>
-                      Частни уроци
+                    <BreadcrumbLink as={ReactRouterLink} to={course?.privateLesson ? '/lessons' : '/courses'}>
+                      {course?.privateLesson ? 'Частни уроци' : 'Курсове'}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
 
                   <BreadcrumbItem color={'purple.500'}>
-                    <BreadcrumbLink as={ReactRouterLink} to={`/lessons/:lessonId}`} textDecoration={'none'}>
-                      Физика за 9ти клас
+                    <BreadcrumbLink as={ReactRouterLink} to={`/lessons/${course?.lessonID}`} textDecoration={'none'}>
+                      {course?.title}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
 
@@ -123,7 +168,7 @@ const EnrollLessonPage = () => {
                   </Heading>
 
                   <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 40 }} color={'purple.500'}>
-                    Физика за 9ти клас
+                    {course?.title}
                   </Heading>
                 </Stack>
               </Stack>
@@ -220,7 +265,7 @@ const EnrollLessonPage = () => {
             </Stack>
           </Stack>
 
-          <Stack align={'center'} w={{ base: 'full', xl: 'fit-content' }}>
+          <Stack align={'center'} w={{ base: 'full', lg: 'fit-content' }}>
             <Center py={6} w={'full'}>
               <Box
                 as={Flex}
@@ -248,22 +293,30 @@ const EnrollLessonPage = () => {
                   direction={'column'}
                   w={'full'}
                   align={'center'}
-                  spacing={6}
                   rounded={'lg'}
                   bg={'white'}
+                  spacing={6}
                   p={{ base: 4, lg: 8 }}>
                   <Stack
                     direction={{ base: 'column', md: 'row' }}
                     align={{ base: 'start', md: 'center' }}
                     justify="space-between"
-                    spacing={{ base: 4, lg: 14 }}
-                    w={'full'}>
-                    <Heading color={'gray.700'} fontSize={'xl'} fontFamily={'body'}>
-                      Физика за 9-ти клас
+                    spacing={{ base: 4, lg: 4 }}
+                    w={'full'}
+                    flexWrap={'wrap'}>
+                    <Heading
+                      color={'gray.700'}
+                      fontSize={'xl'}
+                      fontFamily={'body'}
+                      textAlign={'start'}
+                      w={'fit-content'}>
+                      {course?.title}
                     </Heading>
                     <Stack direction={'row'} spacing={2} align={'center'} justify={'center'}>
-                      <Avatar size="xs" src={'https://avatars0.githubusercontent.com/u/1164541?v=4'} />
-                      <Text color={'grey.500'}>Achim Rolle</Text>
+                      <Avatar size="xs" src={course?.teacherResponse?.picture} />
+                      <Text color={'grey.500'}>
+                        {course?.teacherResponse?.firstName} {course?.teacherResponse?.secondName}
+                      </Text>
                     </Stack>
                   </Stack>
 
@@ -273,7 +326,20 @@ const EnrollLessonPage = () => {
                         Начало:
                       </Text>
                       <Text color={'grey.500'} fontSize={{ base: 14, lg: 16 }}>
-                        6 sedmici
+                        {course &&
+                          capitalizeMonth(
+                            format(
+                              new Date(
+                                course && course?.privateLesson
+                                  ? course?.privateLessonTermins?.[0]?.date
+                                  : course?.courseTerminRequests?.[0].startDate,
+                              ),
+                              'dd LLL yyyy',
+                              {
+                                locale: bg,
+                              },
+                            ),
+                          )}
                       </Text>
                     </Stack>
 
@@ -282,23 +348,33 @@ const EnrollLessonPage = () => {
                         Продължителност:
                       </Text>
                       <Text color={'grey.500'} fontSize={{ base: 14, lg: 16 }}>
-                        6 sedmici
+                        {course?.privateLesson ? course.length + ' минути' : course?.weekLength + ' седмици'}
                       </Text>
                     </Stack>
-                    <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
-                      <Text fontWeight={500} fontSize={{ base: 14, lg: 16 }}>
-                        Дни на провеждане:
-                      </Text>
-                      <Text color={'grey.500'} fontSize={{ base: 14, lg: 16 }}>
-                        6 sedmici
-                      </Text>
-                    </Stack>
+
+                    {!course?.privateLesson && (
+                      <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
+                        <Text fontWeight={500} fontSize={{ base: 14, lg: 16 }}>
+                          Дни на провеждане:
+                        </Text>
+                        <Text color={'grey.500'} fontSize={{ base: 14, lg: 16 }}>
+                          {course?.courseTerminRequests[0].courseDaysNumbers
+                            ?.sort()
+                            ?.map(el => daysArr[el - 1].short)
+                            ?.toString()}
+                        </Text>
+                      </Stack>
+                    )}
+
                     <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
                       <Text fontWeight={500} fontSize={{ base: 14, lg: 16 }}>
                         Час на провеждане:
                       </Text>
                       <Text color={'grey.500'} fontSize={{ base: 14, lg: 16 }}>
-                        6 sedmici
+                        {course?.privateLesson
+                          ? course?.privateLessonTermins[0]?.time
+                          : course?.courseTerminRequests[0]?.time}{' '}
+                        ч.
                       </Text>
                     </Stack>
 
@@ -311,9 +387,10 @@ const EnrollLessonPage = () => {
                         Сума за плащане:
                       </Text>
                       <Text fontWeight={700} fontSize={{ base: 14, lg: 18 }} textAlign={'right'}>
-                        240 lv {''}
+                        {course?.price}
+                        {''}
                         <Text as={'span'} fontWeight={400} color={'grey.500'} fontSize={{ base: 14, lg: 16 }}>
-                          (21lv/ chas)
+                          ({course?.pricePerHour}/ час)
                         </Text>
                       </Text>
                     </Stack>

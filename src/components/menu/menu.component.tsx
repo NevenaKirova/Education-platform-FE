@@ -168,28 +168,26 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   }, [userData]);
 
   useEffect(() => {
-    if (userData) {
-      const socket = new WebSocket('ws://localhost:8080/ws');
-      const stomp = Stomp.over(socket);
+    const socket = new WebSocket('ws://localhost:8080/ws');
+    const stomp = Stomp.over(socket);
 
-      stomp.connect({}, () => {
-        setStompClient(stomp);
-        stomp.subscribe(`/user/${authTokens?.access_token}/queue/messages`, message => {
-          const newNotification = JSON.parse(message.body);
-          setNotificationType(newNotification.body);
+    stomp.connect({}, () => {
+      setStompClient(stomp);
+      stomp.subscribe(`/user/${authTokens?.access_token}/queue/notifications`, message => {
+        const newNotification = JSON.parse(message.body);
+        setNotificationType(newNotification.body);
 
-          setTimeout(() => {
-            setHasMessageNotification(newNotification?.chat);
-            localStorage.setItem('hasMessageNotification', JSON.stringify(newNotification?.chat));
-          }, 500);
-        });
+        setTimeout(() => {
+          setHasMessageNotification(newNotification?.chat);
+          localStorage.setItem('hasMessageNotification', JSON.stringify(newNotification?.chat));
+        }, 500);
       });
+    });
 
-      return () => {
-        if (stomp) stomp.disconnect();
-      };
-    }
-  }, [userData]);
+    return () => {
+      if (stomp) stomp.disconnect();
+    };
+  }, []);
 
   return (
     <Box

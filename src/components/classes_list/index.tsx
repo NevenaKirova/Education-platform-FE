@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { addDays, addMonths, format } from 'date-fns';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -43,13 +43,14 @@ import {
 import CourseCard from '../courses/course_card/course_card.compoment';
 import PageLoader from '../../utils/loader.component';
 import { getResponseMessage } from '../../helpers/response.util';
-import axios from '../../axios';
+import axios, { axiosInstance } from '../../axios';
 
 import { CloseIcon } from '@chakra-ui/icons';
 
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import { noData } from '../../images';
+import AuthContext from '../../context/AuthContext';
 
 type Filters = {
   days: number[];
@@ -75,6 +76,8 @@ const innerLimit = 2;
 
 const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => {
   const toast = useToast();
+
+  const { user } = useContext(AuthContext);
 
   const [sort, setSort] = useState('');
 
@@ -205,12 +208,22 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
   const getClasses = async filters => {
     setIsLoading(true);
     try {
-      const res = await axios.post('/lessons/getFilteredClasses', {
-        ...filters,
-        privateLesson: isPrivateLesson,
-        sort: sort,
-        pageNumber: currentPage,
-      });
+      let res;
+      if (user) {
+        res = await axiosInstance.post('/lessons/getFilteredClasses', {
+          ...filters,
+          privateLesson: isPrivateLesson,
+          sort: sort,
+          pageNumber: currentPage,
+        });
+      } else {
+        res = await axios.post('/lessons/getFilteredClasses', {
+          ...filters,
+          privateLesson: isPrivateLesson,
+          sort: sort,
+          pageNumber: currentPage,
+        });
+      }
 
       await setTimeout(() => setIsLoading(false), 200);
       setShowClasses(!!res.data.lessonResponses.length);

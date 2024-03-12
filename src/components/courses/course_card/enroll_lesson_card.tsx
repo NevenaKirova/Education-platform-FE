@@ -1,9 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink as ReactRouterLink } from 'react-router-dom';
-import { Box, Center, Heading, Text, Stack, Avatar, Image, useColorModeValue, Button, Img } from '@chakra-ui/react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Center,
+  Heading,
+  Text,
+  Stack,
+  Avatar,
+  Image,
+  Button,
+  Img,
+  useColorModeValue,
+  useToast,
+} from '@chakra-ui/react';
 import { getDate } from '../../../pages/lessons/[id]';
 import { calendar } from '../../../icons';
 import { daysArr } from '../courses_teacher/create_course.component';
+import { getResponseMessage } from '../../../helpers/response.util';
+import AuthContext from '../../../context/AuthContext';
 
 type Termin = {
   startDate: string;
@@ -13,13 +27,56 @@ type Termin = {
   courseHours: string;
   studentsUpperBound: number;
   studentsLowerBound: number;
+  courseTerminId: number;
+  length: number;
+  lessonID: number;
 };
 
-export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: any; course: any; dateValue: any }) {
+export default function EnrollCourseCard({
+  elRef,
+  course,
+  dateValue,
+  onLoginOpen,
+  setModalTabIndex,
+}: {
+  elRef: any;
+  course: any;
+  dateValue: any;
+  onLoginOpen: any;
+  setModalTabIndex: any;
+}) {
   const [termin, setTermin] = useState<Termin | null>(null);
 
+  const toast = useToast();
+  const navigate = useNavigate();
+  const { userData } = useContext(AuthContext);
+
+  const enrollCourse = async (ev, state) => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+      try {
+        navigate(`/lessons/${course?.privateLesson ? termin?.lessonTerminId : termin?.courseTerminId}/enroll`, {
+          state: { payType: state },
+        });
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
+
   useEffect(() => {
-    setTermin(course?.courseTerminRequests?.[dateValue]);
+    course.privateLesson
+      ? setTermin(course?.privateLessonTermins?.[dateValue])
+      : setTermin(course?.courseTerminRequests?.[dateValue]);
   }, [course, dateValue]);
 
   const handleScroll = () => {
@@ -37,14 +94,7 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
         boxShadow="custom"
         overflow={'hidden'}>
         <Box w={{ base: 'full', md: 'md', xl: 'full' }} bg={'white'} mb={6} pos={'relative'} rounded="lg">
-          <Image
-            src={
-              'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-            }
-            alt="Course image"
-            borderRadius={10}
-            p={{ base: 0, xs: 4 }}
-          />
+          <Image src={course?.urlToImage} alt="Course image" borderRadius={10} p={{ base: 0, xs: 4 }} />
         </Box>
         <Stack direction={'column'} align={'center'} spacing={6}>
           <Stack
@@ -58,10 +108,14 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
               color={useColorModeValue('gray.700', 'white')}
               fontSize={{ base: 'lg', md: 'xl' }}
               fontFamily={'body'}>
-              {termin && `${getDate(new Date(termin?.startDate))} -  ${getDate(new Date(termin?.endDate))}`}
+              {termin
+                ? course?.privateLesson
+                  ? `${getDate(new Date(termin?.date))}`
+                  : `${getDate(new Date(termin?.startDate))} -  ${getDate(new Date(termin?.endDate))}`
+                : ''}
             </Heading>
             <Stack direction={'row'} spacing={2} align={'center'} justify={'center'}>
-              <Avatar size={{ base: 'xs', md: 'sm' }} src={'https://avatars0.githubusercontent.com/u/1164541?v=4'} />
+              <Avatar size={{ base: 'xs', md: 'sm' }} src={course?.teacherResponse?.picture} />
               <Text color={'grey.500'}>
                 {course.teacherName} {course.teacherSurname}
               </Text>
@@ -74,23 +128,27 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
                 Продължителност:
               </Text>
               <Text color={'grey.500'} fontSize={{ base: 14, md: 16 }}>
-                {termin?.weekLength} седмици
+                {course?.privateLesson ? `${termin?.length} минути` : `${termin?.weekLength} седмици`}
               </Text>
             </Stack>
-            <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
-              <Text fontWeight={500} fontSize={{ base: 14, md: 16 }}>
-                Дни на провеждане:
-              </Text>
-              <Text color={'grey.500'} fontSize={{ base: 14, md: 16 }}>
-                {termin?.courseDaysNumbers?.map(el => daysArr[el - 1].short).join(',')}
-              </Text>
-            </Stack>
+
+            {!course.privateLesson && (
+              <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
+                <Text fontWeight={500} fontSize={{ base: 14, md: 16 }}>
+                  Дни на провеждане:
+                </Text>
+                <Text color={'grey.500'} fontSize={{ base: 14, md: 16 }}>
+                  {termin?.courseDaysNumbers?.map(el => daysArr[el - 1].short).join(',')}
+                </Text>
+              </Stack>
+            )}
+
             <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
               <Text fontWeight={500} fontSize={{ base: 14, md: 16 }}>
                 Час на провеждане:
               </Text>
               <Text color={'grey.500'} fontSize={{ base: 14, md: 16 }}>
-                {termin?.courseHours}
+                {course?.privateLesson ? `${termin?.time}` : `${termin?.courseHours}`}
               </Text>
             </Stack>
             <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
@@ -98,7 +156,7 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
                 Група:
               </Text>
               <Text color={'grey.500'} fontSize={{ base: 14, md: 16 }}>
-                {termin && `1-${termin?.studentsUpperBound} ученици`}
+                {course?.privateLesson ? 'индивидуален урок' : termin && `1-${termin?.studentsUpperBound} ученици`}
               </Text>
             </Stack>
             <Stack direction={'row'} align={'center'} justify="space-between" w={'full'} flexWrap={'wrap'}>
@@ -130,9 +188,7 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
             </Button>
 
             <Button
-              as={ReactRouterLink}
-              to={'/lessons/1/enroll'}
-              state={{ payType: 'fullPay' }}
+              onClick={ev => enrollCourse(ev, 'fullPay')}
               w={'full'}
               size={{ base: 'md', lg: 'md' }}
               color={'white'}
@@ -144,9 +200,7 @@ export default function EnrollCourseCard({ elRef, course, dateValue }: { elRef: 
             </Button>
 
             <Button
-              as={ReactRouterLink}
-              to={'/lessons/1/enroll'}
-              state={{ payType: 'subscription' }}
+              onClick={ev => enrollCourse(ev, 'subscription')}
               size={{ base: 'md', lg: 'md' }}
               color={'purple.500'}
               bg={'transparent'}

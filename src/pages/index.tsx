@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import axios, { axiosInstance } from '../axios';
 
@@ -9,19 +8,16 @@ import ReasonsSection from '../components/reason_section/reason_section.componen
 import Faq from '../components/faq/faq.component';
 import TestimonialsSection from '../components/testimonials/testimonial.component';
 import TestimonialDemoSection from '../components/testimonials/testimonial_demo.component';
+import PageLoader from '../utils/loader.component';
+import AuthContext from '../context/AuthContext';
+import { getResponseMessage } from '../helpers/response.util';
 
 import { Stack, useToast } from '@chakra-ui/react';
-
-import { getResponseMessage } from '../helpers/response.util';
-import { useAppDispatch } from '../store';
-import { getStudentLiked } from '../store/selectors';
-
-import { getLikedCourses } from '../store/features/student/studentFavourites/studentFavourites.async';
-import AuthContext from '../context/AuthContext';
 
 import '../styles/styles.scss';
 
 export type CourseType = {
+  teacherResponse: string;
   urlToImage: string;
   lessonID: number;
   title: string;
@@ -48,15 +44,15 @@ const IndexPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMod
   const { user, userData } = useContext(AuthContext);
 
   const toast = useToast();
-  const dispatch = useAppDispatch();
 
   const ref = useRef(null);
   const [popularCourses, setPopularCourses] = useState([]);
+  const [popularLessons, setPopularLessons] = useState([]);
   const [reviews, setReviews] = useState([]);
-
-  const { likedCourses, isLoading } = useSelector(getStudentLiked);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getHomePage = async () => {
+    setIsLoading(true);
     try {
       let res;
       if (user) {
@@ -64,10 +60,12 @@ const IndexPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMod
       } else {
         res = await axios.get('lessons/getHomePage');
       }
-
-      setPopularCourses(res.data?.popularLessonsResponse);
+      setIsLoading(false);
+      setPopularLessons(res.data?.popularLessonsResponse);
+      setPopularCourses(res.data?.popularCourseResponse);
       setReviews(res.data?.reviewsResponse);
     } catch (err) {
+      setIsLoading(false);
       toast({
         title: getResponseMessage(err),
         status: 'error',
@@ -81,22 +79,24 @@ const IndexPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMod
     getHomePage();
   }, []);
 
-  useEffect(() => {
-    dispatch(getLikedCourses());
-  }, []);
-
   return userData && userData.role === 'TEACHER' ? (
     <Navigate to={'/dashboard'} />
   ) : (
     <>
       <Header onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} elRef={ref} />
       <Stack pt={{ base: 16, lg: 24 }} spacing={32} ref={ref}>
-        <CourseLanding popularCourses={popularCourses} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
+        <CourseLanding
+          popularCourses={popularCourses}
+          popularLessons={popularLessons}
+          onLoginOpen={onLoginOpen}
+          setModalTabIndex={setModalTabIndex}
+        />
         <ReasonsSection />
         <TestimonialDemoSection />
         <TestimonialsSection reviews={reviews} />
         <Faq />
       </Stack>
+      <PageLoader isLoading={isLoading} />
     </>
   );
 };

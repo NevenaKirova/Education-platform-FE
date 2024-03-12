@@ -17,6 +17,9 @@ import {
   RadioGroup,
   Radio,
   Switch,
+  InputGroup,
+  Textarea,
+  InputRightElement,
   useToast,
 } from '@chakra-ui/react';
 
@@ -24,7 +27,7 @@ import PageLoader from '../../utils/loader.component';
 
 import { axiosInstance } from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
-import { account, avatar3, avatar4, avatar5, avatar6, studentAvatar, teacherAvatar } from '../../images';
+
 import { SubmitHandler, useForm } from 'react-hook-form';
 import PreviewDropzone from '../../utils/preview_dropzone';
 import AvatarDropzone from '../../utils/avatar_dropzone';
@@ -45,19 +48,25 @@ const StudentProfilePage = () => {
 
   const [avatars, setAvatars] = useState([]);
 
-  const getStudentProfile = async () => {
+  const getProfile = async () => {
     try {
+      const url = userData?.role === 'STUDENT' ? 'getStudentProfile' : 'getTeacherProfile';
       setIsLoading(true);
-      const res = await axiosInstance.get(`users/getStudentProfile`);
-      setGender(res.data?.gender);
+      const res = await axiosInstance.get(`users/${url}`);
+
+      if (userData?.role === 'STUDENT') {
+        setAvatars(res.data?.pictures);
+        setSelectedAvatar(profile?.imageLocation);
+      }
+
       setProfile(res.data);
+      setGender(res.data?.gender);
       setClient(res.data?.clientService);
       setMarketing(res.data?.marketingService);
       setReminders(res.data?.reminders);
       setChat(res.data?.chatNotifications);
       setCourses(res.data?.savedCoursesNotifications);
-      setAvatars(res.data?.pictures);
-      setSelectedAvatar(profile?.imageLocation);
+
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
@@ -72,13 +81,15 @@ const StudentProfilePage = () => {
   };
 
   useEffect(() => {
-    getStudentProfile();
+    getProfile();
   }, []);
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -92,6 +103,8 @@ const StudentProfilePage = () => {
       chatNotifications: false,
       savedCoursesNotifications: false,
       imageLocation: '',
+      description: '',
+      subjects: '',
     },
     values: {
       id: profile?.id,
@@ -104,6 +117,8 @@ const StudentProfilePage = () => {
       chatNotifications: profile?.chatNotifications,
       savedCoursesNotifications: profile?.savedCoursesNotifications,
       imageLocation: profile?.imageLocation,
+      description: profile?.description,
+      subjects: profile?.subjects,
     },
   });
 
@@ -114,14 +129,19 @@ const StudentProfilePage = () => {
   });
 
   const onFileAccepted = async file => {
-    setSelectedAvatar('custom');
+    if (userData?.role === 'STUDENT') setSelectedAvatar('custom');
 
     try {
+      const url = userData?.role === 'STUDENT' ? 'uploadImageStudent' : 'uploadTeacherImage';
       const formData = new FormData();
       formData.append('file', file);
-      const res = await axiosInstance.post(`users/uploadImageStudent`, formData);
+      const res = await axiosInstance.post(`users/${url}`, formData);
 
-      setAvatars(res.data?.pictures);
+      if (userData?.role === 'STUDENT') {
+        setAvatars(res.data?.pictures);
+      } else {
+        setValue('imageLocation', res.data);
+      }
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -132,10 +152,12 @@ const StudentProfilePage = () => {
       });
     }
   };
+
   const onSubmit: SubmitHandler<any> = async data => {
     try {
       setIsLoading(true);
-      await axiosInstance.post(`users/editStudentProfile`, data);
+      const url = userData?.role === 'STUDENT' ? 'editStudentProfile' : 'editTeacherProfile';
+      await axiosInstance.post(`users/${url}`, data);
 
       setIsLoading(false);
     } catch (err) {
@@ -151,11 +173,28 @@ const StudentProfilePage = () => {
   };
 
   const onSubmitEmail: SubmitHandler<any> = async data => {
-    console.log(data);
+    try {
+      await axiosInstance.get(`/auth/resetPassword/${data.email}`);
+
+      toast({
+        title: 'Изпратен Ви е имейл с инструкции за въстановяване на паролата',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
   };
 
   if (!user) return <Navigate to={'/'} replace />;
-  if (userData && userData?.role !== 'STUDENT') return <Navigate to={'/'} replace />;
 
   return isLoading ? (
     <PageLoader isLoading={isLoading} />
@@ -175,76 +214,74 @@ const StudentProfilePage = () => {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={12} align={'start'}>
-          <Stack spacing={6}>
-            <Text textAlign={'left'} fontSize={{ base: 18, md: 20 }} fontWeight={700} color={'grey.600'}>
-              Аватар
-            </Text>
+          {userData?.role === 'STUDENT' ? (
+            <Stack spacing={6}>
+              <Text textAlign={'left'} fontSize={{ base: 18, md: 20 }} fontWeight={700} color={'grey.600'}>
+                Аватар
+              </Text>
 
-            <Text textAlign={'left'} fontSize={{ base: 14, md: 16 }} color={'grey.600'}>
-              Избери своя аватар или добави снимка
-            </Text>
+              <Text textAlign={'left'} fontSize={{ base: 14, md: 16 }} color={'grey.600'}>
+                Избери своя аватар или добави снимка
+              </Text>
 
-            <Wrap spacing={8}>
-              {avatars.map((el, index) => (
-                <WrapItem key={index}>
-                  <Box
-                    as={'button'}
-                    role="group"
-                    onClick={ev => {
-                      ev.preventDefault();
-                      setSelectedAvatar(el);
-                      setValue('imageLocation',el);
-                    }}
-                    borderRadius="full"
-                    _hover={{
-                      transition: 'transform .2s',
-                      transform: 'scale(1.05)',
-                    }}>
-                    <Image
-                      borderRadius="full"
-                      border={selectedAvatar === el ? '5px solid' : ''}
-                      borderColor={selectedAvatar === el ? 'purple.500' : ''}
-                      boxSize={20}
-                      src={el}
-                      alt={`avatar${index}`}
-                      onLoad={() => {
-                        URL.revokeObjectURL(el);
+              <Wrap spacing={8}>
+                {avatars.map((el, index) => (
+                  <WrapItem key={index}>
+                    <Box
+                      as={'button'}
+                      role="group"
+                      onClick={ev => {
+                        ev.preventDefault();
+                        setSelectedAvatar(el);
+                        setValue('imageLocation', el);
                       }}
-                    />
-                  </Box>
+                      borderRadius="full"
+                      _hover={{
+                        transition: 'transform .2s',
+                        transform: 'scale(1.05)',
+                      }}>
+                      <Image
+                        borderRadius="full"
+                        border={selectedAvatar === el ? '5px solid' : ''}
+                        borderColor={selectedAvatar === el ? 'purple.500' : ''}
+                        boxSize={20}
+                        src={el}
+                        alt={`avatar${index}`}
+                        onLoad={() => {
+                          URL.revokeObjectURL(el);
+                        }}
+                      />
+                    </Box>
+                  </WrapItem>
+                ))}
+
+                <WrapItem>
+                  <AvatarDropzone onFileAccepted={onFileAccepted} />
                 </WrapItem>
-              ))}
+              </Wrap>
+            </Stack>
+          ) : (
+            <Stack spacing={4}>
+              <FormControl isInvalid={!!errors.picture}>
+                <FormLabel fontWeight={700} color={'grey.600'} pb={2}>
+                  Профилна снимка
+                </FormLabel>
 
-              <WrapItem>
-                <AvatarDropzone onFileAccepted={onFileAccepted} />
+                <PreviewDropzone onFileAccepted={onFileAccepted} pictureUrl={getValues('imageLocation')} />
 
-                {/*<Stack*/}
-                {/*  direction="row"*/}
-                {/*  as={'button'}*/}
-                {/*  align={'center'}*/}
-                {/*  spacing={4}*/}
-                {/*  onClick={ev => {*/}
-                {/*    ev.preventDefault();*/}
-                {/*    // setSelectedAvatar(index);*/}
-                {/*  }}>*/}
-                {/*  <Box*/}
-                {/*    role="group"*/}
-                {/*    bg={'purple.500'}*/}
-                {/*    borderRadius="full"*/}
-                {/*    _hover={{*/}
-                {/*      transition: 'transform .2s',*/}
-                {/*      transform: 'scale(1.05)',*/}
-                {/*    }}>*/}
-                {/*    <Image borderRadius="full" boxSize={20} src={account} alt={'add picture'} />*/}
-                {/*  </Box>*/}
+                <FormErrorMessage>{errors?.picture?.message}</FormErrorMessage>
+              </FormControl>
 
-                {/*  <Text textAlign={'left'} fontSize={{ base: 16 }} fontWeight={700} color={'purple.500'}>*/}
-                {/*    Добави снимка*/}
-                {/*  </Text>*/}
-                {/*</Stack>*/}
-              </WrapItem>
-            </Wrap>
-          </Stack>
+              <Stack fontSize={{ base: 14, lg: 16 }} align={'start'}>
+                <Text fontWeight={400} color={'grey.400'}>
+                  Моля добавете ясна профилна снимка (5 MB)
+                </Text>
+                <Text fontWeight={400} color={'grey.400'}>
+                  Допустими файлови формати .jpg .jpeg .png
+                </Text>
+              </Stack>
+            </Stack>
+          )}
 
           <Stack spacing={6} w={'full'}>
             <Text textAlign={'left'} fontSize={{ base: 18, md: 20 }} fontWeight={700} color={'grey.600'}>
@@ -287,6 +324,59 @@ const StudentProfilePage = () => {
               </FormControl>
             </Stack>
           </Stack>
+
+          {userData?.role === 'TEACHER' && (
+            <>
+              <Stack spacing={6} w={'full'}>
+                <Text textAlign={'left'} fontSize={{ base: 18, md: 20 }} fontWeight={700} color={'grey.600'}>
+                  Описание на профила
+                </Text>
+
+                <FormControl isInvalid={!!errors.description}>
+                  <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'grey.100'} rounded={'md'}>
+                    <Textarea
+                      pr="4.5rem"
+                      maxLength={600}
+                      resize={'none'}
+                      rows={4}
+                      {...register('description', { required: 'Полето е задължително' })}
+                    />
+                    <InputRightElement width="4.5rem" color={'grey.500'}>
+                      {watch('description')?.length || 0}/600
+                    </InputRightElement>
+                  </InputGroup>
+
+                  <FormErrorMessage>{errors?.description?.message}</FormErrorMessage>
+                </FormControl>
+              </Stack>
+
+              <Stack spacing={6} w={'full'} align={'start'}>
+                <Text textAlign={'left'} fontSize={{ base: 18, md: 20 }} fontWeight={700} color={'grey.600'}>
+                  Предмети/ Сфери на интерес
+                </Text>
+
+                <FormControl isInvalid={!!errors.gender}>
+                  <InputGroup size={{ base: 'sm', lg: 'md' }} bg={'grey.100'} rounded={'md'}>
+                    <Input
+                      pr="4.5rem"
+                      maxLength={200}
+                      resize={'none'}
+                      placeholder={'Предмети'}
+                      {...register('subjects', { required: 'Полето е задължително' })}
+                    />
+                    <InputRightElement width="4.5rem" color={'grey.500'}>
+                      {watch('subjects')?.length || 0}/200
+                    </InputRightElement>
+                  </InputGroup>
+                  <FormErrorMessage>{errors?.subjects?.message}</FormErrorMessage>
+                </FormControl>
+
+                <Text fontSize={{ base: 14, lg: 16 }} fontWeight={400} color={'grey.400'}>
+                  Моля добавете предмети/сфери, в които желаете да преподавате в платформата.
+                </Text>
+              </Stack>
+            </>
+          )}
 
           <Stack spacing={6} w={'full'}>
             <Text textAlign={'left'} fontSize={{ base: 18, md: 20 }} fontWeight={700} color={'grey.600'}>
@@ -454,7 +544,7 @@ const StudentProfilePage = () => {
           </Text>
 
           <Text textAlign={'left'} fontSize={{ base: 14, md: 16 }} color={'grey.600'}>
-            Въведете соя имейл, за да полчите линк за промяна на паролата.
+            Въведете своя имейл, за да полчите линк за промяна на паролата.
           </Text>
 
           <Input
@@ -463,11 +553,11 @@ const StudentProfilePage = () => {
             resize={'none'}
             placeholder={'myemail@mail.com'}
             bg={'grey.100'}
-            {...registerEmail('email')}
+            {...registerEmail('email', { required: 'Полето е задължително' })}
           />
 
           <Button
-            type={'submit'}
+            {...registerEmail('email', { required: 'Полето е задължително' })}
             size={{ base: 'md' }}
             w={'fit-content'}
             px={{ base: 10, lg: 16 }}

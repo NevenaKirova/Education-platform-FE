@@ -24,10 +24,8 @@ import { group, hat, heart, heartFull, location, messageWhite } from '../icons';
 import axios, { axiosInstance } from '../axios';
 import { getResponseMessage } from '../helpers/response.util';
 import PageLoader from '../utils/loader.component';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import { useSelector } from 'react-redux';
-import { getStudentLiked } from '../store/selectors';
 import { useAppDispatch } from '../store';
 import { getLikedTeachers } from '../store/features/student/studentFavourites/studentFavourites.async';
 
@@ -35,8 +33,9 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const toast = useToast();
 
   const { teacherId } = useParams();
-  const { userData } = useContext(AuthContext);
+  const { user, userData } = useContext(AuthContext);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
   const [heartIcon, setHeartIcon] = useState(heart);
@@ -44,10 +43,8 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const [numberOfReviewsShown, setNumberOfReviewsToShow] = useState(5);
   const [teacherInfo, setTeacherInfo] = useState<any>({});
   const [classes, setClasses] = useState<any>([]);
-  const [numberOfContentShown, setNumberOfContentToShow] = useState(6);
+  const [numberOfContentShown, setNumberOfContentToShow] = useState(8);
   const [isLiked, setIsLiked] = useState(false);
-
-  const { likedTeachers } = useSelector(getStudentLiked);
 
   const showLessReviews = () => {
     setNumberOfReviewsToShow(3);
@@ -66,7 +63,7 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
 
   const contentToShow = useMemo(() => {
     return classes?.slice(0, numberOfContentShown).map((el: any, index: number) => (
-      <GridItem key={index}>
+      <GridItem key={index} w={'full'}>
         <CourseCard course={el} onLoginOpen={onLoginOpen} setModalTabIndex={setModalTabIndex} />
       </GridItem>
     ));
@@ -86,8 +83,8 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
       try {
         await axiosInstance.get(`/users/likeTeacher/${teacherId}`);
 
-        setHeartIcon(heartFull);
-        dispatch(getLikedTeachers());
+        setIsLiked(true);
+        dispatch(getLikedTeachers({ page: 1 }));
       } catch (err) {
         toast({
           title: getResponseMessage(err),
@@ -103,28 +100,56 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
     }
   };
 
-  useEffect(() => {
-    axios
-      .get(`users/getTeacherProfile/${teacherId}`)
-      .then(res => {
-        setTeacherInfo(res.data);
-        setReviews(res.data?.reviews);
-        setClasses(res.data?.lessonResponses);
-        setIsLoading(false);
-      })
-      .catch(function (error) {
+  const openChat = async ev => {
+    ev.preventDefault();
+    if (userData && userData.id) {
+      try {
+        navigate(`/messages/${teacherId}`);
+      } catch (err) {
         toast({
-          title: getResponseMessage(error),
+          title: getResponseMessage(err),
           status: 'error',
           duration: 3000,
           isClosable: true,
           position: 'top-right',
         });
-        setIsLoading(false);
-      });
-  }, []);
+      }
+    } else {
+      setModalTabIndex(1);
+      onLoginOpen();
+    }
+  };
 
-  // useEffect(() => {}, [likedTeachers]);
+  const getTeacherPage = async () => {
+    try {
+      setIsLoading(true);
+
+      let res;
+      if (user) {
+        res = await axiosInstance.get(`users/getTeacherProfile/${teacherId}`);
+      } else {
+        res = await axios.get(`users/getTeacherProfile/${teacherId}`);
+      }
+      setTeacherInfo(res.data);
+      setReviews(res.data?.reviews);
+      setClasses(res.data?.lessonResponses);
+      setIsLiked(res.data?.likedByStudent);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        title: getResponseMessage(error),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
+  useEffect(() => {
+    getTeacherPage();
+  }, []);
 
   return isLoading ? (
     <PageLoader isLoading={isLoading} />
@@ -146,14 +171,7 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
         <Box maxW={'320px'} w={'full'} bg={'transparent'} textAlign={'center'}>
           <Stack spacing={6} align={'center'}>
             <Stack position={'relative'} align={'center'} pt={14} mb={4}>
-              <Avatar
-                size={'xl'}
-                src={
-                  'https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
-                }
-                mb={4}
-                zIndex={10}
-              />
+              <Avatar size={'xl'} src={teacherInfo?.picture} mb={4} zIndex={10} />
               <Box
                 w={'108px'}
                 h={'108px'}
@@ -194,11 +212,12 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
               <Stack direction={'row'}>
                 <Rating rating={teacherInfo?.rating} />
                 <Text color={'grey.400'}>
-                  ({teacherInfo?.numberOfReviews} {teacherInfo?.numberOfReviews > 1 ? 'отзива' : 'отзив'} )
+                  ({teacherInfo?.numberOfReviews} {teacherInfo?.numberOfReviews == 1 ? 'отзив' : 'отзива'} )
                 </Text>
               </Stack>
             </Stack>
             <Button
+              onClick={ev => openChat(ev)}
               size={{ base: 'sm', md: 'md' }}
               w={'full'}
               bg={'purple.500'}
@@ -217,7 +236,10 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
               onMouseEnter={() => setHeartIcon(heartFull)}
               onMouseLeave={() => setHeartIcon(heart)}
               onClick={ev => addToFavourites(ev)}>
-              <IconButton aria-label="Add to favourites" icon={<Img src={heartIcon} h={5} w={'full'} />} />
+              <IconButton
+                aria-label="Add to favourites"
+                icon={<Img src={isLiked ? heartFull : heartIcon} h={5} w={'full'} />}
+              />
               <Button color={'purple.500'} _hover={{ textDecoration: 'none', opacity: 0.9 }}>
                 <Text fontSize={16} fontWeight={700} ml={2}>
                   Добави в любими
@@ -264,14 +286,20 @@ const TeacherPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
       </Stack>
 
       <Stack align={'center'} spacing={8}>
-        <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 36 }} textAlign="center" color={'grey.600'}>
+        <Heading
+          flex={1}
+          as="h1"
+          w={'full'}
+          fontSize={{ base: 24, lg: 32, xl: 36 }}
+          textAlign={{ base: 'center', lg: 'start' }}
+          color={'grey.600'}>
           Моите курсове и уроци
         </Heading>
         {contentToShow?.length ? (
           <Grid
-            templateColumns={{ base: 'repeat(auto-fill, minmax(200px, 1fr))', lg: 'repeat(4, 1fr)' }}
+            templateColumns={{ base: 'repeat(auto-fill, minmax(250px, 1fr))', xl: 'repeat(4, 1fr)' }}
             gap={{ base: 8, lg: 6 }}
-            w={'full'}>
+            w={{ base: 'full' }}>
             {contentToShow}
           </Grid>
         ) : (

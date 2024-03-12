@@ -682,7 +682,7 @@ const CreateCourseComponent = ({
 
                 <NumberInput
                   defaultValue={15}
-                  max={20}
+                  max={30}
                   keepWithinRange={true}
                   clampValueOnBlur={false}
                   w={{ base: 'full', md: '30%' }}
@@ -699,7 +699,7 @@ const CreateCourseComponent = ({
                     Моля добавете какъв брой ученици ще могат да се запишат за Вашия курс.
                   </Text>
                   <Text fontSize={16} fontWeight={400} color={'grey.400'}>
-                    (Максимален брой - 20 ученици)
+                    (Максимален брой - 30 ученици)
                   </Text>
                 </Stack>
               </Stack>

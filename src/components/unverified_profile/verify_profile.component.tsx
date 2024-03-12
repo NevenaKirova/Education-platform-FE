@@ -405,7 +405,7 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
                 </FormControl>
 
                 <Text fontSize={{ base: 14, lg: 16 }} fontWeight={400} color={'grey.400'}>
-                  Моля добавете кратко описание на себе си, с което ще с представяте пред учениците.
+                  Моля добавете предмети/сфери, в които желаете да преподавате в платформата.
                 </Text>
               </Stack>
             </Stack>
