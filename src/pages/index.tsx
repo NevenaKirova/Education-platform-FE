@@ -17,6 +17,7 @@ import { Stack, useToast } from '@chakra-ui/react';
 import '../styles/styles.scss';
 
 export type CourseType = {
+  courseTerminRequests: any;
   teacherResponse: string;
   urlToImage: string;
   lessonID: number;

@@ -61,7 +61,7 @@ export default function DashboardCourseCard({
             objectFit={'cover'}
             maxH={'190px'}
             boxSize={isGrid ? '300px' : '440px'}
-            src={'https://bit.ly/dan-abramov'}
+            src={course?.urlToImage}
             alt="Course image"
             rounded={'lg'}
             p={0}

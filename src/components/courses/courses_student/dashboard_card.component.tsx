@@ -26,7 +26,6 @@ export default function DashboardCourseCardStudent({
 }: {
   course: CourseType;
   isGrid?: boolean;
-
   onOpen: any;
   setOpenModalWithCourse: any;
 }) {
@@ -42,7 +41,7 @@ export default function DashboardCourseCardStudent({
   return (
     <Box
       as={ReactRouterLink}
-      to={`/course/${course?.courseTerminResponses[0]?.courseTerminId}`}
+      to={`/course/${course?.lessonID}`}
       state={linkState}
       py={isGrid ? 0 : 4}
       px={0}
@@ -61,12 +60,12 @@ export default function DashboardCourseCardStudent({
         boxShadow="custom"
         overflow={'hidden'}
         p={4}
-        gap={8}>
+        gap={6}>
         <Stack position={'relative'}>
           <Image
             objectFit={'cover'}
             maxH={'190px'}
-            boxSize={isGrid ? '300px' : '450px'}
+            boxSize={isGrid ? '300px' : '390px'}
             src={
               'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
             }
@@ -102,45 +101,69 @@ export default function DashboardCourseCardStudent({
                 {course?.title}
               </Heading>
 
-              <Stack direction={'row'} align={'center'} px={0}>
+              <Stack direction={'row'} align={'center'} justify={'start'} px={0}>
                 <Img src={calendar} alt={'calendar icon'} w={5} h={5} />
-                <Text fontSize={16} color={'grey.400'}>
-                  {capitalizeMonth(
-                    format(new Date(course?.courseTerminResponses[0]?.startDate), 'dd LLL yyyy', { locale: bg }),
-                  )}{' '}
+                <Text fontSize={16} color={'grey.400'} whiteSpace={'nowrap'}>
+                  {course?.privateLesson
+                    ? capitalizeMonth(format(new Date(course?.firstDate), 'dd LLL yyyy', { locale: bg }))
+                    : capitalizeMonth(
+                        format(new Date(course?.courseTerminRequests?.[0]?.startDate), 'dd LLL yyyy', { locale: bg }),
+                      )}{' '}
                 </Text>
-                <Text fontSize={16} color={'grey.400'}>
-                  -
-                </Text>
-                <Text fontSize={16} color={'grey.400'}>
-                  {capitalizeMonth(
-                    format(new Date(course?.courseTerminResponses[0]?.endDate), 'dd LLL yyyy', { locale: bg }),
-                  )}{' '}
-                </Text>
+
+                {!course?.privateLesson && (
+                  <>
+                    {' '}
+                    <Text fontSize={16} color={'grey.400'}>
+                      -
+                    </Text>
+                    <Text fontSize={16} color={'grey.400'} whiteSpace={'nowrap'}>
+                      {capitalizeMonth(
+                        format(new Date(course?.courseTerminRequests?.[0]?.endDate), 'dd LLL yyyy', { locale: bg }),
+                      )}{' '}
+                    </Text>
+                  </>
+                )}
               </Stack>
 
               <Stack direction={'row'} align={'center'} px={0} flexWrap={'wrap'}>
-                <Img src={clock} alt={'calendar icon'} w={5} h={5} />
-                <Text fontSize={16} color={'grey.400'}>
-                  {course?.courseTerminResponses[0]?.courseDaysNumbers.map(day => daysArr[day - 1].short).toString()}
-                </Text>
+                {!course?.privateLesson && (
+                  <>
+                    {' '}
+                    <Img src={clock} alt={'calendar icon'} w={5} h={5} />
+                    <Text fontSize={16} color={'grey.400'}>
+                      {course?.courseTerminRequests?.[0]?.courseDaysNumbers
+                        .map(day => daysArr[day - 1].short)
+                        .toString()}
+                    </Text>
+                  </>
+                )}
 
-                <Stack direction={'row'} align={'center'} pl={2}>
-                  <Text fontSize={16} color={'grey.400'}>
-                    {course?.courseTerminResponses[0]?.courseHours}
-                  </Text>
-                  <Text fontSize={16} color={'grey.400'}>
-                    -
-                  </Text>
-                  <Text fontSize={16} color={'grey.400'}>
-                    {addMinutesToString(course?.courseTerminResponses[0]?.courseHours, course?.length)}
-                  </Text>
-                </Stack>
+                {course?.privateLesson ? (
+                  <Stack direction={'row'} align={'center'} px={0} flexWrap={'wrap'}>
+                    <Img src={clock} alt={'calendar icon'} w={5} h={5} />
+                    <Text fontSize={16} color={'grey.400'}>
+                      {course?.time}
+                    </Text>
+                  </Stack>
+                ) : (
+                  <Stack direction={'row'} align={'center'} pl={2}>
+                    <Text fontSize={16} color={'grey.400'}>
+                      {course?.courseTerminRequests?.[0]?.courseHours}
+                    </Text>
+                    <Text fontSize={16} color={'grey.400'}>
+                      -
+                    </Text>
+                    <Text fontSize={16} color={'grey.400'}>
+                      {addMinutesToString(course?.courseTerminRequests?.[0]?.courseHours, course?.length)}
+                    </Text>
+                  </Stack>
+                )}
               </Stack>
             </Stack>
 
             <Stack spacing={0}>
-              <Stack w={'full'} align={'end'} justify={'end'}>
+              <Stack w={'full'} align={'end'} justify={{ base: 'end', lg: 'start', '2xl': 'end' }}>
                 <Button
                   size={{ base: 'md' }}
                   w={'fit-content'}
@@ -156,14 +179,14 @@ export default function DashboardCourseCardStudent({
                 </Button>
               </Stack>
 
-              <Stack direction={'row'} align={'start'} fontWeight={500} flexWrap={'wrap'}>
-                <Stack flex={1} direction={'row'} spacing={4} align={'center'}>
+              <Stack direction={'row'} align={'center'} fontWeight={500} flexWrap={'wrap'}>
+                <Stack flex={1} direction={'row'} spacing={1} align={'center'} w={'fit-content'}>
                   <Avatar
                     size="xs"
                     name={`${course?.teacherName} ${course?.teacherSurname}`}
                     src="https://bit.ly/dan-abramov"
                   />
-                  <Text color={'grey.600'}>
+                  <Text color={'grey.600'} w={'fit-content'} whiteSpace={'nowrap'}>
                     {course?.teacherName} {course?.teacherSurname}
                   </Text>
                 </Stack>

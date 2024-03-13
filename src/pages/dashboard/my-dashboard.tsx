@@ -16,9 +16,9 @@ import {
   TabPanels,
   TabPanel,
   SimpleGrid,
-  Flex,
   useToast,
   useDisclosure,
+  Hide,
 } from '@chakra-ui/react';
 
 import AuthContext from '../../context/AuthContext';
@@ -54,6 +54,7 @@ import bgLocale from '@fullcalendar/core/locales/bg';
 import { axiosInstance } from '../../axios';
 import { format } from 'date-fns';
 import CalendarDayViewModal from '../calendar/calendar_day_view';
+import PageLoader from '../../utils/loader.component';
 
 const courseTypes = [
   { label: 'Всички', type: 'all' },
@@ -204,7 +205,9 @@ export default function MyDashboardPage() {
 
   if (!user) return <Navigate to={'/'} replace />;
 
-  return (
+  return isLoading ? (
+    <PageLoader isLoading={isLoading} />
+  ) : (
     <>
       <Stack
         spacing={{ base: 6, md: 12 }}
@@ -214,13 +217,8 @@ export default function MyDashboardPage() {
         align={'start'}
         justify={'space-between'}
         w={'full'}>
-        <Stack
-          align={'start'}
-          spacing={{ base: 6, lg: 10 }}
-          direction={{ base: 'column', lg: 'row' }}
-          flex={1}
-          w={'full'}>
-          <Stack flex={1} spacing={{ base: 5, md: 10 }} w={'full'}>
+        <Stack align={'start'} spacing={{ base: 6, xl: 16 }} direction={{ base: 'column', xl: 'row' }} w={'full'}>
+          <Stack flex={1} spacing={{ base: 5, md: 10 }} minW={'55%'} w={'full'}>
             <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 34 }} color={'grey.600'}>
               Моите уроци
             </Heading>
@@ -256,31 +254,45 @@ export default function MyDashboardPage() {
                     optionLabel="label"
                     placeholder="Сортирай по"
                   />
-
-                  {/*<GridItem colStart={{ base: 1, lg: 5, xl: 8 }} rowStart={{ base: 2, lg: 1 }}>*/}
-                  {/*  <Button*/}
-                  {/*    size={{ base: 'md', lg: 'md' }}*/}
-                  {/*    color={'purple.500'}*/}
-                  {/*    bg={'transparent'}*/}
-                  {/*    fontSize={{ base: 16, '2xl': 20 }}*/}
-                  {/*    fontWeight={700}*/}
-                  {/*    _hover={{ bg: 'transparent' }}*/}
-                  {/*    w={'fit-content'}*/}
-                  {/*    className={'no-padding'}>*/}
-                  {/*    <Stack as={ReactRouterLink} to={'/calendar'} direction={'row'} align={'center'} px={0}>*/}
-                  {/*      <Img src={calendar} alt={'calendar icon'} />*/}
-                  {/*      <Text> Отвори календара </Text>*/}
-                  {/*    </Stack>*/}
-                  {/*  </Button>*/}
-                  {/*</GridItem>*/}
                 </Stack>
+
+                <Hide above={'xl'}>
+                  <Stack
+                    py={{ base: 8 }}
+                    px={{ base: 10 }}
+                    mt={16}
+                    mb={12}
+                    justify={'start'}
+                    w={{ base: 'full', lg: 'full', '2xl': '40%' }}
+                    rounded={'md'}
+                    boxShadow={'custom'}
+                    className={'dashboard-calendar'}>
+                    <Fullcalendar
+                      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                      initialView={'dayGridMonth'}
+                      displayEventTime={false}
+                      weekNumberCalculation={'ISO'}
+                      locale={bgLocale}
+                      events={events}
+                      eventClassNames={'eventClass'}
+                      dateClick={info => openDayModal(info, false)}
+                      fixedWeekCount={false}
+                      headerToolbar={{
+                        start: '',
+                        center: 'prev title next',
+                        end: '',
+                      }}
+                      height={'45vh'}
+                    />
+                  </Stack>
+                </Hide>
 
                 <TabPanels pt={2}>
                   <TabPanel p={0}>
-                    {all && all?.length ? (
+                    {all && all?.total ? (
                       <>
-                        <SimpleGrid columns={{ base: 1, '3xl': 2 }} spacing={10} mt={8}>
-                          {all.map((el, index) => (
+                        <SimpleGrid columns={{ base: 1, '3xl': 2 }} spacing={4} mt={8}>
+                          {all.lessonResponses?.map((el, index) => (
                             <DashboardCourseCardStudent
                               key={index}
                               course={el}
@@ -341,7 +353,7 @@ export default function MyDashboardPage() {
                   </TabPanel>
                   <TabPanel p={0}>
                     {courses && courses?.length ? (
-                      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
+                      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4} mt={8}>
                         {courses.map((el, index) => (
                           <DashboardCourseCardStudent
                             key={index}
@@ -358,7 +370,7 @@ export default function MyDashboardPage() {
                   </TabPanel>
                   <TabPanel p={0}>
                     {lessons && lessons?.length ? (
-                      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10} mt={8}>
+                      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4} mt={8}>
                         {lessons.map((el, index) => (
                           <DashboardCourseCardStudent
                             key={index}
@@ -378,15 +390,14 @@ export default function MyDashboardPage() {
             </Stack>
           </Stack>
 
-          <Flex flex={1} justify={'center'} align={'center'} position={'relative'} w={'full'}>
+          <Hide below={'xl'}>
             <Stack
               py={{ base: 8 }}
               px={{ base: 10 }}
-              mx={2}
-              mt={{ base: 0, lg: 36 }}
+              mt={{ base: 0, lg: 44 }}
               mb={12}
               justify={'start'}
-              w={{ base: 'full', xl: '80%', '2xl': '70%' }}
+              w={{ base: 'full', lg: '34%', '2xl': '40%' }}
               rounded={'md'}
               boxShadow={'custom'}
               className={'dashboard-calendar'}>
@@ -408,7 +419,7 @@ export default function MyDashboardPage() {
                 height={'45vh'}
               />
             </Stack>
-          </Flex>
+          </Hide>
         </Stack>
       </Stack>
 

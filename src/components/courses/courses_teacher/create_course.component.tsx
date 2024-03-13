@@ -137,6 +137,7 @@ const CreateCourseComponent = ({
   const [showThemasError, setShowThemasError] = useState(false);
   const [course, setCourse] = useState(defaultCourseValues);
   const [pictures, setPictures] = useState([]);
+  const [selectedPicture, setSelectedPicture] = useState(null);
 
   const {
     register,
@@ -346,7 +347,7 @@ const CreateCourseComponent = ({
 
   useEffect(() => {
     if (subject) {
-      console.log(subject)
+      console.log(subject);
       getPictures(subject.name);
     }
   }, [subject]);
@@ -720,7 +721,7 @@ const CreateCourseComponent = ({
                         role="group"
                         onClick={ev => {
                           ev.preventDefault();
-                          // setSelectedAvatar(index);
+                          setSelectedPicture(el);
                         }}
                         borderRadius="full"
                         _hover={{
@@ -729,11 +730,11 @@ const CreateCourseComponent = ({
                         }}>
                         <Image
                           borderRadius="full"
-                          border={selectedAvatar === index ? '5px solid' : ''}
-                          borderColor={selectedAvatar === index ? 'purple.500' : ''}
+                          border={selectedPicture === index ? '5px solid' : ''}
+                          borderColor={selectedPicture === index ? 'purple.500' : ''}
                           boxSize={20}
-                          src={'http://localhost:8080/api/v1/users/images/Avatar_02.png'}
-                          alt={`avatar${index}`}
+                          src={el}
+                          alt={`courseImage${index}`}
                           onLoad={() => {
                             URL.revokeObjectURL(el);
                           }}
