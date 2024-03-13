@@ -72,6 +72,26 @@ const MessagesPage = () => {
     }
   };
 
+  const handleFileUpload = async file => {
+
+    const formData = new FormData();
+    formData.append('file', file[0]);
+
+    try {
+      const res = await axiosInstance.post(`users/uploadChatFile`, formData);
+      console.log(res);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+
+    console.log(file);
+  };
   const getMessageHistory = async () => {
     if (user) {
       try {
@@ -420,13 +440,21 @@ const MessagesPage = () => {
                         placeholder="Въведете тук"
                         {...register('message')}
                       />
+                      <Input
+                        pr="4.5rem"
+                        type="file"
+                        display="none"
+                        id="file-upload"
+                        onChange={e => handleFileUpload(e.target.files)}
+                      />
                       <InputRightElement width="4.5rem">
                         <IconButton
-                          aria-label={'attach file'}
+                          aria-label="Attach file"
                           size="xs"
-                          bg={'none'}
+                          bg="none"
                           _hover={{ bg: 'none' }}
-                          icon={<Img src={attach} w={'full'} />}
+                          icon={<Img src={attach} w="full" />}
+                          onClick={() => document.getElementById('file-upload').click()}
                         />
                       </InputRightElement>
                     </InputGroup>
