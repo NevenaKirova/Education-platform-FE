@@ -26,7 +26,7 @@ import { getResponseMessage } from '../helpers/response.util';
 import AuthContext from '../context/AuthContext';
 
 import { noData } from '../images';
-import { attach } from '../icons';
+import { attach, fileDownload, upload } from '../icons';
 
 const MessagesPage = () => {
   const { user, userData, authTokens } = useContext(AuthContext);
@@ -41,6 +41,7 @@ const MessagesPage = () => {
 
   const [stompClient, setStompClient] = useState(null);
   const [isWebSocketReady, setIsWebSocketReady] = useState(false);
+  const [file, setFile] = useState(null);
 
   const {
     register,
@@ -50,7 +51,7 @@ const MessagesPage = () => {
   } = useForm();
 
   const onSubmit: SubmitHandler<any> = async data => {
-    sendMessage(data.message);
+    file ? sendMessage({ content: file, isFile: true }) : sendMessage({ content: data.message });
   };
 
   const getChatRooms = async () => {
@@ -73,13 +74,13 @@ const MessagesPage = () => {
   };
 
   const handleFileUpload = async file => {
-
     const formData = new FormData();
     formData.append('file', file[0]);
 
     try {
       const res = await axiosInstance.post(`users/uploadChatFile`, formData);
-      console.log(res);
+
+      setFile(res.data);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -89,8 +90,6 @@ const MessagesPage = () => {
         position: 'top-right',
       });
     }
-
-    console.log(file);
   };
   const getMessageHistory = async () => {
     if (user) {
@@ -112,21 +111,37 @@ const MessagesPage = () => {
     }
   };
 
-  const sendMessage = content => {
+  const sendMessage = ({ content, isFile = false }: { content: string; isFile?: boolean }) => {
     const message = {
       senderId: authTokens?.access_token,
       recipientId: userId,
-      content: content.trim(),
+      content: content?.trim(),
       date: format(new Date(), 'yyyy-MM-dd'),
       time: format(new Date().getTime(), 'HH:mm'),
+      file: isFile,
     };
 
     if (isWebSocketReady && stompClient && stompClient.connected) {
       stompClient.send('/app/chat', {}, JSON.stringify(message));
       setMessageHistory(prevMessages => [...prevMessages, message]);
       reset();
+      setFile(null);
     } else {
       console.error('WebSocket connection not established.');
+    }
+  };
+
+  const getUploadedFile = async filePath => {
+    try {
+      await axiosInstance.get(`users/getChatFile/${filePath}`);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
     }
   };
 
@@ -172,6 +187,8 @@ const MessagesPage = () => {
       });
     }
   }, [userId]);
+
+  useEffect(() => console.log(messageHistory), [messageHistory]);
 
   if (!user) return <Navigate to={'/'} replace />;
   if (!userId && hasMessages) return <Navigate to={`/messages/${chatRooms[0]?.recipientId}`} replace />;
@@ -404,9 +421,26 @@ const MessagesPage = () => {
                           px={4}
                           rounded={'xl'}
                           align={'start'}>
-                          <Text textAlign={'left'} fontSize={{ base: 14, md: 16 }}>
-                            {msg.content}
-                          </Text>
+                          {msg?.file ? (
+                            <Stack
+                              as={Button}
+                              onClick={() => getUploadedFile(msg?.content)}
+                              bg={msg.senderId !== userId ? 'purple.200' : 'white'}
+                              _hover={{ bg: msg.senderId !== userId ? 'purple.200' : 'white' }}
+                              direction={'row'}
+                              align={'center'}
+                              spacing={2}
+                              w={'full'}>
+                              <Img src={fileDownload} alt={'uploaded file'} w={5} h={5} />
+                              <Text fontWeight={600} color={'grey.500'}>
+                                Прикчен файл
+                              </Text>
+                            </Stack>
+                          ) : (
+                            <Text textAlign={'left'} fontSize={{ base: 14, md: 16 }}>
+                              {msg?.content}
+                            </Text>
+                          )}
                         </Stack>
                       </Stack>
 
@@ -426,54 +460,93 @@ const MessagesPage = () => {
                 </Stack>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <Stack flex={0} w={'full'} direction={{ base: 'column', md: 'row' }} spacing={4}>
-                    <InputGroup
-                      size={{ base: 'sm', lg: 'md' }}
-                      bg={'white'}
-                      border="white"
-                      rounded={'md'}
-                      maxW={{ base: 'full', md: '90%' }}>
-                      <Input
-                        pr="4.5rem"
-                        type="text"
-                        bg={'grey.100'}
-                        placeholder="Въведете тук"
-                        {...register('message')}
-                      />
-                      <Input
-                        pr="4.5rem"
-                        type="file"
-                        display="none"
-                        id="file-upload"
-                        onChange={e => handleFileUpload(e.target.files)}
-                      />
-                      <InputRightElement width="4.5rem">
-                        <IconButton
-                          aria-label="Attach file"
-                          size="xs"
-                          bg="none"
-                          _hover={{ bg: 'none' }}
-                          icon={<Img src={attach} w="full" />}
-                          onClick={() => document.getElementById('file-upload').click()}
-                        />
-                      </InputRightElement>
-                    </InputGroup>
+                  <Stack direction={'column'} w={'full'}>
+                    {file && (
+                      <Stack w={'fit-content'} direction={'row'} rounded={'md'} align={'center'} spacing={6}>
+                        <Stack
+                          w={'fit-content'}
+                          position={'relative'}
+                          p={3}
+                          bg={'grey.100'}
+                          rounded={'md'}
+                          align={'center'}>
+                          <Image w={6} h={6} maxH={'full'} objectFit="cover" src={upload} alt="uploaded file" />
 
-                    <Button
-                      type={'submit'}
-                      size={{ base: 'sm', md: 'md' }}
-                      w={{ base: 'full', md: 'fit-content' }}
-                      px={16}
-                      py={0}
-                      bg={'purple.500'}
-                      color={'white'}
-                      fontSize={16}
-                      fontWeight={700}
-                      _hover={{ opacity: '0.95' }}
-                      _focus={{ outline: 'none' }}
-                      _active={{ bg: 'purple.500' }}>
-                      Изпрати
-                    </Button>
+                          <Button
+                            size={'xxs'}
+                            p={2}
+                            h={4}
+                            w={'fit-content'}
+                            rounded={'lg'}
+                            bg={'white'}
+                            boxShadow={'custom'}
+                            _hover={{ bg: 'white', opacity: 0.8 }}
+                            position={'absolute'}
+                            left={8}
+                            top={0}
+                            onClick={() => setFile(null)}>
+                            x
+                          </Button>
+                        </Stack>
+
+                        <Stack overflow={'hidden'} maxW={'150px'}>
+                          <Text fontSize={12} whiteSpace={'nowrap'} overflow={'hidden'} textOverflow={'ellipsis'}>
+                            {file}
+                          </Text>
+                        </Stack>
+                      </Stack>
+                    )}
+
+                    <Stack flex={0} w={'full'} direction={{ base: 'column', md: 'row' }} spacing={4}>
+                      <InputGroup
+                        size={{ base: 'sm', lg: 'md' }}
+                        bg={'white'}
+                        border="white"
+                        rounded={'md'}
+                        maxW={{ base: 'full', md: '90%' }}>
+                        <Input
+                          pr="4.5rem"
+                          type="text"
+                          bg={'grey.100'}
+                          placeholder="Въведете тук"
+                          disabled={!!file}
+                          {...register('message')}
+                        />
+                        <Input
+                          pr="4.5rem"
+                          type="file"
+                          display="none"
+                          id="file-upload"
+                          onChange={e => handleFileUpload(e.target.files)}
+                        />
+                        <InputRightElement width="4.5rem">
+                          <IconButton
+                            aria-label="Attach file"
+                            size="xs"
+                            bg="none"
+                            _hover={{ bg: 'none' }}
+                            icon={<Img src={attach} w="full" />}
+                            onClick={() => document.getElementById('file-upload').click()}
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+
+                      <Button
+                        type={'submit'}
+                        size={{ base: 'sm', md: 'md' }}
+                        w={{ base: 'full', md: 'fit-content' }}
+                        px={16}
+                        py={0}
+                        bg={'purple.500'}
+                        color={'white'}
+                        fontSize={16}
+                        fontWeight={700}
+                        _hover={{ opacity: '0.95' }}
+                        _focus={{ outline: 'none' }}
+                        _active={{ bg: 'purple.500' }}>
+                        Изпрати
+                      </Button>
+                    </Stack>
                   </Stack>
                 </form>
               </Stack>
