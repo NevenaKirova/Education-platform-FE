@@ -278,25 +278,41 @@ const OpenedCourseComponent = ({
             </BreadcrumbLink>
           </BreadcrumbItem>
 
-          {/*{dateSelected?.courseTerminId && (*/}
-          {/*  <BreadcrumbItem*/}
-          {/*    color={'purple.500'}*/}
-          {/*    _hover={{ textDecoration: 'none' }}*/}
-          {/*    cursor={'default'}*/}
-          {/*    onClick={() => {*/}
-          {/*      setDateSelected(dateSelected);*/}
-          {/*      setShowAddDate(false);*/}
-          {/*      setOpenedTheme(null);*/}
-          {/*      setShowAddResources(true);*/}
-          {/*      setShowSubmissions(false);*/}
-          {/*    }}>*/}
-          {/*    <BreadcrumbLink textDecoration={'none'}>*/}
-          {/*      {capitalizeMonth(format(new Date(dateSelected?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}*/}
-          {/*      {dateSelected?.endDate &&*/}
-          {/*        capitalizeMonth(format(new Date(dateSelected?.endDate), 'dd LLL yyyy', { locale: bg }))}*/}
-          {/*    </BreadcrumbLink>*/}
-          {/*  </BreadcrumbItem>*/}
-          {/*)}*/}
+          {dateSelected?.courseTerminId && (
+            <BreadcrumbItem
+              color={'purple.500'}
+              _hover={{ textDecoration: 'none' }}
+              cursor={'default'}
+              onClick={() => {
+                setDateSelected(dateSelected);
+                setShowAddDate(false);
+                setOpenedTheme(null);
+                setShowAddResources(true);
+                setShowSubmissions(false);
+              }}>
+              <BreadcrumbLink textDecoration={'none'}>
+                {capitalizeMonth(format(new Date(dateSelected?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
+                {dateSelected?.endDate &&
+                  capitalizeMonth(format(new Date(dateSelected?.endDate), 'dd LLL yyyy', { locale: bg }))}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
+
+          {dateSelected?.lessonTerminId && (
+            <BreadcrumbItem
+              color={'purple.500'}
+              _hover={{ textDecoration: 'none' }}
+              cursor={'default'}
+              onClick={() => {
+                setDateSelected(dateSelected);
+                setShowAddDate(false);
+                setOpenedTheme(null);
+                setShowAddResources(true);
+                setShowSubmissions(false);
+              }}>
+              <BreadcrumbLink textDecoration={'none'}>{dateSelected.time}</BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
 
           {openedTheme?.id && (
             <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
@@ -339,6 +355,7 @@ const OpenedCourseComponent = ({
             date={dateSelected}
             course={course}
             setShowCreateCourse={setShowCreateCourse}
+            setShowCreateLesson={setShowCreateLesson}
             setActiveTab={setActiveTab}
             setEditInfo={setEditInfo}
             setShowAddResources={setShowAddResources}

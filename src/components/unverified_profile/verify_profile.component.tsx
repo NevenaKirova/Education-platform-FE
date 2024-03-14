@@ -215,10 +215,8 @@ export default function VerifyProfileComponent({ setShowForm }: { setShowForm: a
               </Heading>
 
               <Text color={'grey.400'}>
-                Lorem ipsum dolor sit amet, ut quidam nostrud eos. Id sed legendos definitiones, te eam philosophia
-                disputationi, feugiat feugait ullamcorper duo an. Meis maiestatis vis cu. Nam facete tacimates perpetua
-                in, graece causae ne mel. Dolore animal ponderum an per. Mei oporteat evertitur abhorreant an, unum
-                nostro conclusionemque nam eu.
+                Моля, направете верификация на профила, за да активирате акаунта си и да започнете да преподавате Вашите
+                онлайн занятия.
               </Text>
             </Stack>
 

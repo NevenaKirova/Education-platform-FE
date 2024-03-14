@@ -41,7 +41,11 @@ export default function DashboardCourseCardStudent({
   return (
     <Box
       as={ReactRouterLink}
-      to={`/course/${course?.lessonID}`}
+      to={
+        course.privateLesson
+          ? `/course/${course?.lessonTerminId}`
+          : `/course/${course?.courseTerminRequests[0]?.courseTerminId}`
+      }
       state={linkState}
       py={isGrid ? 0 : 4}
       px={0}
@@ -175,7 +179,7 @@ export default function DashboardCourseCardStudent({
                   _hover={{ bg: 'transparent' }}
                   _focus={{ outline: 'none' }}
                   onClick={hanldeOpenModal}>
-                  Оцени курса
+                  Оцени {course?.privateLesson ? 'урока' : 'курса'}
                 </Button>
               </Stack>
 

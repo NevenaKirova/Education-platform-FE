@@ -467,7 +467,7 @@ export default function AboutUsPage() {
           spacing={6}
           fontSize={{ base: 14, lg: 16 }}
           w={'full'}
-          mb={{ base: 0, lg: 20 }}>
+          mb={{ base: 0, lg: reviews?.length ? 20 : 0 }}>
           <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }} lineHeight={'150%'}>
             <Text as={'span'} color={'purple.500'}>
               Отзиви{' '}
@@ -475,17 +475,21 @@ export default function AboutUsPage() {
             от родители
           </Heading>
 
-          <Carousel
-            autoPlay={false}
-            autoPlaySpeed={5000}
-            responsive={responsive}
-            partialVisible={true}
-            showDots={true}
-            containerClass={style.containerClass}
-            infinite={true}
-            arrows={false}>
-            {reviews?.map((review, index) => <TestimonialCard key={index} review={review} />)}
-          </Carousel>
+          {reviews?.length ? (
+            <Carousel
+              autoPlay={false}
+              autoPlaySpeed={5000}
+              responsive={responsive}
+              partialVisible={true}
+              showDots={true}
+              containerClass={style.containerClass}
+              infinite={true}
+              arrows={false}>
+              {reviews?.map((review, index) => <TestimonialCard key={index} review={review} />)}
+            </Carousel>
+          ) : (
+            <Text fontSize={{ base: 18, lg: 20 }} color={'grey.500'}>Няма налични мнения на родители</Text>
+          )}
         </Stack>
 
         <Stack

@@ -30,12 +30,7 @@ export const responsive = {
 export default function TestimonialsSection({ reviews }: { reviews: any }) {
   return (
     <Stack spacing={4} px={{ base: 12, lg: 24, '2xl': '15vw' }}>
-      <Heading
-        flex={1}
-        as="h1"
-        fontSize={{ base: 24, md: 32, lg:40}}
-        textAlign="center"
-        pb={8}>
+      <Heading flex={1} as="h1" fontSize={{ base: 24, md: 32, lg: 40 }} textAlign="center" pb={8}>
         <Text as="span" color={'purple.500'}>
           Отзиви
         </Text>{' '}
@@ -43,17 +38,23 @@ export default function TestimonialsSection({ reviews }: { reviews: any }) {
         от наши ученици и родители
       </Heading>
 
-      <Carousel
-        autoPlay={false}
-        autoPlaySpeed={5000}
-        responsive={responsive}
-        partialVisible={true}
-        showDots={true}
-        containerClass={style.containerClass}
-        infinite={true}
-        arrows={false}>
-        {reviews?.map((review, index) => <TestimonialCard key={index} review={review} />)}
-      </Carousel>
+      {reviews?.length ? (
+        <Carousel
+          autoPlay={false}
+          autoPlaySpeed={5000}
+          responsive={responsive}
+          partialVisible={true}
+          showDots={true}
+          containerClass={style.containerClass}
+          infinite={true}
+          arrows={false}>
+          {reviews?.map((review, index) => <TestimonialCard key={index} review={review} />)}
+        </Carousel>
+      ) : (
+        <Text fontSize={{ base: 18, lg: 20 }} color={'grey.500'}>
+          Няма налични мнения
+        </Text>
+      )}
     </Stack>
   );
 }

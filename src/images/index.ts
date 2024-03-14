@@ -31,6 +31,7 @@ import account from './account.png';
 import helpBackground from './Background_03.png';
 import reasons from './5_reasons.png';
 import aboutUsBackground from './Ab_us_photo_background.png';
+import changePass from './Change_pass.svg';
 
 export {
   logo,
@@ -66,4 +67,5 @@ export {
   helpBackground,
   reasons,
   aboutUsBackground,
+  changePass,
 };

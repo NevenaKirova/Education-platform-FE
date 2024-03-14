@@ -60,10 +60,9 @@ const StudentOpenedCoursePage = () => {
 
   const downloadResource = async themeId => {
     try {
-      const res = await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
+      await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
         responseType: 'blob',
       });
-      console.log(res.data);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -84,6 +83,21 @@ const StudentOpenedCoursePage = () => {
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
+  const handleHomework = async assignmentId => {
+    try {
+      const res = await axiosInstance.get(`lessons/getAssignmentStudent/${assignmentId}`);
+      console.log(res.data);
+    } catch (err) {
       toast({
         title: getResponseMessage(err),
         status: 'error',
@@ -246,9 +260,8 @@ const StudentOpenedCoursePage = () => {
                         {el?.presentation && (
                           <Stack
                             as={Button}
-                            to={el?.linkToRecording}
-                            target={'_blank'}
                             rounded={'md'}
+                            h={'fit-content'}
                             bg={'purple.100'}
                             w={'full'}
                             p={4}
@@ -263,22 +276,24 @@ const StudentOpenedCoursePage = () => {
                           </Stack>
                         )}
 
-                        {el?.assignment && (
+                        {el?.assignmentId && (
                           <Stack
-                            as={ReactRouterLink}
-                            to={el?.linkToRecording}
-                            target={'_blank'}
+                            as={Button}
+                            onClick={() => handleHomework(el.assignmentId)}
                             rounded={'md'}
                             bg={'#E3F7FF'}
                             w={'full'}
+                            h={'fit-content'}
                             p={4}
                             align={'center'}
-                            direction={'row'}
-                            justify={'start'}>
-                            <Img src={fileUpload} w={6} h={6} />
-                            <Text color={'grey.600'} fontWeight={'700'}>
-                              Задача за домашна работа
-                            </Text>
+                            justify={'space-between'}
+                            direction={'row'}>
+                            <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
+                              <Img src={fileUpload} w={6} h={6} />
+                              <Text color={'grey.600'} fontWeight={'700'}>
+                                Задача за домашна работа
+                              </Text>
+                            </Stack>
                           </Stack>
                         )}
                       </Stack>
@@ -307,7 +322,7 @@ const StudentOpenedCoursePage = () => {
         </Stack>
       </Button>
 
-      <ReportModal isOpen={isOpen} onClose={onClose} />
+      <ReportModal isOpen={isOpen} onClose={onClose} terminId={courseId} />
     </Stack>
   );
 };

@@ -133,7 +133,9 @@ const MessagesPage = () => {
 
   const getUploadedFile = async filePath => {
     try {
-      await axiosInstance.get(`users/getChatFile/${filePath}`);
+      await axiosInstance.get(`users/getChatFile/${filePath}`, {
+        responseType: 'blob',
+      });
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -420,7 +422,9 @@ const MessagesPage = () => {
                           p={{ base: 2, md: 3 }}
                           px={4}
                           rounded={'xl'}
-                          align={'start'}>
+                          align={'start'}
+                          h={'100%'}
+                          overflow={'hidden'}>
                           {msg?.file ? (
                             <Stack
                               as={Button}
@@ -437,7 +441,12 @@ const MessagesPage = () => {
                               </Text>
                             </Stack>
                           ) : (
-                            <Text textAlign={'left'} fontSize={{ base: 14, md: 16 }}>
+                            <Text
+                              textAlign={'left'}
+                              fontSize={{ base: 14, md: 16 }}
+                              maxW={'400px'}
+                              wordBreak={'break-all'}
+                              h={'fit-content'}>
                               {msg?.content}
                             </Text>
                           )}

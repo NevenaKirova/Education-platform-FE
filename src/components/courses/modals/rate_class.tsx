@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Button,
@@ -37,6 +37,7 @@ export default function RateClassModal({
 
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
+  const [terminId, setTerminId] = useState(null);
 
   const handleOnClose = () => {
     onClose();
@@ -70,6 +71,12 @@ export default function RateClassModal({
       });
     }
   };
+
+  useEffect(() => {
+    course?.privateLesson
+      ? setTerminId(course?.lessonTerminId)
+      : setTerminId(course?.courseTerminRequests[0]?.courseTerminId);
+  }, [course]);
 
   return (
     <>
@@ -177,7 +184,13 @@ export default function RateClassModal({
           </ModalBody>
         </ModalContent>
       </Modal>
-      <ReportModal isOpen={isOpenReport} onClose={onCloseReport} onOpenRate={onOpen} />
+      <ReportModal
+        isOpen={isOpenReport}
+        onClose={onCloseReport}
+        onOpenRate={onOpen}
+        terminId={terminId}
+        course={course}
+      />
     </>
   );
 }

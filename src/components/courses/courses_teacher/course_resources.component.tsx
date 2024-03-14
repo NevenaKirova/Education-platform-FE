@@ -39,6 +39,7 @@ const CourseResources = ({
   date,
   course,
   setShowCreateCourse,
+  setShowCreateLesson,
   setActiveTab,
   setEditInfo,
   setShowAddResources,
@@ -54,6 +55,7 @@ const CourseResources = ({
   date: any;
   course: any;
   setShowCreateCourse?: any;
+  setShowCreateLesson?: any;
   setActiveTab?: any;
   setEditInfo?: any;
   setShowAddResources: any;
@@ -79,7 +81,7 @@ const CourseResources = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const studentsToShow = useMemo(() => {
-    if (!students.length) {
+    if (!students?.length) {
       return (
         <Text color={'grey.400'} textAlign="center" fontSize={{ base: 14, lg: 16 }}>
           Няма записани ученици
@@ -89,10 +91,10 @@ const CourseResources = ({
     return students?.slice(0, numberOfStudents).map((el: any, index: number) => (
       <GridItem key={index}>
         <Stack direction={'column'} align={'center'} spacing={2}>
-          <Avatar size={{ base: 'sm', md: 'lg' }} src={avatar2} />
+          <Avatar size={{ base: 'sm', md: 'lg' }} src={el?.imageLocation} />
           <Stack direction={'row'} align={'center'} spacing={2}>
             <Text fontSize={14} fontWeight={600}>
-              Стоян Иванов
+              {el?.name} {el?.surname}
             </Text>
             <Box as={ReactRouterLink} to={`/messages/${el.id}`} bg={'transparent'} _hover={{ bg: 'transparent' }} p={0}>
               <Img src={message} w={5} h={5} />
@@ -103,6 +105,21 @@ const CourseResources = ({
     ));
   }, [students, numberOfStudents]);
 
+  const downloadResource = async themeId => {
+    try {
+      await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
+        responseType: 'blob',
+      });
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
   const showAll = () => {
     setNumberOfStudents(students.length);
   };
@@ -127,7 +144,8 @@ const CourseResources = ({
     try {
       setIsLoading(true);
       const id = isPrivateLesson ? date?.lessonTerminId : date?.courseTerminId;
-      const res = await axiosInstance.get(`lessons/getCourseClassroomPage/${id}`);
+      const path = course.privateLesson ? 'getLessonClassroomPage' : 'getCourseClassroomPage';
+      const res = await axiosInstance.get(`lessons/${path}/${id}`);
       setOpenedCourse(res.data);
       setStudents(res.data?.students);
       setIsLoading(false);
@@ -239,13 +257,13 @@ const CourseResources = ({
                 onClick={() => {
                   setActiveTab(1);
                   setDateSelected({});
-                  setShowCreateCourse(true);
+                  course?.privateLesson ? setShowCreateLesson(true) : setShowCreateCourse(true);
                   setEditInfo(true);
                   setShowAddResources(false);
                 }}>
                 <Stack direction={'row'} align={'center'} spacing={2}>
                   <Img src={edit} alt={'edit date'} h={5} w={5} />
-                  <Text>Редактирай курса</Text>
+                  <Text>Редактирай {course?.privateLesson ? 'урока' : 'курса'} </Text>
                 </Stack>
               </Box>
             </Stack>
@@ -254,10 +272,10 @@ const CourseResources = ({
               <Stack direction={'row'} spacing={4} align={'center'}>
                 <Img src={calendar} alt={'calendar icon'} w={5} h={5} />
                 {isPrivateLesson ? (
-                  // <Text color={'grey.500'}>
-                  //   {capitalizeMonth(format(new Date(date?.date), 'dd LLL yyyy', { locale: bg }))} -{' '}
-                  // </Text>
-                  <></>
+                  <Text color={'grey.500'}>
+                    {openedCourse &&
+                      capitalizeMonth(format(new Date(openedCourse?.startDate), 'dd LLL yyyy', { locale: bg }))}
+                  </Text>
                 ) : (
                   <Text color={'grey.500'}>
                     {capitalizeMonth(format(new Date(date?.startDate), 'dd LLL yyyy', { locale: bg }))} -{' '}
@@ -271,8 +289,7 @@ const CourseResources = ({
                 <Stack spacing={1}>
                   {isPrivateLesson ? (
                     <>
-                      <Text color={'grey.500'}>{date?.dayOfTheWeek}</Text>
-                      {/*<Text color={'grey.500'}>{date?.courseHours}</Text>*/}
+                      <Text color={'grey.500'}>{openedCourse?.courseHours}</Text>
                     </>
                   ) : (
                     <>
@@ -434,13 +451,15 @@ const CourseResources = ({
 
                           {el?.presentation && (
                             <Stack
+                              as={Button}
                               rounded={'md'}
                               bg={'purple.100'}
                               w={'full'}
                               p={4}
                               align={'center'}
                               justify={'space-between'}
-                              direction={'row'}>
+                              direction={'row'}
+                              onClick={() => downloadResource(el.themaID)}>
                               <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
                                 <Img src={video} w={6} h={6} />
                                 <Text color={'grey.600'} fontWeight={'700'}>

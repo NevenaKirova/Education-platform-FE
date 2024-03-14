@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Button,
@@ -14,27 +14,34 @@ import {
   ModalBody,
   ModalCloseButton,
   Img,
-  CheckboxGroup,
-  Checkbox,
   Center,
   RadioGroup,
   Radio,
+  useToast,
 } from '@chakra-ui/react';
 import { report } from '../../../icons';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
+import { axiosInstance } from '../../../axios';
+import { getResponseMessage } from '../../../helpers/response.util';
 
 export default function ReportModal({
   isOpen,
   onClose,
   onOpenRate,
+  terminId,
+  course,
 }: {
   isOpen: boolean;
   onClose: any;
   onOpenRate?: any;
+  terminId: number | null;
+  course: any;
 }) {
   const [reason, setReason] = useState('');
   const [isDone, setIsDone] = useState(false);
+
+  const toast = useToast();
 
   const {
     register,
@@ -44,15 +51,46 @@ export default function ReportModal({
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
-      reason: '',
-      text: '',
+      title: '',
+      description: '',
     },
   });
 
   const onSubmit: SubmitHandler = async data => {
-    console.log(data);
-    setIsDone(true);
+    try {
+      const url = course?.privateLesson ? 'reportLesson' : 'reportCourse';
+
+      await axiosInstance.post(`lessons/${url}`, {
+        terminId: terminId,
+        title: data.title,
+        description: data.description,
+      });
+
+      setIsDone(true);
+      reset();
+      toast({
+        title: 'Успешно докладване за нередност',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
   };
+
+  useEffect(() => {
+    reset();
+    setReason('null');
+    setIsDone(false);
+  }, [isOpen]);
 
   return (
     <Modal
@@ -116,28 +154,42 @@ export default function ReportModal({
                     <RadioGroup
                       value={reason}
                       onChange={e => {
-                        setValue('reason', e);
+                        setValue('title', e);
                         setReason(e);
                       }}>
                       <Stack spacing={10} direction="column" align={'start'}>
-                        <Radio size="lg" colorScheme="purple" value={'FEMALE'} bg={'grey.100'}>
+                        <Radio
+                          size="lg"
+                          colorScheme="purple"
+                          value={`${course?.privateLesson ? 'Урокът' : 'Курсът'} не отговаря на описанието си`}
+                          bg={'grey.100'}>
                           <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
-                            Курсът не отговаря на описанието си
+                            {course?.privateLesson ? 'Урокът' : 'Курсът'} не отговаря на описанието си
                           </Text>
                         </Radio>
-                        <Radio size="lg" colorScheme="purple" value={'MALE'} bg={'grey.100'}>
+                        <Radio size="lg" colorScheme="purple" value={'Непълно съдържание'} bg={'grey.100'}>
                           <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                             Непълно съдържание
                           </Text>
                         </Radio>
 
-                        <Radio size="lg" colorScheme="purple" value={'MALE'} bg={'grey.100'}>
+                        <Radio
+                          size="lg"
+                          colorScheme="purple"
+                          value={`${course?.privateLesson ? 'Урокът' : 'Курсът'} не се проведе`}
+                          bg={'grey.100'}>
                           <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
-                            Курсът не се проведе
+                            {course?.privateLesson ? 'Урокът' : 'Курсът'} не се проведе
                           </Text>
                         </Radio>
 
-                        <Radio size="lg" colorScheme="purple" value={'MALE'} bg={'grey.100'}>
+                        <Radio size="lg" colorScheme="purple" value={'Грубо поведение от учителя'} bg={'grey.100'}>
+                          <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
+                            Грубо поведение от учителя
+                          </Text>
+                        </Radio>
+
+                        <Radio size="lg" colorScheme="purple" value={'Друго'} bg={'grey.100'}>
                           <Text textAlign={'left'} fontSize={{ base: 14, lg: 16 }} color={'grey.500'}>
                             Друго*
                           </Text>
@@ -145,7 +197,7 @@ export default function ReportModal({
                       </Stack>
                     </RadioGroup>
 
-                    <Input bg="grey.100" placeholder="Вашето оплакване" {...register('text')} />
+                    <Input bg="grey.100" placeholder="Вашето оплакване" {...register('description')} />
 
                     <Text fontSize={{ base: 'sm', md: 'md' }} textAlign={'start'} color="grey.400">
                       *Опишете накратко Вашето оплакване в полето
