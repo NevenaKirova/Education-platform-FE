@@ -35,7 +35,7 @@ export default function ReportModal({
   isOpen: boolean;
   onClose: any;
   onOpenRate?: any;
-  terminId: number | null;
+  terminId: any;
   course: any;
 }) {
   const [reason, setReason] = useState('');

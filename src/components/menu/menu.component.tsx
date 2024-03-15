@@ -129,8 +129,8 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const [stompClient, setStompClient] = useState(null);
   const [notifications, setNotifications] = useState(null);
   const [notigicationType, setNotificationType] = useState(null);
-  const [hasMessageNotification, setHasMessageNotification] = useState(
-    () => getItem('hasMessageNotification') || false,
+  const [hasMessageNotification, setHasMessageNotification] = useState(() =>
+    getItem('hasMessageNotification') === 'false' ? false : true,
   );
 
   const [whiteMenu, setWhiteMenu] = useState(false);
@@ -176,10 +176,9 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
       stomp.subscribe(`/user/${authTokens?.access_token}/queue/notifications`, message => {
         const newNotification = JSON.parse(message.body);
         setNotificationType(newNotification.body);
-
         setTimeout(() => {
           setHasMessageNotification(newNotification?.chat);
-          localStorage.setItem('hasMessageNotification', JSON.stringify(newNotification?.chat));
+          localStorage.setItem('hasMessageNotification', JSON.stringify(!!newNotification?.chat));
         }, 500);
       });
     });
@@ -263,7 +262,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                   icon={<Img src={whiteMenu ? messageWhite : message} h={5} w={'full'} />}
                 />
 
-                {hasMessageNotification && (
+                {hasMessageNotification ? (
                   <Box
                     position={'absolute'}
                     right={'3px'}
@@ -273,7 +272,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                     w={'10px'}
                     bg={'red'}
                     zIndex={20}></Box>
-                )}
+                ) : null}
               </ButtonGroup>
 
               <Popover isLazy>

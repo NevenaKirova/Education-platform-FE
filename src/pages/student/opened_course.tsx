@@ -43,8 +43,8 @@ import { Navigate, NavLink as ReactRouterLink, useLocation, useParams } from 're
 
 import AuthContext from '../../context/AuthContext';
 import PageLoader from '../../utils/loader.component';
-import { avatar2 } from '../../images';
 import ReportModal from '../../components/courses/modals/report';
+import AddStudentHomeworkModal from '../../components/courses/modals/student_homework_modal';
 
 const StudentOpenedCoursePage = () => {
   const { user } = useContext(AuthContext);
@@ -54,9 +54,12 @@ const StudentOpenedCoursePage = () => {
   const toast = useToast();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenHomework, onOpen: onOpenHomework, onClose: onCloseHomework } = useDisclosure();
 
   const [course, setCourse] = useState(null);
+  const [homework, setHomework] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
 
   const downloadResource = async themeId => {
     try {
@@ -96,7 +99,12 @@ const StudentOpenedCoursePage = () => {
   const handleHomework = async assignmentId => {
     try {
       const res = await axiosInstance.get(`lessons/getAssignmentStudent/${assignmentId}`);
-      console.log(res.data);
+      setHomework(res.data);
+      setSelectedAssignment(assignmentId);
+
+      if (res.data?.status === 'Not submitted') {
+        onOpenHomework();
+      }
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -322,7 +330,16 @@ const StudentOpenedCoursePage = () => {
         </Stack>
       </Button>
 
-      <ReportModal isOpen={isOpen} onClose={onClose} terminId={courseId} />
+      <ReportModal isOpen={isOpen} onClose={onClose} course={course} terminId={courseId} />
+
+      {homework && (
+        <AddStudentHomeworkModal
+          isOpen={isOpenHomework}
+          onClose={onCloseHomework}
+          homework={homework}
+          assignmentId={selectedAssignment}
+        />
+      )}
     </Stack>
   );
 };
