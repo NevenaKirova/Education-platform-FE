@@ -47,7 +47,7 @@ import ReportModal from '../../components/courses/modals/report';
 import AddStudentHomeworkModal from '../../components/courses/modals/student_homework_modal';
 import { downloadFile } from '../../helpers/downloadFile';
 
-const StudentOpenedCoursePage = () => {
+const StudentOpenedAssignmentPage = () => {
   const { user } = useContext(AuthContext);
   const { courseId } = useParams();
   const { state } = useLocation();
@@ -347,4 +347,4 @@ const StudentOpenedCoursePage = () => {
   );
 };
 
-export default StudentOpenedCoursePage;
+export default StudentOpenedAssignmentPage;

@@ -27,13 +27,13 @@ import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
 import { axiosInstance } from '../../../axios';
 import { getResponseMessage } from '../../../helpers/response.util';
 import EditCourseModal from '../modals/edit_course_theme';
-import { avatar2 } from '../../../images';
 import { message, edit, calendar, clock, link, trash, bottom, top, add, video, fileUpload } from '../../../icons';
 import AddResourcesModal from '../modals/course_add_resources';
 import CourseAddHomework from './course_add_homework';
 import { NavLink as ReactRouterLink } from 'react-router-dom';
 import SubmissionsComponent from './course_submissions.component';
 import PageLoader from '../../../utils/loader.component';
+import { downloadFile } from '../../../helpers/downloadFile';
 
 const CourseResources = ({
   date,
@@ -107,9 +107,10 @@ const CourseResources = ({
 
   const downloadResource = async themeId => {
     try {
-      await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
+      const res = await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
         responseType: 'blob',
       });
+      downloadFile(res.data);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -451,16 +452,24 @@ const CourseResources = ({
 
                           {el?.presentation && (
                             <Stack
-                              as={Button}
                               rounded={'md'}
                               bg={'purple.100'}
                               w={'full'}
-                              p={4}
                               align={'center'}
                               justify={'space-between'}
                               direction={'row'}
-                              onClick={() => downloadResource(el.themaID)}>
-                              <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
+                              pr={4}>
+                              <Stack
+                                p={4}
+                                h={'full'}
+                                as={Button}
+                                onClick={() => downloadResource(el.themaID)}
+                                flex={1}
+                                align={'center'}
+                                direction={'row'}
+                                justify={'start'}
+                                bg={'purple.100'}
+                                _hover={{ bg: 'purple.100' }}>
                                 <Img src={video} w={6} h={6} />
                                 <Text color={'grey.600'} fontWeight={'700'}>
                                   {el?.presentation}

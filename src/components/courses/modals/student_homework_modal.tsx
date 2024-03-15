@@ -19,14 +19,15 @@ import {
 } from '@chakra-ui/react';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { video, upload, fileUpload, fileDownload } from '../../../icons';
+import { fileDownload } from '../../../icons';
 import Dropzone from '../../../utils/dropzone';
 import { getResponseMessage } from '../../../helpers/response.util';
 import { axiosInstance } from '../../../axios';
 import { capitalizeMonth } from '../../../helpers/capitalizeMonth.util';
 import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
-import { locale } from 'dayjs';
+
+import { downloadFile } from '../../../helpers/downloadFile';
 
 const AddStudentHomeworkModal = ({
   isOpen,
@@ -49,9 +50,11 @@ const AddStudentHomeworkModal = ({
 
   const downloadResource = async () => {
     try {
-      await axiosInstance.get(`/getAssignmentFile/${homework?.fileNames}&&${assignmentId}`, {
+      const res = await axiosInstance.get(`/getAssignmentFile/${homework?.fileNames}&&${assignmentId}`, {
         responseType: 'blob',
       });
+
+      downloadFile(res.data);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -65,11 +68,17 @@ const AddStudentHomeworkModal = ({
 
   const onSubmit: SubmitHandler<any> = async data => {
     const formData = new FormData();
-    formData.append('file', data.file);
+    formData.append('requestFiles', data.file);
 
     try {
-      await axiosInstance.post(`lessons/addResource/${theme.id}`, formData);
-
+      await axiosInstance.post(`lessons/uploadSolutionFiles/${assignmentId}`, formData);
+      toast({
+        title: 'Успешно добавяне на домашно!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
       onClose();
       reset();
     } catch (err) {
