@@ -328,8 +328,8 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                   <Avatar
                     size={{ base: 'md', md: 'md' }}
                     p={{ base: 1, md: 0 }}
-                    name={`${userData?.name} ${userData?.studentsSurname}`}
-                    src="https://bit.ly/dan-abramov"
+                    name={`${userData?.name} ${userData?.surname}`}
+                    src={userData?.picture}
                   />
 
                   <Hide below={'md'}>

@@ -1,113 +1,56 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext } from 'react';
 
 import {
   Stack,
-  IconButton,
   Button,
   Text,
   Heading,
   Avatar,
   Img,
-  Box,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   useToast,
-  useDisclosure,
 } from '@chakra-ui/react';
 
 import { axiosInstance } from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
-import {
-  message,
-  edit,
-  calendar,
-  clock,
-  link,
-  trash,
-  bottom,
-  top,
-  add,
-  video,
-  fileUpload,
-  messageWhite,
-  report,
-  heartFull,
-} from '../../icons';
+import { fileDownload } from '../../icons';
 
-import { Navigate, NavLink as ReactRouterLink, useLocation, useParams } from 'react-router-dom';
+import { Navigate, NavLink as ReactRouterLink, useLocation, useParams, useNavigate } from 'react-router-dom';
 
 import AuthContext from '../../context/AuthContext';
-import PageLoader from '../../utils/loader.component';
-import ReportModal from '../../components/courses/modals/report';
-import AddStudentHomeworkModal from '../../components/courses/modals/student_homework_modal';
+
 import { downloadFile } from '../../helpers/downloadFile';
+import { capitalizeMonth } from '../../helpers/capitalizeMonth.util';
+import { format } from 'date-fns';
+import { bg } from 'date-fns/locale';
 
 const StudentOpenedAssignmentPage = () => {
   const { user } = useContext(AuthContext);
-  const { courseId } = useParams();
+  const { courseId, assignmentId } = useParams();
   const { state } = useLocation();
 
   const toast = useToast();
+  const navigate = useNavigate();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isOpenHomework, onOpen: onOpenHomework, onClose: onCloseHomework } = useDisclosure();
-
-  const [course, setCourse] = useState(null);
-  const [homework, setHomework] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
-
-  const downloadResource = async themeId => {
+  const downloadResource = async type => {
     try {
-      const res = await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
-        responseType: 'blob',
-      });
-
-      downloadFile(res.data);
-    } catch (err) {
-      toast({
-        title: getResponseMessage(err),
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
-    }
-  };
-
-  const getOpenedCourse = async () => {
-    try {
-      const path = state.isPrivateLesson ? 'getLessonClassroomStudent' : 'getCourseClassroomStudent';
-      setIsLoading(true);
-      const res = await axiosInstance.get(`lessons/${path}/${courseId}`);
-      setCourse(res.data);
-      setIsLoading(false);
-    } catch (err) {
-      setIsLoading(false);
-      toast({
-        title: getResponseMessage(err),
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
-    }
-  };
-
-  const handleHomework = async assignmentId => {
-    try {
-      const res = await axiosInstance.get(`lessons/getAssignmentStudent/${assignmentId}`);
-      setHomework(res.data);
-      setSelectedAssignment(assignmentId);
-
-      if (res.data?.status === 'Not submitted') {
-        onOpenHomework();
+      let res;
+      if (type === 'asignment') {
+        res = await axiosInstance.get(`/lessons/getAssignmentFile/${state?.homework?.fileNames}&&${assignmentId}`, {
+          responseType: 'blob',
+        });
+      } else {
+        res = await axiosInstance.get(
+          `/lessons/getSolutionFile/${state?.homework?.solutionFileNames}&&${state?.homework?.solutionId}`,
+          {
+            responseType: 'blob',
+          },
+        );
       }
+
+      downloadFile(res);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -118,21 +61,15 @@ const StudentOpenedAssignmentPage = () => {
       });
     }
   };
-
-  useEffect(() => {
-    getOpenedCourse();
-  }, []);
 
   if (!user) return <Navigate to={'/'} replace />;
 
-  return isLoading ? (
-    <PageLoader isLoading={isLoading} />
-  ) : (
+  return (
     <Stack
       spacing={{ base: 8 }}
       py={{ base: 0, lg: 10 }}
       px={{ base: 8, sm: 16, md: 28, lg: 16, xl: 20, '2xl': 40 }}
-      mt={{ base: 36, lg: 40 }}
+      my={{ base: 36, lg: 40 }}
       align={'start'}
       justify={'start'}
       flex={1}
@@ -144,205 +81,118 @@ const StudentOpenedAssignmentPage = () => {
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
-          <BreadcrumbLink textDecoration={'none'}>{course?.lessonTitle}</BreadcrumbLink>
+        <BreadcrumbItem
+          color={'purple.500'}
+          _hover={{ textDecoration: 'none' }}
+          textDecoration={'none'}
+          cursor={'default'}>
+          <BreadcrumbLink
+            onClick={() =>
+              navigate(`/course/${courseId}`, {
+                replace: true,
+              })
+            }
+            textDecoration={'none'}>
+            {state?.courseTitle}
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'} isCurrentPage>
+          <BreadcrumbLink textDecoration={'none'}>Задача за домашна работа</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
 
       <Stack spacing={6} align={'start'} mb={6} w={'full'}>
         <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
-          {course?.lessonTitle}
+          Задача за домашна работа
         </Heading>
 
-        <Stack direction={'row'} spacing={4} align={'center'} flexWrap={'wrap'} w={'full'}>
-          <Text color={'grey.400'}>Преподавател:</Text>
-          <Stack direction={'row'} spacing={2} align={'center'}>
-            <Avatar
-              as={ReactRouterLink}
-              to={`/teacher/${course?.teacherId}`}
-              size="xs"
-              name={course?.teacherName}
-              src="https://bit.ly/dan-abramov"
-            />
-            <Text color={'grey.400'}>{course?.teacherName}</Text>
+        <Stack spacing={8}>
+          <Stack spacing={2}>
+            <Stack direction={'row'} spacing={2} fontWeight={600}>
+              <Text fontSize={16}>Краен срок:</Text>
+              <Text fontSize={16} color={'grey.400'}>
+                {capitalizeMonth(format(new Date(state?.homework?.date), 'dd LLL yyyy', { locale: bg }))}{' '}
+                {state?.homework?.time}
+              </Text>
+            </Stack>
+
+            <Stack direction={'row'} spacing={2} fontSize={16} fontWeight={600}>
+              <Text>Състояние:</Text>
+
+              {state?.homework?.status === 'Not submitted' ? (
+                <Text color={'red'}>Непредаден </Text>
+              ) : (
+                <Text color={'green.100'}>Предаден </Text>
+              )}
+            </Stack>
           </Stack>
-        </Stack>
 
-        <Button bg={'transparent'} color={'purple.500'} fontWeight={700} pl={0} _hover={{ bg: 'transparent' }}>
-          <Stack align={'center'} direction={'row'}>
-            <Img src={message} mr={2} w={6} h={6} />
-            <Text> Свържете се с учителя</Text>
-          </Stack>
-        </Button>
-      </Stack>
-
-      <Stack spacing={14} w={'full'}>
-        <Stack spacing={6} justify={'start'}>
-          <Heading flex={1} fontSize={{ base: 18, lg: 24 }} textAlign="start" color={'grey.600'}>
-            Описание на курса
-          </Heading>
-
-          <Text color={'grey.600'} textAlign={'start'}>
-            {course?.lessonDescription}
-          </Text>
-        </Stack>
-
-        <Stack spacing={6} justify={'start'}>
-          <Heading flex={1} fontSize={{ base: 18, lg: 24 }} textAlign="start" color={'grey.600'}>
-            Виртуална класна стая
+          <Heading flex={1} fontSize={{ base: 16, lg: 18 }} fontWeight={500} textAlign="start" color={'grey.500'}>
+            {state?.homework?.description}
           </Heading>
 
           <Stack
             as={Button}
-            rounded={'md'}
-            bg={'purple.100'}
-            w={'full'}
-            p={6}
+            onClick={() => downloadResource('assignment')}
+            direction={'row'}
             align={'center'}
             justify={'start'}
-            direction={'row'}
-            spacing={4}>
-            <Img src={link} w={6} h={6} />
-            <Text color={'grey.600'} fontWeight={'700'}>
-              Линк към виртуална класна стая
+            spacing={3}>
+            <Img src={fileDownload} alt={'uploaded file'} w={5} h={5} />
+            <Text fontWeight={600} color={'grey.600'}>
+              {state?.homework.fileNames}
             </Text>
           </Stack>
+
+          <Heading flex={1} fontSize={{ base: 16, lg: 20 }} textAlign="start" color={'grey.600'} fontWeight={700}>
+            Моите файлове
+          </Heading>
+
+          <Stack
+            as={Button}
+            onClick={() => downloadResource('solution')}
+            direction={'row'}
+            align={'center'}
+            justify={'start'}
+            spacing={3}>
+            <Img src={fileDownload} alt={'uploaded file'} w={5} h={5} />
+            <Text fontWeight={600} color={'grey.600'}>
+              {state?.homework.solutionFileNames}
+            </Text>
+          </Stack>
+
+          <Heading flex={1} fontSize={{ base: 16, lg: 20 }} textAlign="start" color={'grey.600'} fontWeight={700}>
+            Коментари ({state?.homework?.comments.length})
+          </Heading>
+
+          {state?.homework?.comments.length ? (
+            state?.homework?.comments?.map((el, index) => (
+              <Stack key={index} color={'grey.500'} pr={6}>
+                <Stack w={'full'} justify={'space-between'} direction={'row'}>
+                  <Stack flex={1} direction={'row'} spacing={4} fontWeight={600} align={'center'}>
+                    <Avatar size={{ base: 'xs', md: 'sm' }} src={el?.image} />
+
+                    <Text>{el?.teacherName}</Text>
+
+                    <Text fontSize={16} color={'grey.400'}>
+                      {capitalizeMonth(format(new Date(el?.date), 'dd LLL yyyy', { locale: bg }))} {el?.time}
+                    </Text>
+                  </Stack>
+                </Stack>
+
+                <Text ml={12} textAlign={'start'}>
+                  {el?.comment}
+                </Text>
+              </Stack>
+            ))
+          ) : (
+            <Text fontSize={{ base: 16 }} color={'grey.500'} textAlign={'start'}>
+              Все още няма добавен коментар
+            </Text>
+          )}
         </Stack>
-
-        <Accordion allowMultiple>
-          {course?.themas?.map((el, index) => (
-            <AccordionItem key={index} py={4} borderTop={0} borderBottom={'1px solid'} borderColor={'grey.100'}>
-              {({ isExpanded }) => (
-                <>
-                  <AccordionButton as={Stack} direction={'row'}>
-                    <Heading flex={1} fontSize={{ base: 18, lg: 24 }} textAlign="start" color={'grey.600'}>
-                      {el?.title}
-                    </Heading>
-
-                    {isExpanded ? (
-                      <Box
-                        as={IconButton}
-                        aria-label={'collapse theme'}
-                        size="xs"
-                        bg={'none'}
-                        _hover={{ bg: 'none' }}
-                        disabled
-                        icon={<Img src={top} w={5} />}
-                      />
-                    ) : (
-                      <Box
-                        as={IconButton}
-                        aria-label={'expand theme'}
-                        size="xs"
-                        bg={'none'}
-                        _hover={{ bg: 'none' }}
-                        disabled
-                        icon={<Img src={bottom} w={5} />}
-                      />
-                    )}
-                  </AccordionButton>
-
-                  <AccordionPanel py={4}>
-                    <Stack spacing={6}>
-                      <Text color={'grey.600'} textAlign={'start'}>
-                        {el?.description}
-                      </Text>
-
-                      <Stack spacing={4}>
-                        {el?.linkToRecording && (
-                          <Stack
-                            as={ReactRouterLink}
-                            to={el?.linkToRecording}
-                            target={'_blank'}
-                            rounded={'md'}
-                            bg={'purple.100'}
-                            w={'full'}
-                            p={4}
-                            align={'center'}
-                            direction={'row'}
-                            justify={'start'}>
-                            <Img src={video} w={6} h={6} />
-                            <Text color={'grey.600'} fontWeight={'700'}>
-                              Видеозапис
-                            </Text>
-                          </Stack>
-                        )}
-
-                        {el?.presentation && (
-                          <Stack
-                            as={Button}
-                            rounded={'md'}
-                            h={'fit-content'}
-                            bg={'purple.100'}
-                            w={'full'}
-                            p={4}
-                            align={'center'}
-                            direction={'row'}
-                            justify={'start'}
-                            onClick={() => downloadResource(el.themaID)}>
-                            <Img src={video} w={6} h={6} />
-                            <Text color={'grey.600'} fontWeight={'700'}>
-                              {el?.presentation}
-                            </Text>
-                          </Stack>
-                        )}
-
-                        {el?.assignmentId && (
-                          <Stack
-                            as={Button}
-                            onClick={() => handleHomework(el.assignmentId)}
-                            rounded={'md'}
-                            bg={'#E3F7FF'}
-                            w={'full'}
-                            h={'fit-content'}
-                            p={4}
-                            align={'center'}
-                            justify={'space-between'}
-                            direction={'row'}>
-                            <Stack flex={1} align={'center'} direction={'row'} justify={'start'}>
-                              <Img src={fileUpload} w={6} h={6} />
-                              <Text color={'grey.600'} fontWeight={'700'}>
-                                Задача за домашна работа
-                              </Text>
-                            </Stack>
-                          </Stack>
-                        )}
-                      </Stack>
-                    </Stack>
-                  </AccordionPanel>
-                </>
-              )}
-            </AccordionItem>
-          ))}
-        </Accordion>
       </Stack>
-
-      <Button
-        color={'purple.500'}
-        bg={'transparent'}
-        _hover={{ bg: 'transparent' }}
-        p={0}
-        onClick={() => {
-          onOpen();
-        }}>
-        <Stack align={'center'} direction={'row'}>
-          <Img src={report} alt={'report icon'} w={5} h={5} />
-          <Text fontSize={16} fontWeight={700}>
-            Докладвай за нередност
-          </Text>
-        </Stack>
-      </Button>
-
-      <ReportModal isOpen={isOpen} onClose={onClose} course={course} terminId={courseId} />
-
-      {homework && (
-        <AddStudentHomeworkModal
-          isOpen={isOpenHomework}
-          onClose={onCloseHomework}
-          homework={homework}
-          assignmentId={selectedAssignment}
-        />
-      )}
     </Stack>
   );
 };

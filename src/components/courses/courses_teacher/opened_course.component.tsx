@@ -338,7 +338,7 @@ const OpenedCourseComponent = ({
             <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
               <BreadcrumbLink textDecoration={'none'}>
                 {' '}
-                {isEditHomework ? 'Задача за домашна работа' : 'Добавяне на задание'}а
+                {isEditHomework ? 'Задача за домашна работа' : 'Добавяне на задание'}
               </BreadcrumbLink>
             </BreadcrumbItem>
           )}

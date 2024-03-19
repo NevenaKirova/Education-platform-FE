@@ -50,11 +50,11 @@ const AddStudentHomeworkModal = ({
 
   const downloadResource = async () => {
     try {
-      const res = await axiosInstance.get(`/getAssignmentFile/${homework?.fileNames}&&${assignmentId}`, {
+      const res = await axiosInstance.get(`/lessons/getAssignmentFile/${homework?.fileNames}&&${assignmentId}`, {
         responseType: 'blob',
       });
 
-      downloadFile(res.data);
+      downloadFile(res);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -125,7 +125,7 @@ const AddStudentHomeworkModal = ({
                     {homework?.status === 'Not submitted' ? (
                       <Text color={'red'}>Непредаден </Text>
                     ) : (
-                      <Text color={'green'}>Предаден </Text>
+                      <Text color={'green.100'}>Предаден </Text>
                     )}
                   </Stack>
                 </Stack>

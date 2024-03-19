@@ -31,7 +31,6 @@ const CalendarDayViewModal = ({
   events: any;
   role: string;
 }) => {
-  console.log(role);
   return (
     <Modal size={{ base: 'xl', lg: '4xl' }} closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />

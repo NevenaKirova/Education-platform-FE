@@ -35,6 +35,7 @@ const theme = extendTheme({
       statusText: '#F12A2A',
     },
     green: {
+      100: '#18C125',
       status: '#BAFFC1',
       statusText: '#048221',
     },

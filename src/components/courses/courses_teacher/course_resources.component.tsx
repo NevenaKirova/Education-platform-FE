@@ -78,6 +78,7 @@ const CourseResources = ({
   const [themeToEdit, setThemeToEdit] = useState(null);
   const [showSelected, setShowSelected] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(null);
+  const [assignmentId, setAssignmentId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const studentsToShow = useMemo(() => {
@@ -110,7 +111,7 @@ const CourseResources = ({
       const res = await axiosInstance.get(`lessons/getResourceFile/${themeId}`, {
         responseType: 'blob',
       });
-      downloadFile(res.data);
+      downloadFile(res);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -223,7 +224,7 @@ const CourseResources = ({
   ) : (
     <>
       {showSubmissions ? (
-        <SubmissionsComponent course={course} />
+        <SubmissionsComponent course={course} assignmentId={assignmentId} />
       ) : openedTheme?.id ? (
         <Stack py={{ base: 0, lg: 2 }} spacing={12}>
           <Heading flex={1} as="h1" fontSize={{ base: 24, lg: 32, xl: 30 }} textAlign="start" color={'grey.600'}>
@@ -538,7 +539,7 @@ const CourseResources = ({
                               </Stack>
 
                               <Stack direction={'row'} align={'center'} justify={'space-between'} w={'full'}>
-                                <Text color={'grey.500'}> 0/ {openedCourse?.enrolledStudents} предадени</Text>
+                                <Text color={'grey.500'}> 0/ {el?.studentSolutions} предадени</Text>
 
                                 <Button
                                   size={{ base: 'md', lg: 'md' }}
@@ -548,8 +549,10 @@ const CourseResources = ({
                                   fontWeight={700}
                                   _hover={{ bg: 'transparent', opacity: 0.9 }}
                                   w={'20%'}
+                                  pr={0}
                                   onClick={() => {
                                     setShowSubmissions(true);
+                                    setAssignmentId(el?.assignmentId);
                                   }}>
                                   Виж предаванията
                                 </Button>

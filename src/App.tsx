@@ -27,6 +27,7 @@ import MessagesPage from './pages/messages';
 import StudentProfilePage from './pages/student/my_profile';
 import HelpCenterAll from './pages/help-center/help_center_all';
 import ChangePasswordPage from './pages/change-password';
+import StudentOpenedAssignmentPage from './pages/student/opened_assignment';
 
 import './App.css';
 
@@ -81,6 +82,7 @@ const App = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/my-dashboard" element={<MyDashboardPage />} />
           <Route path="/course/:courseId" element={<StudentOpenedCoursePage />} />
+          <Route path="/course/:courseId/assignment/:assignmentId" element={<StudentOpenedAssignmentPage />} />
           <Route path="/favourites" element={<StudentFavoritesPage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/messages/:userId" element={<MessagesPage />} />

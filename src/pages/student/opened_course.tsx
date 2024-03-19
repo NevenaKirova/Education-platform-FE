@@ -22,24 +22,9 @@ import {
 
 import { axiosInstance } from '../../axios';
 import { getResponseMessage } from '../../helpers/response.util';
-import {
-  message,
-  edit,
-  calendar,
-  clock,
-  link,
-  trash,
-  bottom,
-  top,
-  add,
-  video,
-  fileUpload,
-  messageWhite,
-  report,
-  heartFull,
-} from '../../icons';
+import { message, link, bottom, top, video, fileUpload, report } from '../../icons';
 
-import { Navigate, NavLink as ReactRouterLink, useLocation, useParams } from 'react-router-dom';
+import { Navigate, NavLink as ReactRouterLink, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import AuthContext from '../../context/AuthContext';
 import PageLoader from '../../utils/loader.component';
@@ -53,6 +38,7 @@ const StudentOpenedCoursePage = () => {
   const { state } = useLocation();
 
   const toast = useToast();
+  const navigate = useNavigate();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpenHomework, onOpen: onOpenHomework, onClose: onCloseHomework } = useDisclosure();
@@ -68,7 +54,7 @@ const StudentOpenedCoursePage = () => {
         responseType: 'blob',
       });
 
-      downloadFile(res.data);
+      downloadFile(res);
     } catch (err) {
       toast({
         title: getResponseMessage(err),
@@ -82,7 +68,7 @@ const StudentOpenedCoursePage = () => {
 
   const getOpenedCourse = async () => {
     try {
-      const path = state.isPrivateLesson ? 'getLessonClassroomStudent' : 'getCourseClassroomStudent';
+      const path = state?.isPrivateLesson ? 'getLessonClassroomStudent' : 'getCourseClassroomStudent';
       setIsLoading(true);
       const res = await axiosInstance.get(`lessons/${path}/${courseId}`);
       setCourse(res.data);
@@ -107,6 +93,11 @@ const StudentOpenedCoursePage = () => {
 
       if (res.data?.status === 'Not submitted') {
         onOpenHomework();
+      } else {
+        navigate(`/course/${courseId}/assignment/${assignmentId}`, {
+          state: { courseTitle: course?.lessonTitle, homework: res.data },
+          replace: true,
+        });
       }
     } catch (err) {
       toast({
@@ -144,7 +135,7 @@ const StudentOpenedCoursePage = () => {
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'}>
+        <BreadcrumbItem color={'purple.500'} _hover={{ textDecoration: 'none' }} cursor={'default'} isCurrentPage>
           <BreadcrumbLink textDecoration={'none'}>{course?.lessonTitle}</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
@@ -162,7 +153,7 @@ const StudentOpenedCoursePage = () => {
               to={`/teacher/${course?.teacherId}`}
               size="xs"
               name={course?.teacherName}
-              src="https://bit.ly/dan-abramov"
+              src={course?.teacherPicture}
             />
             <Text color={'grey.400'}>{course?.teacherName}</Text>
           </Stack>
@@ -179,7 +170,7 @@ const StudentOpenedCoursePage = () => {
       <Stack spacing={14} w={'full'}>
         <Stack spacing={6} justify={'start'}>
           <Heading flex={1} fontSize={{ base: 18, lg: 24 }} textAlign="start" color={'grey.600'}>
-            Описание на курса
+            Описание на {state?.isPrivateLesson ? 'урока' : 'курса'}
           </Heading>
 
           <Text color={'grey.600'} textAlign={'start'}>
