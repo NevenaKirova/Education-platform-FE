@@ -91,7 +91,7 @@ const CourseResources = ({
     }
     return students?.slice(0, numberOfStudents).map((el: any, index: number) => (
       <GridItem key={index}>
-        <Stack direction={'column'} align={'center'} spacing={2}>
+        <Stack direction={'column'} align={'center'} spacing={2} maxW={'fit-content'}>
           <Avatar size={{ base: 'sm', md: 'lg' }} src={el?.imageLocation} />
           <Stack direction={'row'} align={'center'} spacing={2}>
             <Text fontSize={14} fontWeight={600}>
@@ -313,7 +313,7 @@ const CourseResources = ({
               </Text>
             </Heading>
 
-            <Grid templateColumns={{ base: 'repeat(auto-fit, minmax(150px, 1fr))' }} gap={6} w={'full'}>
+            <Grid templateColumns={{ base: 'repeat(auto-fill, minmax(150px, 1fr))' }} gap={6} w={'full'}>
               {studentsToShow}
             </Grid>
 

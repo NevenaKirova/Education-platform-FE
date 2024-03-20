@@ -195,10 +195,6 @@ export default function MyDashboardPage() {
     getEvents();
   }, []);
 
-  // useEffect(() => {
-  //   upcomingCourses && getCourseTypes();
-  // }, [upcomingCourses]);
-
   useEffect(() => {
     getCourseTypes();
   }, [currentPage, sort]);

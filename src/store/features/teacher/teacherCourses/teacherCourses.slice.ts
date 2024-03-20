@@ -6,6 +6,7 @@ import {
   getCoursesActive,
   getCoursesDraft,
   getCoursesAll,
+  getPayments,
 } from './teacherCourses.async';
 
 const initialState: any = {
@@ -14,6 +15,7 @@ const initialState: any = {
   activeCourses: null,
   inactiveCourses: null,
   draftCourses: null,
+  payments: null,
   isLoading: true,
 };
 
@@ -79,6 +81,17 @@ export const teacherCoursesSlice = createSlice({
         state.isLoading = false;
 
         state.draftCourses = payload;
+      })
+      .addCase(getPayments.pending, state => {
+        state.isLoading = true;
+      })
+      .addCase(getPayments.rejected, state => {
+        state.isLoading = false;
+      })
+      .addCase(getPayments.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+
+        state.payments = payload;
       });
   },
 });

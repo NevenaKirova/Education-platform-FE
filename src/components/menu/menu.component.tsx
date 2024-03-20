@@ -138,7 +138,9 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const matchFavourites = useMatch('/favourites');
 
   useEffect(() => {
-    location.pathname === '/' || location.pathname === '/help-center' ? setWhiteMenu(true) : setWhiteMenu(false);
+    location.pathname === '/' || location.pathname === '/help-center' || location.pathname === '/help-center-teacher'
+      ? setWhiteMenu(true)
+      : setWhiteMenu(false);
   }, [location.pathname]);
 
   useEffect(() => {

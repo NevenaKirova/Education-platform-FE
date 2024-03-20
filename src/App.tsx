@@ -28,6 +28,8 @@ import StudentProfilePage from './pages/student/my_profile';
 import HelpCenterAll from './pages/help-center/help_center_all';
 import ChangePasswordPage from './pages/change-password';
 import StudentOpenedAssignmentPage from './pages/student/opened_assignment';
+import HelpCenterTeacher from './pages/help-center/help_center_techer';
+import StudentTransactionPage from './pages/student/transactions';
 
 import './App.css';
 
@@ -88,6 +90,8 @@ const App = () => {
           <Route path="/messages/:userId" element={<MessagesPage />} />
           <Route path="/my-profile" element={<StudentProfilePage />} />
           <Route path="/help-center" element={<HelpCenterAll />} />
+          <Route path="/help-center-teacher" element={<HelpCenterTeacher />} />
+          <Route path="/transactions" element={<StudentTransactionPage />}></Route>
           <Route path={'/change-password/:token'} element={<ChangePasswordPage />} />
           <Route path="/404" element={<PageNotFound />} />
           <Route path="*" element={<Navigate to="/404" />} />

@@ -84,6 +84,7 @@ const defaultCourseValues = {
   length: '60',
   courseTerminRequests: [],
   themas: [{ title: '', description: '' }, {}, {}],
+  imageLocation: '',
 };
 
 export const addMinutesToString = (time, length) => {
@@ -329,6 +330,13 @@ const CreateCourseComponent = ({
         if (!value) return 'Добавете поне една дата на провеждане';
       },
     });
+    register('imageLocation', {
+      validate: value => {
+        if (courseInfo?.draft) return true;
+
+        if (!value) return 'Изберете снимка';
+      },
+    });
   }, [register]);
 
   useEffect(() => {
@@ -342,12 +350,12 @@ const CreateCourseComponent = ({
       setSelectedSubject({ name: courseInfo?.subject, code: courseInfo?.subject });
       setCourseLength(courseInfo?.length?.toString());
       setDates(courseInfo?.courseTerminRequests);
+      setSelectedPicture(courseInfo?.urlToImage);
     }
   }, [courseInfo, availableGrades, availableSubjects]);
 
   useEffect(() => {
     if (subject) {
-      console.log(subject);
       getPictures(subject.name);
     }
   }, [subject]);
@@ -714,7 +722,7 @@ const CreateCourseComponent = ({
                 </Text>
 
                 <Wrap spacing={8}>
-                  {pictures.map((el, index) => (
+                  {pictures?.map((el, index) => (
                     <WrapItem key={index}>
                       <Box
                         as={'button'}
@@ -722,6 +730,7 @@ const CreateCourseComponent = ({
                         onClick={ev => {
                           ev.preventDefault();
                           setSelectedPicture(el);
+                          setValue('imageLocation', el);
                         }}
                         borderRadius="full"
                         _hover={{
@@ -730,8 +739,8 @@ const CreateCourseComponent = ({
                         }}>
                         <Image
                           borderRadius="full"
-                          border={selectedPicture === index ? '5px solid' : ''}
-                          borderColor={selectedPicture === index ? 'purple.500' : ''}
+                          border={selectedPicture === el ? '5px solid' : ''}
+                          borderColor={selectedPicture === el ? 'purple.500' : ''}
                           boxSize={20}
                           src={el}
                           alt={`courseImage${index}`}
@@ -747,6 +756,10 @@ const CreateCourseComponent = ({
                 <Text fontSize={16} fontWeight={400} color={'grey.400'}>
                   Моля изберете снимка,отговаряща на съдържанието на Вашия курс.
                 </Text>
+
+                <FormControl isInvalid={!!errors.imageLocation}>
+                  <FormErrorMessage>{errors?.imageLocation?.message}</FormErrorMessage>
+                </FormControl>
               </Stack>
 
               <Stack spacing={4}>

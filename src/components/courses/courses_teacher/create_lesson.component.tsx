@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { SubmitHandler, useForm, useFieldArray } from 'react-hook-form';
 import { Dropdown } from 'primereact/dropdown';
-import {addYears, format} from 'date-fns';
+import { addYears, format } from 'date-fns';
 
 import {
   Stack,
@@ -28,6 +28,9 @@ import {
   useToast,
   IconButton,
   Box,
+  Wrap,
+  WrapItem,
+  Image,
 } from '@chakra-ui/react';
 import { Calendar } from 'primereact/calendar';
 import { addLocale } from 'primereact/api';
@@ -69,6 +72,7 @@ const defaultCourseValues = {
   length: '60',
   grade: '',
   upperGrade: '',
+  imageLocation: '',
   privateLessonTermins: [
     {
       date: '',
@@ -121,6 +125,8 @@ const CreateLessonComponent = ({
   const [editableIndexes, setEditableIndexes] = useState([0]);
   const [showDateError, setShowDateError] = useState(false);
   const [course, setCourse] = useState(defaultCourseValues);
+  const [pictures, setPictures] = useState([]);
+  const [selectedPicture, setSelectedPicture] = useState(null);
 
   const {
     register,
@@ -300,6 +306,21 @@ const CreateLessonComponent = ({
     ref.current?.scrollIntoView({ inline: 'start', behavior: 'smooth', block: 'center' });
   };
 
+  const getPictures = async subject => {
+    try {
+      const res = await axiosInstance.get(`lessons/getCourseImages/${subject}`);
+      setPictures(res.data);
+    } catch (err) {
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
   const getSubjects = async () => {
     const res = await axiosInstance.get('/lessons/getSubjectGrades');
     const subjectObj = Object.assign(res.data?.subjects?.map(key => ({ name: key.replace('_', ' '), code: key })));
@@ -400,6 +421,12 @@ const CreateLessonComponent = ({
   }, [fields.length]);
 
   useEffect(() => {
+    if (subject) {
+      getPictures(subject.name);
+    }
+  }, [subject]);
+
+  useEffect(() => {
     if (courseInfo) {
       setCourse(courseInfo);
       setLowerGrade(courseInfo?.grade);
@@ -407,6 +434,7 @@ const CreateLessonComponent = ({
       setSelectedSubject({ name: courseInfo?.subject, code: courseInfo?.subject });
       setCourseLength(courseInfo?.length?.toString());
       setDates(courseInfo?.privateLessonTermins);
+      setSelectedPicture(courseInfo?.urlToImage);
 
       const editIndexes = [courseInfo?.privateLessonTermins?.length - 1];
       setEditableIndexes(editIndexes);
@@ -575,6 +603,55 @@ const CreateLessonComponent = ({
                 Моля добавете кратко описание. Учениците ще придобият представа за курса Ви от него. Използвайте ясни
                 изрази и ключови думи, за да могат учениците по-лесно да разбират Вашия курс
               </Text>
+            </Stack>
+
+            <Stack spacing={4}>
+              <Text fontSize={18} fontWeight={600}>
+                Снимка{' '}
+                <Text as={'span'} color={'red'}>
+                  {courseInfo?.draft ? '' : '*'}
+                </Text>
+              </Text>
+
+              <Wrap spacing={8}>
+                {pictures?.map((el, index) => (
+                  <WrapItem key={index}>
+                    <Box
+                      as={'button'}
+                      role="group"
+                      onClick={ev => {
+                        ev.preventDefault();
+                        setSelectedPicture(el);
+                        setValue('imageLocation', el);
+                      }}
+                      borderRadius="full"
+                      _hover={{
+                        transition: 'transform .2s',
+                        transform: 'scale(1.05)',
+                      }}>
+                      <Image
+                        borderRadius="full"
+                        border={selectedPicture === el ? '5px solid' : ''}
+                        borderColor={selectedPicture === el ? 'purple.500' : ''}
+                        boxSize={20}
+                        src={el}
+                        alt={`courseImage${index}`}
+                        onLoad={() => {
+                          URL.revokeObjectURL(el);
+                        }}
+                      />
+                    </Box>
+                  </WrapItem>
+                ))}
+              </Wrap>
+
+              <Text fontSize={16} fontWeight={400} color={'grey.400'}>
+                Моля изберете снимка,отговаряща на съдържанието на Вашия курс.
+              </Text>
+
+              <FormControl isInvalid={!!errors.imageLocation}>
+                <FormErrorMessage>{errors?.imageLocation?.message}</FormErrorMessage>
+              </FormControl>
             </Stack>
 
             <Stack spacing={4}>

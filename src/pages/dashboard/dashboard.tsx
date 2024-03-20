@@ -18,6 +18,13 @@ import {
   TabPanel,
   Img,
   SimpleGrid,
+  TableContainer,
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
   useToast,
 } from '@chakra-ui/react';
 
@@ -36,6 +43,7 @@ import {
   getCoursesAll,
   getCoursesDraft,
   getCoursesInactive,
+  getPayments,
   getUpcomingCourses,
 } from '../../store/features/teacher/teacherCourses/teacherCourses.async';
 import OpenedCourseComponent from '../../components/courses/courses_teacher/opened_course.component';
@@ -61,15 +69,7 @@ export default function DashboardPage() {
     { label: 'Чернови', type: 'draft' },
   ];
 
-  const [showCreateCourse, setShowCreateCourse] = useState(false);
-  const [showCreateLesson, setShowCreateLesson] = useState(false);
-  const [addDateActive, setAddDateActive] = useState(false);
-  const [isCourseOpened, setIsCourseOpened] = useState(false);
-  const [openedCourse, setOpenedCourse] = useState(null);
-  const [activeTab, setActiveTab] = useState(0);
-  const [isPrivateLessonToCreate, setIsPrivateLessonToCreate] = useState(false);
-
-  const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, isLoading } =
+  const { upcomingCourses, allCourses, activeCourses, inactiveCourses, draftCourses, payments, isLoading } =
     useSelector(getTeacherCourses);
 
   const {
@@ -79,6 +79,26 @@ export default function DashboardPage() {
     draftLessons,
     isLoading: isLessonLoading,
   } = useSelector(getTeacherLessons);
+
+  const [showCreateCourse, setShowCreateCourse] = useState(false);
+  const [showCreateLesson, setShowCreateLesson] = useState(false);
+  const [addDateActive, setAddDateActive] = useState(false);
+  const [isCourseOpened, setIsCourseOpened] = useState(false);
+  const [openedCourse, setOpenedCourse] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
+
+  const [isPrivateLessonToCreate, setIsPrivateLessonToCreate] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(payments?.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = payments?.slice(startIndex, endIndex);
+
+  const handleClick = page => {
+    setCurrentPage(page);
+  };
 
   const showCourseForm = () => {
     setShowCreateCourse(true);
@@ -155,6 +175,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     dispatch(getUpcomingCourses());
+    dispatch(getPayments());
   }, []);
 
   useEffect(() => {
@@ -660,7 +681,81 @@ export default function DashboardPage() {
                   ) : userData?.beingVerified === false ? (
                     <AwaitingVerificationComponent />
                   ) : (
-                    <Stack>приходи</Stack>
+                    <Stack spacing={12}>
+                      <Heading
+                        flex={1}
+                        as="h1"
+                        fontSize={{ base: 24, lg: 32, xl: 30 }}
+                        textAlign="start"
+                        color={'grey.600'}>
+                        Приходи
+                      </Heading>
+
+                      <TableContainer>
+                        <Table variant="simple">
+                          <Thead>
+                            <Tr bg={'purple.500'}>
+                              <Th color={'white'} fontWeight={700}>
+                                Номер
+                              </Th>
+                              <Th color={'white'} fontWeight={700}>
+                                Курс/урок
+                              </Th>
+                              <Th color={'white'} fontWeight={700}>
+                                Дата
+                              </Th>
+                              <Th color={'white'} fontWeight={700}>
+                                Сума
+                              </Th>
+                            </Tr>
+                          </Thead>
+                          {payments?.length ? (
+                            <Tbody>
+                              {currentData.map((el, index) => (
+                                <Tr key={index}>
+                                  <Td>
+                                    <Text fontWeight={700}>{el?.number}</Text>
+                                  </Td>
+                                  <Td>
+                                    <Text color={'grey.500'}>{el?.lesson}</Text>
+                                  </Td>
+                                  <Td>
+                                    <Stack direction={{ base: 'row' }} color={'grey.500'}>
+                                      <Text>{el?.date}</Text>
+                                      <Text>{el?.time}</Text>
+                                    </Stack>
+                                  </Td>
+                                  <Td>
+                                    <Text color={'grey.500'}>{el?.amount} лв.</Text>
+                                  </Td>
+                                </Tr>
+                              ))}
+                            </Tbody>
+                          ) : null}
+                        </Table>
+
+                        {!payments?.length && (
+                          <Stack w={'full'} color={'grey.500'} justify={'center'} mt={20}>
+                            <Text textAlign={'center'} w={'full'}>
+                              Все още нямате получени приходи
+                            </Text>
+                          </Stack>
+                        )}
+
+                        <Flex justifyContent="end" mt={4}>
+                          {Array.from({ length: totalPages }, (_, i) => (
+                            <Button
+                              key={i}
+                              border={'none'}
+                              variant="outline"
+                              onClick={() => handleClick(i + 1)}
+                              colorScheme={currentPage === i + 1 ? 'blue' : 'gray'}>
+                              {i + 1}
+                            </Button>
+                          ))}
+                        </Flex>
+                      </TableContainer>
+                    </Stack>
                   )}
                 </Stack>
               </TabPanel>
