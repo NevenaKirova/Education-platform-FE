@@ -84,9 +84,10 @@ export default function EnrollCourseCard({
   };
 
   return (
-    <Center py={6} w={'full'}>
+    <Center py={6} w={'full'} >
       <Box
         maxW={{ base: 'full', md: 'fit-content', xl: '28vw', '2xl': '23vw' }}
+        minW={'380px'}
         w={'full'}
         bg={'white'}
         rounded={'md'}

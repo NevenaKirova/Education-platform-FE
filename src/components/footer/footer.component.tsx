@@ -33,7 +33,7 @@ export default function Footer() {
   return (
     <Box px={'12vw'} py={10} bg={'purple.500'} color={'white'} w={'full'}>
       <Flex direction={{ base: 'column', lg: 'row' }} justify={'space-between'} align={'center'} gap={{ base: 14 }}>
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={16}>
+        <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={16}>
           <Stack align={'flex-start'} textAlign={'left'}>
             <ListHeader>За нас</ListHeader>
             <Box as={ReactRouterLink} to={'/about-us'}>
@@ -48,8 +48,8 @@ export default function Footer() {
             <Box as={ReactRouterLink} to={'/help-center'}>
               Помощен център
             </Box>
-            <Box as="a" href={'#'}>
-              Обслужване на клиенти
+            <Box as={ReactRouterLink} to={'/help-center-teacher'}>
+              Помощен център за учители
             </Box>
           </Stack>
           <Stack align={'flex-start'} textAlign={'left'}>
@@ -59,6 +59,12 @@ export default function Footer() {
             </Box>
             <Box as={ReactRouterLink} to={'/personal-data-policy'}>
               Политика за лични данни
+            </Box>
+          </Stack>
+          <Stack align={'flex-start'} textAlign={'left'}>
+            <ListHeader>Контакти</ListHeader>
+            <Box as={ReactRouterLink} to={'mailto:info@myclassroom.bg'}>
+              info@myclassroom.bg
             </Box>
           </Stack>
         </SimpleGrid>

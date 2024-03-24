@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Stomp from 'stompjs';
 
 import { NavLink as ReactRouterLink, useLocation, useMatch } from 'react-router-dom';
-import { Avatar, ButtonGroup, Center, Hide, Link as ChakraLink, PopoverHeader } from '@chakra-ui/react';
+import { Avatar, ButtonGroup, Center, Hide, Link as ChakraLink, PopoverHeader, useToast } from '@chakra-ui/react';
 
 import {
   Box,
@@ -44,6 +44,8 @@ import {
   heartFull,
 } from '../../icons';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { axiosInstance } from '../../axios';
+import { getResponseMessage } from '../../helpers/response.util';
 
 interface NavItem {
   key: string;
@@ -128,7 +130,7 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const [navItems, setNavItems] = useState(NAV_ITEMS_DEFAULT);
   const [stompClient, setStompClient] = useState(null);
   const [notifications, setNotifications] = useState(null);
-  const [notigicationType, setNotificationType] = useState(null);
+  const [notificationType, setNotificationType] = useState(null);
   const [hasMessageNotification, setHasMessageNotification] = useState(() =>
     getItem('hasMessageNotification') === 'false' ? false : true,
   );
@@ -136,6 +138,30 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const [whiteMenu, setWhiteMenu] = useState(false);
   const location = useLocation();
   const matchFavourites = useMatch('/favourites');
+  const toast = useToast();
+
+  const handleModalOpen = (tabIndex: number) => {
+    setModalTabIndex(tabIndex);
+    onLoginOpen();
+  };
+
+  const getNotificationsHistory = async () => {
+    if (userData) {
+      try {
+        const res = await axiosInstance.get(`/lessons/getNotifications`);
+
+        setNotifications(res.data);
+      } catch (err) {
+        toast({
+          title: getResponseMessage(err),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     location.pathname === '/' || location.pathname === '/help-center' || location.pathname === '/help-center-teacher'
@@ -146,11 +172,6 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   useEffect(() => {
     location.pathname.includes('/messages') && setHasMessageNotification(false);
   }, [location.pathname, hasMessageNotification]);
-
-  const handleModalOpen = (tabIndex: number) => {
-    setModalTabIndex(tabIndex);
-    onLoginOpen();
-  };
 
   useEffect(() => {
     isOpen && onClose();
@@ -189,6 +210,10 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
       if (stomp) stomp.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    getNotificationsHistory();
+  }, [userData]);
 
   return (
     <Box
@@ -387,6 +412,8 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                     </ButtonGroup>
 
                     <ButtonGroup
+                      as={ReactRouterLink}
+                      to={'/messages'}
                       size="sm"
                       isAttached
                       variant="link"
@@ -403,24 +430,37 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                       </Stack>
                     </ButtonGroup>
 
-                    <ButtonGroup
-                      size="sm"
-                      isAttached
-                      variant="link"
-                      _hover={{ textDecoration: 'none', bg: 'purple.100' }}
-                      transition={'transform .2s'}>
-                      <Stack w={'full'} direction={'row'} justify={'start'} align={'center'} spacing={2} px={6} py={2}>
-                        <IconButton
-                          bg="transparent"
-                          aria-label="payments"
-                          icon={<Img src={settings} h={5} w={'full'} />}
-                        />
+                    {userData.role === 'STUDENT' && (
+                      <ButtonGroup
+                        as={ReactRouterLink}
+                        to={'/transactions'}
+                        size="sm"
+                        isAttached
+                        variant="link"
+                        _hover={{ textDecoration: 'none', bg: 'purple.100' }}
+                        transition={'transform .2s'}>
+                        <Stack
+                          w={'full'}
+                          direction={'row'}
+                          justify={'start'}
+                          align={'center'}
+                          spacing={2}
+                          px={6}
+                          py={2}>
+                          <IconButton
+                            bg="transparent"
+                            aria-label="payments"
+                            icon={<Img src={settings} h={5} w={'full'} />}
+                          />
 
-                        <Text _hover={{ color: 'purple.500' }}>Плащания</Text>
-                      </Stack>
-                    </ButtonGroup>
+                          <Text _hover={{ color: 'purple.500' }}>Плащания</Text>
+                        </Stack>
+                      </ButtonGroup>
+                    )}
 
                     <ButtonGroup
+                      as={ReactRouterLink}
+                      to={userData?.role === 'STUDENT' ? '/help-center' : '/help-center-teacher'}
                       size="sm"
                       isAttached
                       variant="link"

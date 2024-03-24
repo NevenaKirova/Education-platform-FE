@@ -114,6 +114,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
       lowerBound: null,
       upperBound: null,
       searchTerm: null,
+      price: null,
     },
   });
 
@@ -201,6 +202,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
     setSubject(null);
     setGrade(null);
     setStartDate(null);
+    setPrice(null);
 
     getClasses(defaultFilters);
   };
@@ -264,7 +266,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
       .then(res => {
         const subjectObj = Object.assign(res.data?.subjects?.map(key => ({ name: key, code: key })));
         const gradesObj = Object.assign(res.data?.grades?.map(key => ({ grade: key, value: key })));
-        const pricesObj = Object.assign(res.data?.prices?.map(key => ({ price: key, value: key })));
+        const pricesObj = Object.assign(res.data?.prices?.map(key => ({ price: key.toString(), value: key })));
 
         setAvailableSubjects(subjectObj);
         setAvailableGrades(gradesObj);
@@ -487,7 +489,7 @@ const ClassesComponent = ({ isPrivateLesson }: { isPrivateLesson: boolean }) => 
               <Dropdown
                 value={price}
                 onChange={e => {
-                  setValue('price', e.value?.value);
+                  setValue('price', e.value);
                   setPrice(e.value);
                 }}
                 options={availablePrices}

@@ -80,6 +80,7 @@ const CourseResources = ({
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [assignmentId, setAssignmentId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [meeting, setMeeting] = useState(null);
 
   const studentsToShow = useMemo(() => {
     if (!students?.length) {
@@ -163,6 +164,25 @@ const CourseResources = ({
     }
   };
 
+  const getVirtualClassroomLink = async () => {
+    try {
+      setIsLoading(true);
+      const id = isPrivateLesson ? date?.lessonTerminId : date?.courseTerminId;
+      const res = await axiosInstance.get(`lessons/generateMeeting/${id}`);
+      setMeeting(res.data);
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast({
+        title: getResponseMessage(err),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+
   const handleDeleteResource = async (ev, type, themeId) => {
     ev.preventDefault();
     let resourceUrl;
@@ -217,6 +237,7 @@ const CourseResources = ({
 
   useEffect(() => {
     getOpenedCourse();
+    getVirtualClassroomLink();
   }, []);
 
   return isLoading ? (

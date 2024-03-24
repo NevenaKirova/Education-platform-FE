@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo, useEffect, useContext } from 'react';
 import { NavLink as ReactRouterLink, useNavigate, useParams } from 'react-router-dom';
-import { format, getYear } from 'date-fns';
+import { format, getDay, getYear } from 'date-fns';
 import Carousel from 'react-multi-carousel';
 import { Dropdown } from 'primereact/dropdown';
 import { bg } from 'date-fns/locale';
@@ -35,14 +35,13 @@ import CourseCard from '../../components/courses/course_card/course_card.compome
 import EnrollCourseCard from '../../components/courses/course_card/enroll_lesson_card';
 import { Rating } from '../../components/testimonials/testimonial_card.component';
 
-import { responsive } from '../../components/courses/courses_landing/courses_landing.component';
 import { getResponseMessage } from '../../helpers/response.util';
 import PageLoader from '../../utils/loader.component';
 import { daysArr } from '../../components/courses/courses_teacher/create_course.component';
 import axios, { axiosInstance } from '../../axios';
 import AuthContext from '../../context/AuthContext';
 
-import { heart, heartFull, message, group, location, hat, user } from '../../icons';
+import { heart, heartFull, message, group, location, hat } from '../../icons';
 
 import {
   Pagination,
@@ -58,6 +57,40 @@ import {
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import style from '../../components/courses/courses_landing/courses_landing.module.scss';
+
+const responsive = {
+  superLargeDesktop: {
+    // the naming can be any, depends on you.
+    breakpoint: { max: 4000, min: 1530 },
+    items: 4,
+    partialVisibilityGutter: 0,
+  },
+  desktop: {
+    breakpoint: { max: 1530, min: 1000 },
+    items: 3,
+    partialVisibilityGutter:10,
+  },
+  tablet: {
+    breakpoint: { max: 1000, min: 700 },
+    items: 2,
+    partialVisibilityGutter: 0,
+  },
+  miniTablet: {
+    breakpoint: { max: 700, min: 600 },
+    items: 1,
+    partialVisibilityGutter: 100,
+  },
+  largeMobile: {
+    breakpoint: { max: 600, min: 500 },
+    items: 1,
+    partialVisibilityGutter: 80,
+  },
+  mobile: {
+    breakpoint: { max: 500, min: 0 },
+    items: 1,
+    partialVisibilityGutter: 0,
+  },
+};
 
 export const getDate = date => {
   const month = format(new Date(date), 'LLL', { locale: bg });
@@ -388,40 +421,42 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
               </Text>
             </Stack>
 
-            <Stack spacing={{ base: 6, lg: 8 }}>
-              <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 36 }} color={'grey.600'}>
-                Съдържание
-              </Heading>
+            {!course.privateLesson && (
+              <Stack spacing={{ base: 6, lg: 8 }}>
+                <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 36 }} color={'grey.600'}>
+                  Съдържание
+                </Heading>
 
-              <Accordion allowToggle>
-                <Stack spacing={2} w={{ base: 'fit-content', lg: 'full' }}>
-                  {contentToShow?.length ? (
-                    contentToShow
-                  ) : (
-                    <Text fontSize={{ base: 18, lg: 20 }} color={'grey.400'} textAlign={'start'}>
-                      Няма налично съдържание
-                    </Text>
-                  )}
-                </Stack>
-              </Accordion>
+                <Accordion allowToggle>
+                  <Stack spacing={2} w={{ base: 'fit-content', lg: 'full' }}>
+                    {contentToShow?.length ? (
+                      contentToShow
+                    ) : (
+                      <Text fontSize={{ base: 18, lg: 20 }} color={'grey.400'} textAlign={'start'}>
+                        Няма налично съдържание
+                      </Text>
+                    )}
+                  </Stack>
+                </Accordion>
 
-              {contentToShow?.length && (
-                <Button
-                  fontSize={{ base: 18, lg: 20 }}
-                  fontWeight={600}
-                  bg={'transparent'}
-                  color="purple.500"
-                  _hover={{ bg: 'transparent' }}
-                  width={'fit-content'}
-                  onClick={contentToShow.length < content.length ? showAll : showLessContent}>
-                  {content.length <= contentToShow.length
-                    ? ''
-                    : contentToShow.length < content.length
-                      ? 'Виж всички '
-                      : 'Виж по-малко'}
-                </Button>
-              )}
-            </Stack>
+                {contentToShow?.length && (
+                  <Button
+                    fontSize={{ base: 18, lg: 20 }}
+                    fontWeight={600}
+                    bg={'transparent'}
+                    color="purple.500"
+                    _hover={{ bg: 'transparent' }}
+                    width={'fit-content'}
+                    onClick={contentToShow.length < content.length ? showAll : showLessContent}>
+                    {content.length <= contentToShow.length
+                      ? ''
+                      : contentToShow.length < content.length
+                        ? 'Виж всички '
+                        : 'Виж по-малко'}
+                  </Button>
+                )}
+              </Stack>
+            )}
 
             <Stack spacing={{ base: 8, lg: 8 }} ref={DatesRef}>
               <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 36 }} color={'grey.600'}>
@@ -483,11 +518,13 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                                     <Text fontWeight={600} fontSize={14}>
                                       {el?.time}
                                     </Text>
+
                                     <Text fontWeight={600} fontSize={14}>
                                       {el.courseDaysNumbers.map(day => daysArr[day - 1].name).toString()}
                                     </Text>
                                     <Text fontWeight={600} fontSize={14}>
-                                      до {el.studentsUpperBound} {el.studentsUpperBound > 1 ? 'ученици' : 'ученик'}
+                                      група до {el.studentsUpperBound}{' '}
+                                      {el.studentsUpperBound > 1 ? 'ученици' : 'ученик'}
                                     </Text>
                                   </Stack>
                                 </Stack>
@@ -518,12 +555,17 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                                     <Text fontWeight={'600'} fontSize={{ base: 18, md: 20, lg: 24 }} textAlign={'left'}>
                                       {el && `${getDate(new Date(el?.date))} `}
                                     </Text>
+
                                     <Text color={'grey.500'} fontSize={14}>
                                       ({el.length} минути)
                                     </Text>
                                   </Stack>
 
                                   <Stack spacing={4} align={'start'}>
+                                    <Text fontWeight={600} fontSize={14}>
+                                      {daysArr[getDay(new Date(el.date)) - 1]?.name}
+                                    </Text>
+
                                     <Text fontWeight={600} fontSize={14}>
                                       {el?.time} ч.
                                     </Text>
@@ -540,7 +582,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
                   </Stack>
                 </RadioGroup>
                 <Stack direction={{ base: 'column', lg: 'row' }} align={'center'}>
-                  <Text>Не откривате подходяща дата?</Text>
+                  <Text>Не откривате подходяща дата за Вас?</Text>
                   <Button
                     onClick={ev => openChat(ev)}
                     bg={'transparent'}
@@ -556,7 +598,7 @@ const LessonPage = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setMo
 
             <Stack spacing={{ base: 6, lg: 8 }}>
               <Heading flex={1} textAlign={'left'} fontSize={{ base: 24, lg: 32, xl: 36 }} color={'grey.600'}>
-                Лектор
+                Учител
               </Heading>
 
               <Stack

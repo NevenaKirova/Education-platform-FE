@@ -139,7 +139,7 @@ export default function CourseCard({
 
                 <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
                   <Text color={'purple.500'} fontSize={10} fontWeight={600}>
-                    {course?.weekLength} седмици
+                    {course?.privateLesson ? `${course?.length} мин` : `${course?.weekLength} седмици`}
                   </Text>
                 </Tag>
 

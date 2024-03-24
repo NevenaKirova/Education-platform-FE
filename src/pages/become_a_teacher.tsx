@@ -1,8 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import Header from '../components/become_a_teacher/header.component';
 import InfoSection from '../components/become_a_teacher/info.component';
-import HowItWorksComponent from '../components/become_a_teacher/how_it_works.component';
 import TeacherDemoSection from '../components/become_a_teacher/teacher_demo.component';
 import HowToSection from '../components/become_a_teacher/how_to_become_a_teacher.component';
 import QASection from '../components/become_a_teacher/qa.component';
@@ -88,7 +87,7 @@ const BecomeATeacherPage = ({
 
         <HowToSection />
         <TeacherDemoSection />
-        <HowItWorksComponent />
+        {/*<HowItWorksComponent />*/}
         <QASection />
       </Stack>
     </>
