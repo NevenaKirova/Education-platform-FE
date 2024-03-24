@@ -183,21 +183,40 @@ const StudentOpenedCoursePage = () => {
             Виртуална класна стая
           </Heading>
 
-          <Stack
-            as={Button}
-            rounded={'md'}
-            bg={'purple.100'}
-            w={'full'}
-            p={6}
-            align={'center'}
-            justify={'start'}
-            direction={'row'}
-            spacing={4}>
-            <Img src={link} w={6} h={6} />
-            <Text color={'grey.600'} fontWeight={'700'}>
-              Линк към виртуална класна стая
-            </Text>
-          </Stack>
+          {course?.meetingMessageResponse?.link && (
+            <Stack
+              as={ReactRouterLink}
+              to={course?.meetingMessageResponse?.link}
+              bg={'purple.100'}
+              w={'full'}
+              p={6}
+              align={'center'}
+              justify={'start'}
+              direction={'row'}
+              spacing={4}>
+              <Img src={link} w={6} h={6} />
+
+              <Text color={'grey.600'} fontWeight={'700'}>
+                Линк към виртуална класна стая
+              </Text>
+            </Stack>
+          )}
+
+          {course?.meetingMessageResponse?.message && (
+            <Stack
+              rounded={'md'}
+              bg={'purple.100'}
+              w={'full'}
+              p={6}
+              align={'center'}
+              justify={'start'}
+              direction={'row'}
+              spacing={4}>
+              <Text color={'grey.600'} fontWeight={'700'}>
+                {course?.meetingMessageResponse?.message}
+              </Text>
+            </Stack>
+          )}
         </Stack>
 
         <Accordion allowMultiple>
