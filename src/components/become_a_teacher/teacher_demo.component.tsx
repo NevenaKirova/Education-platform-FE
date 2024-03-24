@@ -40,11 +40,7 @@ export default function TeacherDemoSection() {
         py={{ base: 10, md: 28 }}
         direction={{ base: 'column', lg: 'row' }}>
         <Stack flex={1} spacing={{ base: 8, md: 10 }} maxW={{ base: '70vw', md: '60vw', lg: '35vw', xl: '25vw' }}>
-          <Heading
-            flex={1}
-            as="h1"
-            fontSize={{ base: 24, md: 32, lg:40}}
-            textAlign={{ base: 'center', lg: 'left' }}>
+          <Heading flex={1} as="h1" fontSize={{ base: 24, md: 32, lg: 40 }} textAlign={{ base: 'center', lg: 'left' }}>
             <Text as={'span'}>Чуйте </Text>
             {''}
             <Text as="span" color={'purple.500'}>
@@ -52,14 +48,24 @@ export default function TeacherDemoSection() {
             </Text>
           </Heading>
 
-          <Text
-            color={'grey.600'}
-            fontWeight={400}
-            lineHeight={1.35}
-            textAlign={{ base: 'center', lg: 'left' }}
-            fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
-            Гордеем се с набора от преподаватели, които обучават на платформата и градят своята кариера при нас!
-          </Text>
+          <Stack spacing={3}>
+            <Text
+              color={'grey.600'}
+              fontWeight={400}
+              lineHeight={1.35}
+              textAlign={{ base: 'center', lg: 'left' }}
+              fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
+              Гордеем се с набора от преподаватели, които обучават на платформата и градят своята кариера при нас!
+            </Text>
+            <Text
+              color={'grey.600'}
+              fontWeight={400}
+              lineHeight={1.35}
+              textAlign={{ base: 'center', lg: 'left' }}
+              fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
+              Присъедини се и ти!
+            </Text>
+          </Stack>
 
           <Button
             size={{ base: 'sm', md: 'md', '2xl': 'md' }}

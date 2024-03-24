@@ -42,11 +42,7 @@ export default function TestimonialDemoSection() {
         py={{ base: 10, md: 28 }}
         direction={{ base: 'column', lg: 'row' }}>
         <Stack flex={1} spacing={{ base: 8, md: 10 }} maxW={{ base: '70vw', md: '60vw', lg: '35vw', xl: '25vw' }}>
-          <Heading
-            flex={1}
-            as="h1"
-            fontSize={{ base: 24, md: 32, lg:40}}
-            textAlign={{ base: 'center', lg: 'left' }}>
+          <Heading flex={1} as="h1" fontSize={{ base: 24, md: 32, lg: 40 }} textAlign={{ base: 'center', lg: 'left' }}>
             <Text>Стотици онлайн уроци от преподаватели от</Text>
             {''}
             <Text as="span" color={'purple.500'}>
@@ -54,14 +50,26 @@ export default function TestimonialDemoSection() {
             </Text>
           </Heading>
 
-          <Text
-            color={'grey.600'}
-            fontWeight={400}
-            lineHeight={1.35}
-            textAlign={{ base: 'center', lg: 'left' }}
-            fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
-            Най-важното явление в училище, най-поучителния предмет, най-живият пример за ученика е самият учител.
-          </Text>
+          <Stack spacing={3}>
+            <Text
+              color={'grey.600'}
+              fontWeight={400}
+              lineHeight={1.35}
+              textAlign={{ base: 'center', lg: 'left' }}
+              fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
+              „Най-важното явление в училище, най-поучителния предмет, най-живият пример за ученика е самият учител.“
+            </Text>
+
+            <Text
+              color={'grey.600'}
+              fontWeight={400}
+              lineHeight={1.35}
+              textAlign={{ base: 'center', lg: 'left' }}
+              fontSize={useBreakpointValue({ base: '1.8vh', md: '2vw', lg: '1.9vw', xl: '1.2vw' })}>
+              - Фридрих Дистервег
+            </Text>
+          </Stack>
+
           <Button
             as={ReactRouterLink}
             to={'/lessons'}

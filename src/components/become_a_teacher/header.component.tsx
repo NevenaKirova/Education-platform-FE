@@ -61,7 +61,7 @@ export default function HeaderSection({
                 lineHeight={1.35}
                 textAlign={{ base: 'center', lg: 'left' }}
                 fontSize={{ base: 14, md: 18, xl: 20 }}>
-                Създай своята кариера при нас. Преподавай онлайн отвсякъде по всяко време.
+                Създай своята кариера на онлайн учител при нас. Преподавай онлайн отвсякъде по всяко време.
               </Text>
             </Stack>
 
