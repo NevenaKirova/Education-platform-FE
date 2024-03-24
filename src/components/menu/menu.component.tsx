@@ -130,9 +130,12 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
   const [navItems, setNavItems] = useState(NAV_ITEMS_DEFAULT);
   const [stompClient, setStompClient] = useState(null);
   const [notifications, setNotifications] = useState(null);
-  const [notificationType, setNotificationType] = useState(null);
+
   const [hasMessageNotification, setHasMessageNotification] = useState(() =>
-    getItem('hasMessageNotification') === 'false' ? false : true,
+    !getItem('hasMessageNotification') || getItem('hasMessageNotification') === 'false' ? false : true,
+  );
+  const [hasNewNotification, setHasNewNotification] = useState(() =>
+    !getItem('hasNotification') || getItem('hasNotification') === 'false' ? false : true,
   );
 
   const [whiteMenu, setWhiteMenu] = useState(false);
@@ -198,10 +201,16 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
       setStompClient(stomp);
       stomp.subscribe(`/user/${authTokens?.access_token}/queue/notifications`, message => {
         const newNotification = JSON.parse(message.body);
-        setNotificationType(newNotification.body);
+
         setTimeout(() => {
-          setHasMessageNotification(newNotification?.chat);
-          localStorage.setItem('hasMessageNotification', JSON.stringify(!!newNotification?.chat));
+          if (newNotification?.chat) {
+            setHasMessageNotification(newNotification?.chat);
+            localStorage.setItem('hasMessageNotification', JSON.stringify(!!newNotification?.chat));
+          } else {
+            setNotifications(prevNotifications => [...prevNotifications, newNotification]);
+            setHasNewNotification(true);
+            localStorage.setItem('hasNotification', JSON.stringify(true));
+          }
         }, 500);
       });
     });
@@ -302,14 +311,38 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                 ) : null}
               </ButtonGroup>
 
-              <Popover isLazy>
+              <Popover
+                isLazy
+                onOpen={() => {
+                  localStorage.setItem('hasNotification', JSON.stringify(false));
+                  setHasNewNotification(false);
+                }}>
                 <PopoverTrigger>
-                  <IconButton
-                    bg="transparent"
-                    aria-label="notifications"
-                    _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
-                    icon={<Img src={whiteMenu ? bellWhite : bell} h={5} w={'full'} />}
-                  />
+                  <ButtonGroup
+                    size="sm"
+                    isAttached
+                    variant="link"
+                    _hover={{ textDecoration: 'none', bg: 'transparent', transform: 'scale(1.1)' }}
+                    transition={'transform .2s'}
+                    position={'relative'}>
+                    <IconButton
+                      bg="transparent"
+                      aria-label="notifications"
+                      _hover={{ bg: 'transparent', transform: 'scale(1.1)' }}
+                      icon={<Img src={whiteMenu ? bellWhite : bell} h={5} w={'full'} />}
+                    />
+                    {hasNewNotification ? (
+                      <Box
+                        position={'absolute'}
+                        right={'3px'}
+                        top={'-2px'}
+                        rounded={'lg'}
+                        h={'10px'}
+                        w={'10px'}
+                        bg={'red'}
+                        zIndex={20}></Box>
+                    ) : null}
+                  </ButtonGroup>
                 </PopoverTrigger>
                 <PopoverContent>
                   <PopoverHeader fontSize={18} fontWeight="500" color={'grey.600'} textAlign={'left'} border={'none'}>
@@ -333,12 +366,21 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                         borderRadius: '24px',
                       },
                     }}>
-                    <Center minH={'100px'}>
-                      <Text color={'grey.400'} fontSize={16}>
-                        {' '}
-                        Нямате налични известия
-                      </Text>
-                    </Center>
+                    {notifications?.length ? (
+                      notifications.map((el, index) => (
+                        <Stack key={index} minH={'100px'}>
+                          <Text color={'grey.400'} fontSize={16}>
+                            Нямате налични известия
+                          </Text>
+                        </Stack>
+                      ))
+                    ) : (
+                      <Center minH={'100px'}>
+                        <Text color={'grey.400'} fontSize={16}>
+                          Нямате налични известия
+                        </Text>
+                      </Center>
+                    )}
                   </PopoverBody>
                 </PopoverContent>
               </Popover>

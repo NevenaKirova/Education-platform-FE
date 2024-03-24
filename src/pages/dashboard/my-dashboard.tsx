@@ -348,35 +348,127 @@ export default function MyDashboardPage() {
                     )}
                   </TabPanel>
                   <TabPanel p={0}>
-                    {courses && courses?.length ? (
-                      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4} mt={8}>
-                        {courses.map((el, index) => (
-                          <DashboardCourseCardStudent
-                            key={index}
-                            course={el}
-                            isGrid={true}
-                            onOpen={onOpen}
-                            setOpenModalWithCourse={setOpenModalWithCourse}
-                          />
-                        ))}
-                      </SimpleGrid>
+                    {courses && courses?.total ? (
+                        <>
+                          <SimpleGrid columns={{ base: 1, '3xl': 2 }} spacing={4} mt={8}>
+                            {courses.lessonResponses?.map((el, index) => (
+                                <DashboardCourseCardStudent
+                                    key={index}
+                                    course={el}
+                                    onOpen={onOpen}
+                                    setOpenModalWithCourse={setOpenModalWithCourse}
+                                />
+                            ))}
+                          </SimpleGrid>
+                          <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
+                            <PaginationContainer align="center" justify="end" p={4} w="full">
+                              <PaginationPrevious
+                                  _hover={{
+                                    bg: 'transparent',
+                                  }}
+                                  bg="transparent">
+                                <Text>Предишна</Text>
+                              </PaginationPrevious>
+                              <PaginationPageGroup
+                                  align="center"
+                                  separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
+                                {pages.map((page: number) => (
+                                    <PaginationPage
+                                        w={7}
+                                        bg="transparent"
+                                        key={`pagination_page_${page}`}
+                                        page={page}
+                                        fontSize="sm"
+                                        color={'grey.400'}
+                                        _hover={{
+                                          color: 'purple.400',
+                                        }}
+                                        _current={{
+                                          color: 'purple.500',
+                                          bg: 'transparent',
+                                          fontSize: 'sm',
+                                          w: 7,
+                                        }}
+                                    />
+                                ))}
+                              </PaginationPageGroup>
+                              <PaginationNext
+                                  _hover={{
+                                    bg: 'transparent',
+                                  }}
+                                  color={'purple.500'}
+                                  bg="transparent"
+                                  onClick={() =>
+                                      console.log('Im executing my own function along with Next component functionality')
+                                  }>
+                                <Text>Следваща</Text>
+                              </PaginationNext>
+                            </PaginationContainer>
+                          </Pagination>
+                        </>
                     ) : (
                       <NoData />
                     )}
                   </TabPanel>
                   <TabPanel p={0}>
-                    {lessons && lessons?.length ? (
-                      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4} mt={8}>
-                        {lessons.map((el, index) => (
-                          <DashboardCourseCardStudent
-                            key={index}
-                            course={el}
-                            isGrid={true}
-                            onOpen={onOpen}
-                            setOpenModalWithCourse={setOpenModalWithCourse}
-                          />
-                        ))}
-                      </SimpleGrid>
+                    {lessons && lessons?.total ? (
+                        <>
+                          <SimpleGrid columns={{ base: 1, '3xl': 2 }} spacing={4} mt={8}>
+                            {lessons.lessonResponses?.map((el, index) => (
+                                <DashboardCourseCardStudent
+                                    key={index}
+                                    course={el}
+                                    onOpen={onOpen}
+                                    setOpenModalWithCourse={setOpenModalWithCourse}
+                                />
+                            ))}
+                          </SimpleGrid>
+                          <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={handlePageChange}>
+                            <PaginationContainer align="center" justify="end" p={4} w="full">
+                              <PaginationPrevious
+                                  _hover={{
+                                    bg: 'transparent',
+                                  }}
+                                  bg="transparent">
+                                <Text>Предишна</Text>
+                              </PaginationPrevious>
+                              <PaginationPageGroup
+                                  align="center"
+                                  separator={<PaginationSeparator bg="blue.300" fontSize="sm" w={7} jumpSize={11} />}>
+                                {pages.map((page: number) => (
+                                    <PaginationPage
+                                        w={7}
+                                        bg="transparent"
+                                        key={`pagination_page_${page}`}
+                                        page={page}
+                                        fontSize="sm"
+                                        color={'grey.400'}
+                                        _hover={{
+                                          color: 'purple.400',
+                                        }}
+                                        _current={{
+                                          color: 'purple.500',
+                                          bg: 'transparent',
+                                          fontSize: 'sm',
+                                          w: 7,
+                                        }}
+                                    />
+                                ))}
+                              </PaginationPageGroup>
+                              <PaginationNext
+                                  _hover={{
+                                    bg: 'transparent',
+                                  }}
+                                  color={'purple.500'}
+                                  bg="transparent"
+                                  onClick={() =>
+                                      console.log('Im executing my own function along with Next component functionality')
+                                  }>
+                                <Text>Следваща</Text>
+                              </PaginationNext>
+                            </PaginationContainer>
+                          </Pagination>
+                        </>
                     ) : (
                       <NoData isPrivateLesson={true} />
                     )}
