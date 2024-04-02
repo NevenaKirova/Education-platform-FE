@@ -258,7 +258,7 @@ const CreateCourseComponent = ({
   const onSubmit: SubmitHandler<any> = async data => {
     const oneHasTitle = data.themas.some(el => el.title);
 
-    if (!data?.themas?.length || !oneHasTitle) {
+    if (!editInfo && (!data?.themas?.length || !oneHasTitle)) {
       setShowThemasError(true);
       handleScroll(themesRef);
     } else {
@@ -266,7 +266,7 @@ const CreateCourseComponent = ({
       setIsLoading(true);
       try {
         if (editInfo) {
-          if (!!courseInfo && courseInfo.isDraft) {
+          if (!!courseInfo && courseInfo.draft) {
             await axiosInstance.post(`/lessons/editCourseDraft/${courseId}`, data);
           } else {
             await axiosInstance.post(`/lessons/editCourse/${courseId}`, data);
@@ -708,7 +708,7 @@ const CreateCourseComponent = ({
                     Моля добавете какъв брой ученици ще могат да се запишат за Вашия курс.
                   </Text>
                   <Text fontSize={16} fontWeight={400} color={'grey.400'}>
-                    (Максимален брой - 30 ученици)
+                    (Максимален допустим брой - 30 ученици)
                   </Text>
                 </Stack>
               </Stack>

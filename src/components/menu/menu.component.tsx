@@ -369,9 +369,37 @@ export const Menu = ({ onLoginOpen, setModalTabIndex }: { onLoginOpen: any; setM
                     {notifications?.length ? (
                       notifications.map((el, index) => (
                         <Stack key={index} minH={'100px'}>
-                          <Text color={'grey.400'} fontSize={16}>
-                            Нямате налични известия
+                          <Text color={'grey.500'} fontWeight={600} textAlign={'start'} fontSize={16}>
+                            {el.date}
                           </Text>
+
+                          <Stack p={2} rounded={'md'} _hover={{ bg: 'purple.100' }}>
+                            <Stack spacing={0} flexWrap={'wrap'} align={'start'}>
+                              {el?.lesson && (
+                                <Stack direction={'row'} spacing={2} flexWrap={'wrap'}>
+                                  <Text color={'grey.600'} fontSize={16}>
+                                    Урок
+                                  </Text>
+                                  <Text color={'purple.600'} fontSize={16}>
+                                    {el?.lesson}
+                                  </Text>
+                                </Stack>
+                              )}
+
+                              <Text color={'grey.600'} fontSize={16}>
+                                {el?.content}
+                              </Text>
+                              {el?.link && (
+                                <Box as={ReactRouterLink} to={el.link} color={'purple.500'} fontSize={16}>
+                                  {el?.link}
+                                </Box>
+                              )}
+
+                              <Text color={'grey.500'} fontSize={12} alignSelf={'end'}>
+                                {el?.time}
+                              </Text>
+                            </Stack>
+                          </Stack>
                         </Stack>
                       ))
                     ) : (

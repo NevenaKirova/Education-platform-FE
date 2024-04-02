@@ -80,7 +80,6 @@ const CourseResources = ({
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [assignmentId, setAssignmentId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [meeting, setMeeting] = useState(null);
 
   const studentsToShow = useMemo(() => {
     if (!students?.length) {
@@ -169,7 +168,8 @@ const CourseResources = ({
       setIsLoading(true);
       const id = isPrivateLesson ? date?.lessonTerminId : date?.courseTerminId;
       const res = await axiosInstance.get(`lessons/generateMeeting/${id}`);
-      setMeeting(res.data);
+
+      window.open(`/${res.data?.link}`, '_blank');
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
@@ -237,7 +237,6 @@ const CourseResources = ({
 
   useEffect(() => {
     getOpenedCourse();
-    getVirtualClassroomLink();
   }, []);
 
   return isLoading ? (
@@ -367,6 +366,7 @@ const CourseResources = ({
 
             <Stack
               as={Button}
+              onClick={getVirtualClassroomLink}
               rounded={'md'}
               bg={'purple.100'}
               w={'full'}

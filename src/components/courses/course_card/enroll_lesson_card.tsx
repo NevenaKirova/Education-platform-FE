@@ -56,7 +56,7 @@ export default function EnrollCourseCard({
     if (userData && userData.id) {
       try {
         navigate(`/lessons/${course?.privateLesson ? termin?.lessonTerminId : termin?.courseTerminId}/enroll`, {
-          state: { payType: state },
+          state: { payType: state, isPrivateLesson: course?.privateLesson },
         });
       } catch (err) {
         toast({
@@ -84,7 +84,7 @@ export default function EnrollCourseCard({
   };
 
   return (
-    <Center py={6} w={'full'} >
+    <Center py={6} w={'full'}>
       <Box
         maxW={{ base: 'full', md: 'fit-content', xl: '28vw', '2xl': '23vw' }}
         minW={'380px'}

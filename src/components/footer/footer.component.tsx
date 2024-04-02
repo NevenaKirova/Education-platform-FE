@@ -37,7 +37,7 @@ export default function Footer() {
           <Stack align={'flex-start'} textAlign={'left'}>
             <ListHeader>За нас</ListHeader>
             <Box as={ReactRouterLink} to={'/about-us'}>
-              Нашата история
+              Нашата мисия
             </Box>
             <Box as={ReactRouterLink} to={'/terms-of-use'}>
               Условия и ползване

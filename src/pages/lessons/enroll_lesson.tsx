@@ -56,11 +56,12 @@ const EnrollLessonPage = () => {
   const toast = useToast();
 
   const location = useLocation();
-  const { payType } = location.state;
+  const { payType, isPrivateLesson } = location.state;
 
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
@@ -97,6 +98,22 @@ const EnrollLessonPage = () => {
     }
   };
 
+  const handlePayment = async () => {
+    const enrollUrl = isPrivateLesson ? 'enrollStudentInLesson' : 'enrollStudentInCourse';
+    try {
+      setIsLoading(true);
+
+      await axiosInstance.get(`lessons/${enrollUrl}/${lessonId}`);
+    } catch (error) {
+      toast({
+        title: getResponseMessage(error),
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
   const onSubmit: SubmitHandler<Inputs> = async data => {
     setIsLoading(true);
     try {
@@ -403,6 +420,7 @@ const EnrollLessonPage = () => {
                     bg={'purple.500'}
                     fontSize={{ base: 16, lg: 18, xl: 20 }}
                     fontWeight={700}
+                    onClick={handlePayment}
                     _hover={{ opacity: '0.9' }}>
                     Към плащане
                   </Button>

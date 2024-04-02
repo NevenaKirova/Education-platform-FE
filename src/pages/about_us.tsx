@@ -466,8 +466,8 @@ export default function AboutUsPage() {
           <Heading fontWeight={600} fontSize={{ base: 24, lg: 32, xl: 40 }} lineHeight={'150%'}>
             <Text as={'span'} color={'purple.500'}>
               Отзиви{' '}
-            </Text>
-            от родители
+            </Text>{' '}
+            от наши ученици и родители
           </Heading>
 
           {reviews?.length ? (

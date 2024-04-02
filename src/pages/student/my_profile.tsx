@@ -132,7 +132,7 @@ const StudentProfilePage = () => {
     if (userData?.role === 'STUDENT') setSelectedAvatar('custom');
 
     try {
-      const url = userData?.role === 'STUDENT' ? 'uploadImageStudent' : 'uploadImageTeacher';
+      const url = userData?.role === 'STUDENT' ? 'uploadImageStudent' : 'uploadTeacherImage';
       const formData = new FormData();
       formData.append('file', file);
       const res = await axiosInstance.post(`users/${url}`, formData);

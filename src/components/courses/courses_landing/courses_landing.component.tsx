@@ -87,8 +87,8 @@ export default function CourseSection({
         </Grid>
 
         <Carousel
-          autoPlay={false}
-          autoPlaySpeed={5000}
+          autoPlay={true}
+          autoPlaySpeed={3000}
           responsive={responsive}
           partialVisible={true}
           arrows={false}
@@ -133,7 +133,7 @@ export default function CourseSection({
 
         <Carousel
           autoPlay={true}
-          autoPlaySpeed={5000}
+          autoPlaySpeed={3000}
           responsive={responsive}
           partialVisible={true}
           arrows={false}

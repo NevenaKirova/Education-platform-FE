@@ -12,7 +12,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { addPerson, calendar, clock, group, hat } from '../../icons';
+import { addPerson, calendar, clock, fileUpload, group, hat } from '../../icons';
 import { capitalizeMonth } from '../../helpers/capitalizeMonth.util';
 import { format, getDay } from 'date-fns';
 import { bg } from 'date-fns/locale';
@@ -77,9 +77,16 @@ const CalendarDayViewModal = ({
             {events.length ? (
               events?.map((el, index) => (
                 <Stack key={index} rounded={'lg'} p={4} bg={'white'} spacing={4}>
-                  <Heading flex={1} fontSize={{ base: 16, md: 18, lg: 20 }} textAlign="start" color={'purple.500'}>
-                    {el?.themaTitle}
-                  </Heading>
+                  {el?.className === 'assignment' ? (
+                    <Heading flex={1} fontSize={{ base: 16, md: 18, lg: 20 }} textAlign="start" color={'blue.300'}>
+                      Домашна работа
+                    </Heading>
+                  ) : (
+                    <Heading flex={1} fontSize={{ base: 16, md: 18, lg: 20 }} textAlign="start" color={'purple.500'}>
+                      {el?.themaTitle}
+                    </Heading>
+                  )}
+
                   <Stack spacing={2}>
                     <Stack direction={'row'} spacing={2} align={'center'}>
                       <Img src={clock} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
@@ -95,12 +102,22 @@ const CalendarDayViewModal = ({
                         </Text>
                       </Stack>
                     </Stack>
-                    <Stack direction={'row'} spacing={2} align={'center'}>
-                      <Img src={group} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
-                      <Text color={'grey.400'} fontSize={{ base: 14, lg: 16 }}>
-                        {el?.type}
-                      </Text>
-                    </Stack>
+
+                    {el?.className === 'assignment' ? (
+                      <Stack direction={'row'} spacing={2} align={'center'}>
+                        <Img src={fileUpload} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
+                        <Text color={'grey.400'} fontSize={{ base: 14, lg: 16 }}>
+                          {el?.type}
+                        </Text>
+                      </Stack>
+                    ) : (
+                      <Stack direction={'row'} spacing={2} align={'center'}>
+                        <Img src={group} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />
+                        <Text color={'grey.400'} fontSize={{ base: 14, lg: 16 }}>
+                          {el?.type}
+                        </Text>
+                      </Stack>
+                    )}
 
                     <Stack direction={'row'} spacing={2} align={'center'}>
                       <Img src={hat} alt={'calendar icon'} w={{ base: 4, lg: 5 }} h={{ base: 4, lg: 5 }} />

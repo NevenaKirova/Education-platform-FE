@@ -96,34 +96,19 @@ export default function DashboardLessonCard({
                   </Text>
                 </Tag>
 
-                <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-                  <Text color={'purple.500'} fontSize={10} fontWeight={600}>
-                    {course?.studentsUpperBound > 1 ? `- ${course?.studentsUpperBound} ученици` : 'ученик'}
-                  </Text>
-                </Tag>
+                {!course?.privateLesson && (
+                  <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
+                    <Text color={'purple.500'} fontSize={10} fontWeight={600}>
+                      {course?.studentsUpperBound > 1 ? `- ${course?.studentsUpperBound} ученици` : 'ученик'}
+                    </Text>
+                  </Tag>
+                )}
 
                 {course.grade && (
                   <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
                     <Text color={'purple.500'} fontSize={10} fontWeight={600}>
                       {course?.grade}
                     </Text>
-                  </Tag>
-                )}
-
-                {course?.privateLesson && course.length && (
-                  <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-                    <Text color={'purple.500'} fontSize={10} fontWeight={600}>
-                      {course?.length} мин
-                    </Text>
-                  </Tag>
-                )}
-
-                {course?.privateLesson === false && course?.numberOfStudents && (
-                  <Tag size={'sm'} variant="solid" bg={'purple.200'} p={2}>
-                    <Text as="span" color={'purple.500'} fontSize={10} fontWeight={600}>
-                      {course?.numberOfStudents + '/' + course.studentsUpperBound}
-                    </Text>
-                    <Img aria-label={'students'} w={4} h={3} bg={'none'} p={0} _hover={{ bg: 'none' }} src={user} />
                   </Tag>
                 )}
               </HStack>

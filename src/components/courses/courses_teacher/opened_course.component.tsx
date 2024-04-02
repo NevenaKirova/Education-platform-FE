@@ -530,7 +530,7 @@ const OpenedCourseComponent = ({
                           onClick={handleDeleteCourse}>
                           <Stack direction={'row'} align={'center'} spacing={2}>
                             <Img src={trash} alt={'delete course'} h={5} w={5} />
-                            <Text>Изтрий курса</Text>
+                            <Text>Изтрий {isPrivateLesson ? 'урока' : 'курса'}</Text>
                           </Stack>
                         </Button>
                       ) : (

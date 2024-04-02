@@ -298,6 +298,22 @@ form {
   color: #5431d6;
 }
 
+.studentCalendar .fc-event .fc-daygrid-event-dot {
+  border-color: #5431d6;
+}
+
+.studentCalendar .fc-event {
+  color: #5431d6;
+}
+
+.studentCalendar .fc-event.assignment .fc-daygrid-event-dot {
+  border-color: #0a8dec;
+}
+
+.studentCalendar .fc-event.assignment {
+  color: #0a8dec;
+}
+
 .fc-event.hasStudents .fc-daygrid-event-dot {
   border-color: #5431d6;
 }

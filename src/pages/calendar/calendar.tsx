@@ -97,7 +97,8 @@ function Calendar() {
           mt={{ base: 24, lg: 40 }}
           justify={'start'}
           flex={1}
-          w={'full'}>
+          w={'full'}
+          className={userData?.role === 'STUDENT' ? 'studentCalendar' : ''}>
           <Fullcalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView={'dayGridMonth'}

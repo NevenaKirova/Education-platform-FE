@@ -361,7 +361,7 @@ const CreateLessonComponent = ({
   const onSubmit: SubmitHandler<any> = async data => {
     const oneHasData = data.privateLessonTermins.some(el => el.date && el.lessonHours.length);
 
-    if (!data?.privateLessonTermins?.length || !oneHasData) {
+    if (!editInfo && (!data?.privateLessonTermins?.length || !oneHasData)) {
       setShowDateError(true);
       handleScroll(dateRef);
     } else {
@@ -370,7 +370,7 @@ const CreateLessonComponent = ({
       setIsLoading(true);
       try {
         if (editInfo) {
-          if (!!courseInfo && courseInfo.isDraft) {
+          if (!!courseInfo && courseInfo.draft) {
             await axiosInstance.post(`/lessons/editPrivateLessonDraft/${courseId}`, data);
           } else {
             await axiosInstance.post(`/lessons/editPrivateLesson/${courseId}`, data);
@@ -799,7 +799,7 @@ const CreateLessonComponent = ({
                 ))}
 
                 <FormControl isInvalid={showDateError}>
-                  <FormErrorMessage>Добавете поне една дата</FormErrorMessage>
+                  <FormErrorMessage>Добавете поне една дата с час</FormErrorMessage>
                 </FormControl>
               </Stack>
             </Stack>
